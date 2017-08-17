@@ -130,7 +130,7 @@ If you use a validor, you will need to hit the database **twice** (first in the 
 
 ### Custom validators are cumbersome
 
-Custom fields validators are typically not first class citizens, and produce a lot of boilerplate. For example, in ajv you need to setup a global validation function:
+Custom fields validators are typically not first-class citizens, and require a lot of boilerplate. For example, in ajv you need to setup a global validation function:
 
 ```js
 ajv.addKeyword('range', {
