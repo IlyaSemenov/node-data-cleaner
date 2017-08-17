@@ -473,4 +473,4 @@ npm test
 
 ## Contributing
 
-PRs and general feedback is welcome.
+PRs and general feedback are welcome.
