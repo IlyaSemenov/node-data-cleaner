@@ -110,6 +110,26 @@ router.post('/register', async ctx => {
 })
 ```
 
+## Installation
+
+Use npm:
+
+```bash
+npm install data-cleaner
+```
+
+Then require or import:
+
+```js
+import clean, { ValidationError } from 'data-cleaner'
+
+// or
+
+const clean = require('data-cleaner')
+```
+
+data-cleaner uses modern ES syntax and needs Node 8.3 or newer to run natively (or a transpiler such as Babel to run in legacy environments).
+
 ## API
 
 The main concept of the library is a *cleaner*, which is any function that follows this contract:
