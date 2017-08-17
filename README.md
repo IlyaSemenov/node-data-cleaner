@@ -70,9 +70,9 @@ const cleanVisitorData = clean.object({
   },
   clean(visitor) {
     // If all object fields validated, run it through additional cleaner.
-    if (visitor.department.isFemaleOnly && visitor.gender != 'female') {
+    if (visitor.department.isFemaleOnly && visitor.gender !== 'female') {
       throw new ValidationError({
-        department: `Only women allowed in ${department.name}.`
+        department: `Only women allowed in ${visitor.department.name}.`
       })
     }
     return visitor
