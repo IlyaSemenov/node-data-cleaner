@@ -453,4 +453,20 @@ This can be directly attached back to the corresponding form fields in the UI.
 - `clean.integer()`
 - `clean.float()`
 - `clean.uuid()`
+- `clean.date()`
 - `clean.string({match})`
+
+## Testing
+
+Testing is performed with `mocha` and `chai`:
+
+```bash
+git clone https://github.com/IlyaSemenov/node-data-cleaner.git
+cd node-data-cleaner
+npm install
+npm test
+```
+
+## Contributing
+
+PRs and general feedback is welcome.
