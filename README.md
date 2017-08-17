@@ -427,3 +427,10 @@ On the contrary, data-cleaner collects all errors and groups them by the corresp
 ```
 
 This can be directly attached back to the corresponding form fields in the UI.
+
+## TODO
+
+- `clean.integer()`
+- `clean.float()`
+- `clean.uuid()`
+- `clean.string({match})`
