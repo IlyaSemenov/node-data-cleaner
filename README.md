@@ -2,6 +2,12 @@
 
 This is yet another data object validator and transformer for Node.js, inspired by Django forms validation framework.
 
+It is intended to be used in SPA API or form submit handlers, and focuses on the following goals:
+
+* easily validate fields with *custom* business rules (including async checks involving database access) without additional boilerplate
+* maximize code reuse betwen validation and further data processing
+* collect validation errors for the UI
+
 ## How it works
 
 A configured *cleaner* accepts some value (typically a data object coming from insecure API client), validates and transforms it into cleaned version, field by field. Every field may run through a predefined sub-cleaner, or a custom ad-hoc cleaner, or easily combine both methods. All cleaners can be (but don't have to be) asynchronous and return a promise.
@@ -107,7 +113,7 @@ Why don't just use ajv or other popular solutions?
 These are great tools, but they are often misused. Like, when you have a hammer everything looks like a nail. For example, json-schema validators do only that - they validate an object against a schema. However, if you build a API server for SPA, the real everyday needs are typically wider than that:
 
 * You need to validate data according to custom business rules, including database access
-* You need to avoid repeating the code in validation and in further object processing
+* You need to avoid repeating the same code in validation and in further object processing
 * You need to generate user-friendly error messages to send back to the UI (and put them alongside the corresponding form fields)
 
 data-cleaner is aimed to these specific needs, rather than a low-level or academic task of *validating against a schema*.
