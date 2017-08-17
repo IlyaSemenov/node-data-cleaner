@@ -394,7 +394,7 @@ validate(obj)
 
 It's practically impossible to use aggregating validators on different levels of nested objects.
 
-On the contrary, data-cleaner cleaners are ad-hoc for each field by design, with zero boilerplate.
+**On the contrary, data-cleaner cleaners are ad-hoc for each field by design, with near-zero boilerplate.**
 
 ### joi/yup: describing schema with chained methods is awkward
 
@@ -425,17 +425,21 @@ student: yup.object().shape({
 
 Besides, it's too much boilerplate. For every test, you **must** invent a name (which most often will never be used) and **must** provide a error message (even when the validator generates dynamic error messages).
 
+**On the contrary, data-cleaner definition are clearly nested and as simple as possible.**
+
 ### yup: limited transformation options
 
 yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *have* to manually check for data type for every field in every test. (See: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
 
 Transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible* (still having to manually check if it was *not* possible later).
 
+**On the contrary, data-cleaner unifies validation and transformation into *cleaning*, giving full flexibility.**
+
 ### Validation errors don't get associated with respective fields
 
 Typically, you either get a single (first) validation error, or a flat list of all errors. This can not be used to build a user friendly UI where most errors belong to corresponding input fields.
 
-On the contrary, data-cleaner collects all errors and groups them by the corresponding field:
+**On the contrary, data-cleaner collects all errors and groups them by the corresponding field:**
 
 ```json
 {
