@@ -27,15 +27,15 @@ import clean, { ValidationError } from 'data-cleaner'
 
 const cleanVisitorData = clean.object({
   fields: {
-    name: clean.string(), // name must be a proper non-blank string.
-    gender: async gender => {
+    name: clean.string(), // Name must be a proper non-blank string.
+    gender: g => {
       // Gender must be male or female
-      if (gender == 'male' || gender == 'female') {
-        return gender
+      if (g == 'male' || g == 'female') {
+        return g
       }
       raise ValidationError("Invalid gender.")
     },
-    email: clean.string({ // email must be a proper non-blank string.
+    email: clean.string({ // Email must be a proper non-blank string.
       async clean(email) {
         // Email must be valid.
         if (!isEmail(email)) {
@@ -95,7 +95,7 @@ router.post('/register', async ctx => {
   // data.gender will be either 'male' or 'female'
   // data.email will be a valid email
   // data.department will be an instance of class Department
-  // It is guaranteed that if department.isFemaleOnly then data.gender is 'female'
+  // It is guaranteed that if data.department.isFemaleOnly then data.gender is 'female'
   ctx.body = {user: await User.insert(data)}
 })
 ```
