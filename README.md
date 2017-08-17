@@ -20,16 +20,17 @@ See [Comparison to other libraries](#comparison-to-other-libraries) below.
 
 ## Example
 
+Define a *cleaner* for imaginary department visitor registration form with the following fields:
+
+- Name
+- Gender
+- Email
+- Department
+
+Use imaginary async data access library for data validation.
+
 ```js
 import clean, { ValidationError } from 'data-cleaner'
-
-// Define a cleaner for imaginary department visitor registration form with fields:
-// - Name
-// - Gender
-// - Email
-// - Department
-
-// Use imaginary async data access library for the validation.
 
 const cleanVisitorData = clean.object({
   fields: {
@@ -77,9 +78,11 @@ const cleanVisitorData = clean.object({
     return visitor
   }
 })
+```
 
-// Use the cleaner in imaginary API handler
+Use the defined cleaner in imaginary API handler:
 
+```js
 router.post('/register', async ctx => {
   let data
   try {
@@ -96,13 +99,14 @@ router.post('/register', async ctx => {
     }
     throw e
   }
-  // data is guaranteed to be an object
-  // data.name will be non empty string
+  // data here is guaranteed to be an object
+  // data.name will be a non-blank string
   // data.gender will be either 'male' or 'female'
   // data.email will be a valid email
   // data.department will be an instance of class Department
-  // It is guaranteed that if data.department.isFemaleOnly then data.gender is 'female'
-  ctx.body = {user: await User.insert(data)}
+  // It is also guaranteed that if data.department.isFemaleOnly
+  // then data.gender is 'female'
+  ctx.body = {ok: true, user: await User.insert(data)}
 })
 ```
 
