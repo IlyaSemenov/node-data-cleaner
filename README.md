@@ -6,7 +6,7 @@ It is intended to be used in SPA API or form submit handlers, and focuses on the
 
 * easily validate fields with *custom* business rules (including async checks involving database access) without additional boilerplate
 * maximize code reuse betwen validation and further data processing
-* collect validation errors for the UI
+* collect and group validation errors for the UI (where most errors belong to corresponding input fields)
 
 ## How it works
 
@@ -90,8 +90,8 @@ router.post('/register', async ctx => {
   } catch (err) {
     if (err instanceof ValidationError) {
       // err.errors = {
-      //   field1: ['err1', 'err2', ...],
-      //   field2: ['err3'],
+      //   name: ['Error message 1', 'Error message 2', ...],
+      //   email: ['Error message'],
       //   ...
       // }
       ctx.body = {errors: err.errors}
@@ -110,11 +110,231 @@ router.post('/register', async ctx => {
 })
 ```
 
+## API
+
+The main concept of the library is a *cleaner*, which is any function that follows this contract:
+
+```js
+function cleaner(value, opts) {
+  // either return the value as is
+  // or return a transformed value
+  // or throw a ValidationError("Message")
+  // or throw a ValidationError(["Message 1", "Message 2"])
+  // or throw a ValidationError({field1: "Error", field2: ["Boom", "Bang"]})
+  // or return a promise doing something of the above.
+}
+```
+
+data-cleaner provides some built-in cleaners, or rather *cleaner creators*:
+
+### `clean.any()`
+
+Create a cleaner that passes any value as is, or throws a ValidationError for `undefined` or `null`.
+
+```js
+const cleaner = clean.any()
+
+await cleaner(5) // 5
+await cleaner('5') // '5'
+await cleaner('') // ''
+await cleaner({foo: 'bar'}) // {foo: 'bar'}
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+All built-in cleaner creators accept schema parameters. For example, you may allow null values with:
+
+```js
+const cleaner = clean.any({
+  null: true
+})
+
+await cleaner(null) // null
+await cleaner(undefined) // throws "Value required."
+```
+
+Schema parameters for `clean.any()`:
+
+- `required` - set to `false` to allow undefined values
+- `null` - set to `true` to allow null values
+- `clean` - custom cleaner to run if the validation passes
+
+Example how to pass a custom cleaner:
+
+```js
+const cleaner = clean.any({
+  clean: function(password) {
+    return (password === 'secret') ? 'good' : 'bad'
+  }
+})
+
+await cleaner('hacker') // 'bad'
+await cleaner('secret') // 'good'
+await cleaner(null) // throws "Value required."
+```
+
+Use cleaner's `opts.context` to pass execution context data to the nested cleaner:
+
+```js
+const cleaner = clean.any({
+  clean: async function(password, opts) {
+    const dbPassword = await opts.context.db.fetch('password')
+    return (password === dbPassword) ? 'good' : 'bad'
+  }
+})
+
+const db = await DB.getConnection()
+await cleaner('secret', {context: {db}}) // either 'good' or 'bad'
+```
+
+### `clean.string()`
+
+Create a cleaner that returns a non-blank string value.
+
+```js
+const cleaner = clean.string()
+
+await cleaner(5) // '5'
+await cleaner('5') // '5'
+await cleaner('') // throws "Value required."
+await cleaner({foo: 'bar'}) // throws "Invalid value."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+Schema parameters for `clean.string()`:
+
+- `required` - set to `false` to allow undefined values
+- `null` - set to `true` to allow null values
+- `blank` - set to `true` to allow blank values (empty strings)
+- `allowObject` - set to `true` to allow arbitrary objects conversion with `String(obj)`
+- `clean` - custom cleaner to run if the validation passes
+
+Example with a custom cleaner:
+
+```js
+const cleanUrl = clean.string({
+  null: true,
+  clean: async function(url) {
+    if (url === null) {
+      return null
+    }
+    let data
+    try {
+      data = await fetch(url)
+    } catch (err) {
+      throw new ValidationError(`Invalid URL: ${err.message}`)
+    }
+    return {url, data}
+  }
+})
+
+cleanUrl('http://google.com') // {url: 'http://google.com', data: '<html>...'}
+cleanUrl('abcd://boom') // throws "Invalid URL: abcd://boom"
+cleanUrl(null) // null
+cleanUrl(123) // throws "Invalid URL: 123."
+cleanUrl({url: 'http://google.com'}) // throws "Invalid value."
+```
+
+### `clean.object()`
+
+Create a cleaner that validates an object by cleaning each key according to the provided fields schema.
+
+```js
+const cleaner = clean.object({
+  null: true,
+  fields: {
+    name: clean.string(),
+    email: clean.string({
+      clean: function(email) {
+        if (email.match(/.*@.*/)) {
+          return email
+        }
+        throw new ValidationError("Invalid email.")
+      }
+    }),
+  }
+})
+
+cleaner({name: "John", email: "a@b"}) // {name: "John", email: "a@b"}
+cleaner({name: "John", email: "a@b", junk: 123}) // {name: "John", email: "a@b"}
+cleaner({name: "John"}) // throws {"email": ["Value required."]}
+cleaner({name: "John", email: "John"}) // throws {"email": ["Invalid email."]}
+cleaner(undefined) // throws "Value required."
+cleaner(null) // null - because explicitly allowed
+cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]}
+```
+
+Schema parameters for `clean.object()`:
+
+- `fields` (required) - map of field names to their respective cleaners
+- `required` - set to `false` to allow undefined values
+- `null` - set to `true` to allow null values
+- `clean` - custom cleaner to run if the validation passes
+
+Object cleaners can be nested:
+
+```js
+const cleaner = clean.object({
+  fields: {
+    name: clean.string(),
+    address: clean.object({
+      fields: {
+        city: clean.string(),
+        state: clean.string(),
+        zip: clean.string({
+          clean: function() {
+            if (!zip.match(/^\d{5}$/)) {
+              throw new ValidationError("Enter 5-digit ZIP code.")
+            }
+          }
+        }),
+      }
+    }),
+  },
+  clean: function(person) {
+    if (person.name === "Patrick" && person.address.state === "Ohio") {
+      throw new ValidationError({
+        name: "You can't be named Patrick if you live in Ohio!"
+      })
+    }
+  }
+})
+
+cleaner({
+  name: "John",
+  address: {
+    city: "San Diego",
+    state: "California",
+    zip: 12345,
+  },
+}) // returns as is, with number 12345 converted to string "12345"
+
+cleaner({name: "John"}) // throw {"address": ["Value required."]}
+
+cleaner({
+  address: {
+    city: "San Diego",
+    state: "California",
+    zip: "What's zip?",
+  }
+}) // throws {"name": ["Value required."], "address.zip": ["Enter 5-digit ZIP code."]}
+
+cleaner({
+  name: "Patrick",
+  address: {
+    city: "Remote Hole",
+    state: "Ohio",
+    zip: "12345",
+  },
+}) // throws {"name": ["You can't be named Patrick if you live in Ohio!"]}
+```
+
 ## Comparison to other libraries
 
-Why don't just use ajv or other popular solutions?
+Why don't just use ajv or joi/yup or other popular solutions?
 
-These are great tools, but they are often misused. Like, when you have a hammer everything looks like a nail. For example, json-schema validators do only that - they validate an object against a schema. However, if you build a API server for SPA, the real everyday needs are typically wider than that:
+These are great tools, but they are often misused. Like, when you have a hammer everything looks like a nail. json-schema validators do only that - they validate an object against a schema. However, if you build a API server for SPA, the real everyday needs are typically wider than that:
 
 * You need to validate data according to custom business rules, including database access
 * You need to avoid repeating the same code in validation and in further object processing
@@ -124,9 +344,9 @@ data-cleaner is aimed to these specific needs, rather than a low-level or academ
 
 ### Typically, validators only *validate* objects but don't *transform* them
 
-In the example above, node-validator validates department ID and returns a Department object in a single piece of code.
+In the introduction example, node-validator validates department ID and returns a Department object in a single piece of code.
 
-If you use a validor, you will need to hit the database **twice** (first in the validator, then in the business code.)
+If you use a typical json-validor, you will need to hit the database **twice** (first in the validator, then in the business code.)
 
 ### Custom validators are cumbersome
 
@@ -187,15 +407,13 @@ Besides, it's too much boilerplate. For every test, you **must** invent a name (
 
 ### yup: limited transformation options
 
-yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *need* to have tests that manually check for data type for every field. ([You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
+yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *have* to manually check for data type for every field in every test. (See: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
 
-Also, the whole transforms framework is disabled when you use `{strict: false}`.
-
-Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible*.
+Transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible* (still having to manually check if it was *not* possible later).
 
 ### Validation errors don't get associated with respective fields
 
-Typically, you either get a single (first) validation error, or a flat list of all errors. This can not be used to build a user friendly UI.
+Typically, you either get a single (first) validation error, or a flat list of all errors. This can not be used to build a user friendly UI where most errors belong to corresponding input fields.
 
 On the contrary, data-cleaner collects all errors and groups them by the corresponding field:
 
