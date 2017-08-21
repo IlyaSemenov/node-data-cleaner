@@ -2,19 +2,20 @@ const { getMessage } = require("../utils")
 const { SchemaError, ValidationError } = require("../exceptions")
 const cleanAny = require("./any").default
 
-async function guardFieldClean(errors, field, cleaner) {
+async function guardFieldClean(errors, field, boundCleaner) {
 	try {
-		return await Promise.resolve(cleaner())
+		return await Promise.resolve(boundCleaner())
 	} catch (err) {
 		if (err instanceof ValidationError) {
 			if (err.errors) {
 				errors.push(err.errors)
-			} else {
+			}
+			if (err.messages) {
 				errors.push({[field]: err.messages})
 			}
-			return undefined
+		} else {
+			throw err
 		}
-		throw err
 	}
 }
 

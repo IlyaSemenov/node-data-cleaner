@@ -2,8 +2,7 @@ require('./setup')
 const expect = require('chai').expect
 
 const clean = require('..')
-const SchemaError = clean.SchemaError
-const ValidationError = clean.ValidationError
+const { SchemaError, ValidationError } = clean
 
 describe('Any', function () {
 	it('should pass value as is', async function () {
@@ -245,5 +244,39 @@ describe("Object", function () {
 				}),
 			}
 		})({obj1: {obj2: {}}}).should.be.rejectedWith(ValidationError, '{"obj1.foo":["bang"]}')
+	})
+})
+
+describe("ValidationError", function() {
+	it('should require a parameter', function() {
+		expect(() => { new ValidationError() }).to.throw()
+	})
+	it('should accept a string', function() {
+		expect(new ValidationError("bang")).to.satisfy(err => {
+			return expect(err.messages).to.deep.equal(["bang"]) && expect(err.errors).to.be.undefined
+		})
+	})
+	it('should accept an array', function() {
+		expect(new ValidationError(["bang", "boom"])).to.satisfy(err => {
+			return expect(err.messages).to.deep.equal(["bang", "boom"]) && expect(err.errors).to.be.undefined
+		})
+	})
+	it('should not accept an empty array', function() {
+		expect(() => { new ValidationError([]) }).to.throw()
+	})
+	it('should not accept an array of junk', function() {
+		expect(() => { new ValidationError(["bang", null]) }).to.throw()
+	})
+	it('should accept an object', function() {
+		expect(new ValidationError({s1: "bang", s2: ["boom", "oops"]})).to.satisfy(err => {
+			return expect(err.errors).to.deep.equal({s1: ["bang"], s2: ["boom", "oops"]}) && expect(err.messages).to.be.undefined
+		})
+	})
+	it('should not accept an empty object', function() {
+		expect(() => { new ValidationError({}) }).to.throw()
+	})
+	it('should not accept an object of junk', function() {
+		expect(() => { new ValidationError({s1: "bang", s2: null}) }).to.throw()
+		expect(() => { new ValidationError({s1: "bang", s2: [null]}) }).to.throw()
 	})
 })
