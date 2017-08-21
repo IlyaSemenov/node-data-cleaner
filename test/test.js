@@ -213,7 +213,7 @@ describe("Object", function () {
 					}
 				}),
 			}
-		})({obj: 1}).should.be.rejectedWith(ValidationError, '{"foo":["bang"]}')
+		})({obj: 1}).should.be.rejectedWith(ValidationError, '{"obj.foo":["bang"]}')
 	})
 	it('should store nested object custom field cleaner validation error in proper field key', async function() {
 		await clean.object({
@@ -243,7 +243,34 @@ describe("Object", function () {
 					},
 				}),
 			}
-		})({obj1: {obj2: {}}}).should.be.rejectedWith(ValidationError, '{"obj1.foo":["bang"]}')
+		})({obj1: {obj2: {}}}).should.be.rejectedWith(ValidationError, '{"obj1.obj2.foo":["bang"]}')
+	})
+	it('should use opts.nonFieldErrorsKey', async function() {
+		await clean.object({
+			fields: {
+				s1: clean.string(),
+			},
+			clean() {
+				throw new ValidationError("bang")
+			},
+			nonFieldErrorsKey: "other"
+		})({s1: 'one'}).should.be.rejectedWith(ValidationError, '{"other":["bang"]}')
+	})
+	it('should ignore opts.nonFieldErrorsKey in nested fields', async function() {
+		await clean.object({
+			fields: {
+				obj: clean.object({
+					fields: {
+						s1: clean.string(),
+					},
+					clean() {
+						throw new ValidationError("bang")
+					},
+					nonFieldErrorsKey: "other1"
+				}),
+			},
+			nonFieldErrorsKey: "other2"
+		})({obj: {s1: 'one'}}).should.be.rejectedWith(ValidationError, '{"obj":["bang"]}')
 	})
 })
 
