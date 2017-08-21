@@ -2,15 +2,15 @@
 
 This is yet another data object validator and transformer for Node.js, inspired by Django forms validation framework.
 
-It is intended to be used in SPA API or form submit handlers, and focuses on the following goals:
+It is intended to be used in server-side API or form submit handlers, and focuses on the following goals:
 
 * easily validate fields with *custom* business rules (including async checks involving database access) without additional boilerplate
 * maximize code reuse betwen validation and further data processing
-* collect and group validation errors for the UI (where most errors belong to corresponding input fields)
+* collect and group validation errors for the UI (when errors need to belong to corresponding input fields)
 
 ## How it works
 
-A configured *cleaner* accepts some value (typically a data object coming from insecure API client), validates and transforms it into cleaned version, field by field. Every field may run through a predefined sub-cleaner, or a custom ad-hoc cleaner, or easily combine both methods. All cleaners can be (but don't have to be) asynchronous and return a promise.
+A configured *cleaner* accepts some value (typically a data object coming from insecure API client), validates and transforms it into cleaned version, field by field. Every field may run through a predefined sub-cleaner, or a custom ad-hoc cleaner, or any combination of those. All cleaners can be (but don't have to be) asynchronous and return a promise.
 
 A cleaner either returns a fully cleaned object, or throws a `ValidationError` combining all errors associated to respective fields.
 
@@ -118,7 +118,7 @@ Use npm:
 npm install data-cleaner
 ```
 
-Then require or import:
+Then import or require:
 
 ```js
 import clean, { ValidationError } from 'data-cleaner'
@@ -362,11 +362,11 @@ These are great tools, but they are often misused. Like, when you have a hammer 
 
 data-cleaner is aimed to these specific needs, rather than a low-level or academic task of *validating against a schema*.
 
-### Typically, validators only *validate* objects but don't *transform* them
+### Validators only *validate* objects but don't *transform* them
 
-In the introduction example, node-validator validates department ID and returns a Department object in a single piece of code.
+If you use a typical json-validor and validate some object ID, you will need to hit the database **twice** (first in the validator to validate value, then in the business code to pull data using that value.)
 
-If you use a typical json-validor, you will need to hit the database **twice** (first in the validator, then in the business code.)
+**On the contrary, data-cleaner allows to transform object ID and return a database object (or throw error for invalid ID), optimizing database access and reducing amount of code.**
 
 ### Custom validators are cumbersome
 
