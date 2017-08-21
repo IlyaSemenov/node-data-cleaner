@@ -290,6 +290,7 @@ Schema parameters for `clean.object()`:
 - `fields` (required) - map of field names to their respective cleaners
 - `required` - set to `false` to allow undefined values
 - `null` - set to `true` to allow null values
+- `nonFieldErrorsKey` - set to group non-field errors under this pseudo field key
 - `clean` - custom cleaner to run if the validation passes
 
 Object cleaners can be nested:
@@ -303,10 +304,11 @@ const cleaner = clean.object({
         city: clean.string(),
         state: clean.string(),
         zip: clean.string({
-          clean: function() {
+          clean: function(zip) {
             if (!zip.match(/^\d{5}$/)) {
               throw new ValidationError("Enter 5-digit ZIP code.")
             }
+            return zip
           }
         }),
       }
@@ -318,6 +320,7 @@ const cleaner = clean.object({
         name: "You can't be named Patrick if you live in Ohio!"
       })
     }
+    return person
   }
 })
 
@@ -349,6 +352,29 @@ cleaner({
   },
 }) // throws {"name": ["You can't be named Patrick if you live in Ohio!"]}
 ```
+
+To collect errors coming from top-level object custom `clean()` (or thrown when top-level object doesn't validate by the underlying `clean.any`) uniformly as a pseudo field errors, pass `nonFieldErrorsKey`:
+
+```js
+const cleaner = clean.object({
+  fields: {
+    s1: clean.string(),
+    s2: clean.string(),
+  },
+  clean(obj) {
+    if (obj.s1 === obj.s2) {
+      throw new ValidationError("Strings must differ!")
+    }
+    return obj
+  },
+  nonFieldErrorsKey: "other"
+})
+
+cleaner() // throws {"other": ["Value required."]}
+cleaner({s1: "foo", s2: "foo"}) // throws {"other": ["Strings must differ!"]}
+```
+
+Without `nonFieldErrorsKey`, these errors will be passed as is.
 
 ## Comparison to other libraries
 
@@ -429,24 +455,24 @@ Besides, it's too much boilerplate. For every test, you **must** invent a name (
 
 ### yup: limited transformation options
 
-yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *have* to manually check for data type for every field in every test. (See: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
+yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *have* to manually check for data type for every field in every test (see: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
 
-Transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible* (still having to manually check if it was *not* possible later).
+yup transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible* (still having to manually check if it was *not* possible later).
 
-**On the contrary, data-cleaner unifies validation and transformation into *cleaning*, giving full flexibility.**
+**On the contrary, data-cleaner unifies validation and transformation into *cleaning*, giving flexibility and reliability.**
 
 ### Validation errors don't get associated with respective fields
 
 Typically, you either get a single (first) validation error, or a flat list of all errors. This can not be used to build a user friendly UI where most errors belong to corresponding input fields.
 
-**On the contrary, data-cleaner collects all errors and groups them by the corresponding field:**
+**On the contrary, data-cleaner can collect all errors and group them by the corresponding field:**
 
 ```json
 {
   "field1": ["Error"],
   "field2": ["Multiple", "Errors", "Possible"],
   "nested.field3": ["Errors thrown by a nested field"],
-  "": ["Top-level errors here, similar to Django form.non_field_errors()"],
+  "other": ["Top-level errors here, similar to Django form.non_field_errors()"],
 }
 ```
 

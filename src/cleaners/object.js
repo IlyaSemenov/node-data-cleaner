@@ -6,7 +6,7 @@ exports.default = function(schema = {}) {
 	if (typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
 	}
-	const clean = cleanAny({
+	const cleaner = cleanAny({
 		...schema,
 		async clean(value, opts = {}) {
 			const errorGroups = []
@@ -66,23 +66,19 @@ exports.default = function(schema = {}) {
 			return value
 		}
 	})
-	return async function(obj, opts={}) {
-		if (!opts.nested) {
-			// This is a top-level object
-			// Collect plain errors into "opts.nonFieldErrorsKey"
+	if (schema.nonFieldErrorsKey !== undefined) {
+		return async function(...args) {
 			try {
-				return await clean(obj, opts)
+				return await cleaner(...args)
 			} catch (err) {
 				if (err instanceof ValidationError && err.messages) {
-					throw new ValidationError({[schema.nonFieldErrorsKey || ""]: err.messages})
+					throw new ValidationError({[schema.nonFieldErrorsKey]: err.messages})
 				} else {
 					throw err
 				}
 			}
-		} else {
-			// This is a nested object
-			// Don't do any conversion
-			return await clean(obj, opts)
 		}
+	} else {
+		return cleaner
 	}
 }
