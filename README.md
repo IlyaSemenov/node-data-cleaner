@@ -125,10 +125,8 @@ import clean, { ValidationError } from 'data-cleaner'
 
 // or
 
-const clean = require('data-cleaner')
+const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 ```
-
-data-cleaner uses modern ES syntax and needs Node 8.3 or newer to run natively (or a transpiler such as Babel to run in legacy environments).
 
 ## API
 

@@ -1,8 +1,9 @@
-const { getMessage } = require("../utils")
-const { SchemaError, ValidationError } = require("../exceptions")
-const cleanAny = require("./any").default
+import { getMessage } from '../utils'
+import SchemaError from '../exceptions/SchemaError'
+import ValidationError from '../exceptions/ValidationError'
+import cleanAny from './any'
 
-exports.default = function(schema = {}) {
+export default function cleanObject(schema = {}) {
 	if (typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
 	}

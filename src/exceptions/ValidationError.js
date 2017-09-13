@@ -1,4 +1,4 @@
-class ValidationError extends Error {
+export default class ValidationError extends Error {
 	// err.messages = ['err1', 'err2', ...]
 	// err.errors = {field1: ['err1', 'err2', ...], field2: ['err3', ...], ...}
 
@@ -52,5 +52,3 @@ class ValidationError extends Error {
 		this.errors = errors
 	}
 }
-
-exports.default = ValidationError

@@ -1,3 +1,1 @@
-class SchemaError extends Error {}
-
-exports.default = SchemaError
+export default class SchemaError extends Error {}

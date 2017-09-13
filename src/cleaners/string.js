@@ -1,8 +1,8 @@
-const { getMessage } = require("../utils")
-const { ValidationError } = require("../exceptions")
-const cleanAny = require("./any").default
+import { getMessage } from '../utils'
+import ValidationError from '../exceptions/ValidationError'
+import cleanAny from './any'
 
-exports.default = function(schema = {}) {
+export default function cleanString(schema = {}) {
 	return cleanAny({
 		...schema,
 		clean(value, opts) {

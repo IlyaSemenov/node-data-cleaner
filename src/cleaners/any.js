@@ -1,7 +1,7 @@
-const { getMessage } = require("../utils")
-const { ValidationError } = require("../exceptions")
+import { getMessage } from '../utils'
+import ValidationError from '../exceptions/ValidationError'
 
-exports.default = function(schema = {}) {
+export default function cleanAny(schema = {}) {
 	return async function(value, opts) {
 		if (value === undefined && !(schema.required === false)) {
 			throw new ValidationError(getMessage(opts, 'required', "Value required."))
