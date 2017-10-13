@@ -97,7 +97,7 @@ router.post('/register', async ctx => {
       ctx.body = {errors: err.errors}
       return
     }
-    throw e
+    throw err
   }
   // data here is guaranteed to be an object
   // data.name will be a non-blank string
