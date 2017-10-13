@@ -147,6 +147,7 @@ data-cleaner provides some built-in cleaners, or rather *cleaner creators*:
 
 * [`clean.any`](#cleanany)
 * [`clean.string`](#cleanstring)
+* [`clean.boolean`](#cleanboolean)
 * [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
 ### `clean.any()`
@@ -257,6 +258,29 @@ cleanUrl(null) // null
 cleanUrl(123) // throws "Invalid URL: ..."
 cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
 ```
+
+### `clean.boolean()`
+
+Create a cleaner that returns a boolean value (that is, either `true` or `false`).
+
+```js
+const cleaner = clean.boolean()
+
+await cleaner(true) // true
+await cleaner(false) // false
+await cleaner('boomer') // throws "Invalid value."
+await cleaner('') // throws "Invalida value."
+await cleaner({ foo: 'bar' }) // throws "Invalida value."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+Optional schema parameters for `clean.boolean({ ...schema })`:
+
+- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
+- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
+- `cast` - set to `true` to allow arbitrary objects conversion with `!!obj`
+- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
 ### `clean.object()`
 

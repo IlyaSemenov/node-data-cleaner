@@ -109,6 +109,73 @@ describe('String', function () {
 	})
 })
 
+describe('Boolean', function () {
+	it('should pass true', async function () {
+		await clean.boolean()(true).should.become(true)
+	})
+	it('should pass false', async function () {
+		await clean.boolean()(false).should.become(false)
+	})
+	it('should not accept string', async function () {
+		await clean.boolean()('test').should.be.rejectedWith(ValidationError)
+	})
+	it('should not accept number', async function () {
+		await clean.boolean()(0).should.be.rejectedWith(ValidationError)
+	})
+	it('should not accept object', async function () {
+		await clean.boolean()({}).should.be.rejectedWith(ValidationError)
+	})
+	it('should cast string if cast allowed', async function () {
+		await clean.boolean({cast: true})('test').should.become(true)
+	})
+	it('should cast empty string if cast allowed', async function () {
+		await clean.boolean({cast: true})('').should.become(false)
+	})
+	it('should cast object if cast allowed', async function () {
+		await clean.boolean({cast: true})({}).should.become(true)
+	})
+	it('should cast number if cast allowed', async function () {
+		await clean.boolean({cast: true})(1).should.become(true)
+	})
+	it('should cast zero if cast allowed', async function () {
+		await clean.boolean({cast: true})(0).should.become(false)
+	})
+	describe("Empty values", function () {
+		it('should not accept undefined', async function () {
+			await clean.boolean()().should.be.rejectedWith(ValidationError)
+		})
+		it('should pass undefined if allowed', async function () {
+			await clean.boolean({required: false})().should.become(undefined)
+		})
+		it('should not accept null', async function () {
+			await clean.boolean()(null).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass null if allowed', async function () {
+			await clean.boolean({null: true})(null).should.become(null)
+		})
+	})
+	describe("Custom cleaner", function() {
+		it('should call custom cleaner', async function() {
+			await clean.boolean({
+				clean(v) {
+					return {value: v}
+				}
+			})(true).should.become({value: true})
+		})
+		it('should call custom async cleaner', async function() {
+			await clean.boolean({
+				clean(v) {
+					return new Promise(resolve => {
+						setTimeout(() => {
+							resolve({value: v})
+						}, 1)
+					})
+				}
+			})(true).should.become({value: true})
+		})
+	})
+})
+
 describe("Object", function () {
 	it('should not allow empty schema', function () {
 		expect(() => clean.object()).to.throw(SchemaError)
