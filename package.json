@@ -1,6 +1,6 @@
 {
   "name": "data-cleaner",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
   "main": "dist/bundle.umd.js",
   "module": "src/index.js",
