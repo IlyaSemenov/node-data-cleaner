@@ -131,6 +131,12 @@ describe('Integer', function () {
 	it('should not allow bad string', async function () {
 		await clean.integer({cast: true})('bummer').should.be.rejectedWith(ValidationError)
 	})
+	it('should not allow empty string', async function () {
+		await clean.integer({cast: true})('').should.be.rejectedWith(ValidationError)
+	})
+	it('should allow empty string if cast and null both enabled', async function () {
+		await clean.integer({cast: true, null: true})('').should.become(null)
+	})
 	describe("Min/max", function() {
 		it('should reject value < min', async function () {
 			await clean.integer({min: 100})(90).should.be.rejectedWith(ValidationError)

@@ -287,6 +287,13 @@ Optional schema parameters for `clean.integer({ ...schema })`:
 - `max` - maximum allowed value
 - `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
+If `null` and `cast` are both set to `true`, empty string is treated as null value (useful for data input from HTML forms):
+
+```js
+const cleaner = clean.integer({ cast: true, null: true })
+await cleaner('') // null
+```
+
 ### `clean.boolean()`
 
 Create a cleaner that returns a boolean value (that is, either `true` or `false`).
