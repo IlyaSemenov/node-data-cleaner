@@ -84,7 +84,7 @@ describe('String', function () {
 			await clean.string()(test).should.be.rejectedWith(ValidationError)
 		})
 		it('should accept object if allowed', async function () {
-			await clean.string({allowObject: true})(test).should.become("test")
+			await clean.string({cast: true})(test).should.become("test")
 		})
 	})
 	describe("Custom cleaner", function() {

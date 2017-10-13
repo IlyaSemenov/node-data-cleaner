@@ -94,7 +94,7 @@ router.post('/register', async ctx => {
       //   email: ['Error message'],
       //   ...
       // }
-      ctx.body = {errors: err.errors}
+      ctx.body = { errors: err.errors }
       return
     }
     throw err
@@ -106,7 +106,7 @@ router.post('/register', async ctx => {
   // data.department will be an instance of class Department
   // It is also guaranteed that if data.department.isFemaleOnly
   // then data.gender is 'female'
-  ctx.body = {ok: true, user: await User.insert(data)}
+  ctx.body = { ok: true, user: await User.insert(data) }
 })
 ```
 
@@ -138,12 +138,16 @@ function cleaner(value, opts) {
   // or return a transformed value
   // or throw a ValidationError("Message")
   // or throw a ValidationError(["Message 1", "Message 2"])
-  // or throw a ValidationError({field1: "Error", field2: ["Boom", "Bang"]})
+  // or throw a ValidationError({ field1: "Error", field2: ["Boom", "Bang"] })
   // or return a promise doing something of the above.
 }
 ```
 
 data-cleaner provides some built-in cleaners, or rather *cleaner creators*:
+
+* [`clean.any`](#cleanany)
+* [`clean.string`](#cleanstring)
+* [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
 ### `clean.any()`
 
@@ -155,7 +159,7 @@ const cleaner = clean.any()
 await cleaner(5) // 5
 await cleaner('5') // '5'
 await cleaner('') // ''
-await cleaner({foo: 'bar'}) // {foo: 'bar'}
+await cleaner({ foo: 'bar' }) // {foo: 'bar'}
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -171,7 +175,7 @@ await cleaner(null) // null
 await cleaner(undefined) // throws "Value required."
 ```
 
-Schema parameters for `clean.any()`:
+Optional schema parameters for `clean.any({ ...schema })`:
 
 - `required` - set to `false` to allow undefined values
 - `null` - set to `true` to allow null values
@@ -215,18 +219,18 @@ const cleaner = clean.string()
 await cleaner(5) // '5'
 await cleaner('5') // '5'
 await cleaner('') // throws "Value required."
-await cleaner({foo: 'bar'}) // throws "Invalid value."
+await cleaner({ foo: 'bar' }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
 
-Schema parameters for `clean.string()`:
+Optional schema parameters for `clean.string({ ...schema })`:
 
-- `required` - set to `false` to allow undefined values
-- `null` - set to `true` to allow null values
+- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
+- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
 - `blank` - set to `true` to allow blank values (empty strings)
-- `allowObject` - set to `true` to allow arbitrary objects conversion with `String(obj)`
-- `clean` - custom cleaner to run if the validation passes
+- `cast` - set to `true` to allow arbitrary objects conversion with `String(obj)`
+- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
 Example with a custom cleaner:
 
@@ -243,15 +247,15 @@ const cleanUrl = clean.string({
     } catch (err) {
       throw new ValidationError(`Invalid URL: ${err.message}`)
     }
-    return {url, data}
+    return { url, data }
   }
 })
 
-cleanUrl('http://google.com') // {url: 'http://google.com', data: '<html>...'}
-cleanUrl('abcd://boom') // throws "Invalid URL: abcd://boom"
+cleanUrl('http://google.com') // { url: 'http://google.com', data: '<html>...' }
+cleanUrl('abcd://boom') // throws "Invalid URL: unknown protocol 'abcd'."
 cleanUrl(null) // null
-cleanUrl(123) // throws "Invalid URL: 123."
-cleanUrl({url: 'http://google.com'}) // throws "Invalid value."
+cleanUrl(123) // throws "Invalid URL: ..."
+cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
 ```
 
 ### `clean.object()`
@@ -283,13 +287,13 @@ cleaner(null) // null - because explicitly allowed
 cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]}
 ```
 
-Schema parameters for `clean.object()`:
+Schema parameters for `clean.object({ ...schema })`:
 
-- `fields` (required) - map of field names to their respective cleaners
-- `required` - set to `false` to allow undefined values
-- `null` - set to `true` to allow null values
+- `fields` **(required)** - map of field names to their respective cleaners
+- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
+- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
 - `nonFieldErrorsKey` - set to group non-field errors under this pseudo field key
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
 Object cleaners can be nested:
 
@@ -331,7 +335,7 @@ cleaner({
   },
 }) // returns as is, with number 12345 converted to string "12345"
 
-cleaner({name: "John"}) // throw {"address": ["Value required."]}
+cleaner({ name: "John" }) // throw { "address": ["Value required."] }
 
 cleaner({
   address: {
@@ -339,7 +343,7 @@ cleaner({
     state: "California",
     zip: "What's zip?",
   }
-}) // throws {"name": ["Value required."], "address.zip": ["Enter 5-digit ZIP code."]}
+}) // throws { "name": ["Value required."], "address.zip": ["Enter 5-digit ZIP code."] }
 
 cleaner({
   name: "Patrick",
@@ -348,7 +352,7 @@ cleaner({
     state: "Ohio",
     zip: "12345",
   },
-}) // throws {"name": ["You can't be named Patrick if you live in Ohio!"]}
+}) // throws { "name": ["You can't be named Patrick if you live in Ohio!"] }
 ```
 
 To collect errors coming from top-level object custom `clean()` (or thrown when top-level object doesn't validate by the underlying `clean.any`) uniformly as a pseudo field errors, pass `nonFieldErrorsKey`:
@@ -368,8 +372,8 @@ const cleaner = clean.object({
   nonFieldErrorsKey: "other"
 })
 
-cleaner() // throws {"other": ["Value required."]}
-cleaner({s1: "foo", s2: "foo"}) // throws {"other": ["Strings must differ!"]}
+cleaner() // throws { "other": ["Value required."] }
+cleaner({ s1: "foo", s2: "foo" }) // throws { "other": ["Strings must differ!"] }
 ```
 
 Without `nonFieldErrorsKey`, these errors will be passed as is.
