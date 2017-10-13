@@ -147,6 +147,7 @@ data-cleaner provides some built-in cleaners, or rather *cleaner creators*:
 
 * [`clean.any`](#cleanany)
 * [`clean.string`](#cleanstring)
+* [`clean.integer`](#cleaninteger)
 * [`clean.boolean`](#cleanboolean)
 * [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
@@ -259,6 +260,33 @@ cleanUrl(123) // throws "Invalid URL: ..."
 cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
 ```
 
+### `clean.integer()`
+
+Create a cleaner that returns an integer value.
+
+```js
+const cleaner = clean.integer()
+
+await cleaner(123) // 123
+await cleaner(0) // 0
+await cleaner(-5) // -5
+await cleaner(-273.15) // -273
+await cleaner('boomer') // throws "Invalid value."
+await cleaner('') // throws "Invalid value."
+await cleaner({ foo: 123 }) // throws "Invalid value."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+Optional schema parameters for `clean.integer({ ...schema })`:
+
+- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
+- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
+- `cast` - set to `true` to allow arbitrary objects conversion with `parseInt(value)`
+- `min` - minimum allowed value
+- `max` - maximum allowed value
+- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
+
 ### `clean.boolean()`
 
 Create a cleaner that returns a boolean value (that is, either `true` or `false`).
@@ -269,8 +297,8 @@ const cleaner = clean.boolean()
 await cleaner(true) // true
 await cleaner(false) // false
 await cleaner('boomer') // throws "Invalid value."
-await cleaner('') // throws "Invalida value."
-await cleaner({ foo: 'bar' }) // throws "Invalida value."
+await cleaner('') // throws "Invalid value."
+await cleaner({ foo: 'bar' }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -279,7 +307,7 @@ Optional schema parameters for `clean.boolean({ ...schema })`:
 
 - `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
 - `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
-- `cast` - set to `true` to allow arbitrary objects conversion with `!!obj`
+- `cast` - set to `true` to allow arbitrary objects conversion with `!!value`
 - `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
 ### `clean.object()`
@@ -506,7 +534,6 @@ This can be directly attached back to the corresponding form fields in the UI.
 
 ## TODO
 
-- `clean.integer()`
 - `clean.float()`
 - `clean.uuid()`
 - `clean.date()`
