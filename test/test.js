@@ -189,6 +189,12 @@ describe('Boolean', function () {
 	it('should pass false', async function () {
 		await clean.boolean()(false).should.become(false)
 	})
+	it('should pass undefined for false if omit enabled', async function () {
+		await clean.boolean({ omit: true })(false).should.become(undefined)
+	})
+	it('should pass true if omit enabled', async function () {
+		await clean.boolean({ omit: true })(true).should.become(true)
+	})
 	it('should not accept string', async function () {
 		await clean.boolean()('test').should.be.rejectedWith(ValidationError)
 	})
@@ -287,6 +293,14 @@ describe("Object", function () {
 				s1: clean.string(),
 			}
 		})().should.become(undefined)
+	})
+    it('should omit omittable boolean', async function () {
+		await clean.object({
+			fields: {
+				b1: clean.boolean({ omit: true }),
+				b2: clean.boolean({ omit: true }),
+			}
+		})({ b1: false, b2: true }).should.become({ b2: true })
 	})
 	it('should call custom cleaner', async function() {
 		const obj = {s1: 'one'}

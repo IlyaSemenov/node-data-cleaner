@@ -11,6 +11,9 @@ export default function cleanBoolean(schema = {}) {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
 				}
 				value = !!value
+				if (value === false && schema.omit === true) {
+					value = undefined
+				}
 			}
 			if (schema.clean) {
 				value = schema.clean(value, opts)

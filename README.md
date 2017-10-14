@@ -315,6 +315,7 @@ Optional schema parameters for `clean.boolean({ ...schema })`:
 - `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
 - `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
 - `cast` - set to `true` to allow arbitrary objects conversion with `!!value`
+- `omit` - set to `true` to return `undefined` for `false`
 - `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
 ### `clean.object()`
