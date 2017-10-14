@@ -130,10 +130,12 @@ const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 
 ## API
 
-The main concept of the library is a *cleaner*, which is any function that follows this contract:
+### Cleaners
+
+*Cleaner* is any function that follows the contract:
 
 ```js
-function cleaner(value, opts) {
+function cleaner (value, opts) {
   // either return the value as is
   // or return a transformed value
   // or throw a ValidationError("Message")
@@ -143,7 +145,13 @@ function cleaner(value, opts) {
 }
 ```
 
-data-cleaner provides some built-in cleaners, or rather *cleaner creators*:
+### Cleaner creators
+
+*Cleaner creator* is a function that creates a cleaner according to the provided schema.
+
+For example, `clean.string()` creates a cleaner that will accept non-blank strings only, and `clean.string({ blank: true })` creates a cleaner that will accept both blank and non-blank strings.
+
+### Built-in cleaner creators
 
 * [`clean.any`](#cleanany)
 * [`clean.string`](#cleanstring)
