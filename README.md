@@ -550,10 +550,11 @@ This can be directly attached back to the corresponding form fields in the UI.
 
 ## TODO
 
+- `clean.any({ default })`
 - `clean.float()`
 - `clean.uuid()`
 - `clean.date()`
-- `clean.string({match})`
+- `clean.string({ match })`
 
 ## Testing
 
