@@ -278,6 +278,17 @@ cleanUrl(123) // throws "Invalid URL: ..."
 cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
 ```
 
+#### Converting empty strings to null values
+
+If `null` and `cast` are both set to `true`, empty string is treated as null value (useful for data input from HTML forms):
+
+```js
+const cleaner = clean.integer({ cast: true, null: true })
+await cleaner('') // null
+```
+
+*TODO: since `cast` may introduce unwanted side effects, this should be reworked to use a separate schema parameter.*
+
 ### `clean.integer()`
 
 Create a cleaner that returns an integer value.
@@ -304,15 +315,6 @@ await cleaner(null) // throws "Value required."
 - `min` - minimum allowed value
 - `max` - maximum allowed value
 - `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
-
-#### Converting empty strings to null values
-
-If `null` and `cast` are both set to `true`, empty string is treated as null value (useful for data input from HTML forms):
-
-```js
-const cleaner = clean.integer({ cast: true, null: true })
-await cleaner('') // null
-```
 
 ### `clean.boolean()`
 
