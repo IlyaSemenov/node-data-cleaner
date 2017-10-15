@@ -411,6 +411,19 @@ describe("Object", function () {
 			nonFieldErrorsKey: "other"
 		})({obj: {}}).should.be.rejectedWith(ValidationError, '{"obj.other1":["bang"]}')
 	})
+    it('should allow storing sibling keys from custom cleaner', async function() {
+		await clean.object({
+			fields: {
+				text: clean.string(),
+				postId: clean.integer({
+					clean (postId, opts) {
+						opts.data.post = { title: "post " + postId }
+						return postId
+					}
+				})
+			}
+		})({ text: "hello", postId: 123 }).should.become({ text: "hello", postId: 123, post: { title: "post 123" } })
+	})
 })
 
 describe("ValidationError", function() {

@@ -460,6 +460,27 @@ cleaner({ s1: "foo", s2: "foo" }) // throws { "other": ["Strings must differ!"] 
 
 Without `nonFieldErrorsKey`, these errors will be passed as is.
 
+#### Setting additional data keys from a validator
+
+```js
+const cleaner = clean.object({
+  fields: {
+    comment: clean.string(),
+    postId: clean.integer({
+      async clean (postId, opts) {
+        const post = await db.getPostById(postId)
+        if (!post) {
+          throw new ValidationError("Post not found")
+        }
+        opts.data.post = post // store fetched instance
+      }
+    }),
+  }
+})
+
+cleaner({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo" }, comment: "hello" }
+```
+
 ## Comparison to other libraries
 
 Why don't just use ajv or joi/yup or other popular solutions?

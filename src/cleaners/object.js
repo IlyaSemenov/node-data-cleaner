@@ -16,6 +16,7 @@ export default function cleanObject(schema = {}) {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
 				}
 				const res = {}
+                const customDataStore = {}
 				for (const field of Object.keys(schema.fields)) {
 					const fieldValue = value.hasOwnProperty(field) ? value[field] : undefined
 					const fieldCleaner = schema.fields[field]
@@ -23,7 +24,7 @@ export default function cleanObject(schema = {}) {
 					try {
 						cleanedFieldValue = await Promise.resolve(fieldCleaner(fieldValue, {
 							...opts,
-							nested: true,
+							data: customDataStore,
 						}))
 					} catch (err) {
 						if (err instanceof ValidationError) {
@@ -45,6 +46,7 @@ export default function cleanObject(schema = {}) {
 						res[field] = cleanedFieldValue
 					}
 				}
+				Object.assign(res, customDataStore)
 				value = res
 			}
 
