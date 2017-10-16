@@ -72,6 +72,14 @@ describe('String', function () {
 		it('should pass blank string if allowed', async function () {
 			await clean.string({blank: true})('').should.become('')
 		})
+		it('should convert blank to null if specified by schema', async function () {
+			await clean.string({blank: null})('').should.become(null)
+		})
+		it('should not allow blank to null conversion if blank set to false', function () {
+			expect(() => clean.string({blank: null, null: false})).to.throw(SchemaError)
+			expect(() => clean.string({blank: null, null: true})).to.not.throw(SchemaError)
+			expect(() => clean.string({blank: null})).to.not.throw(SchemaError)
+		})
 	})
 	describe("Converting objects", function () {
 		class Test {

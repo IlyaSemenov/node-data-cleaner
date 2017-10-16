@@ -247,6 +247,7 @@ await cleaner(null) // throws "Value required."
 - `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
 - `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
 - `blank` - set to `true` to allow blank values (empty strings)
+- `blank` - set to `null` to convert blank values (empty strings) to `null` (enables `null: true` automatically)
 - `cast` - set to `true` to allow arbitrary objects conversion with `String(obj)`
 - `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
 
@@ -280,10 +281,10 @@ cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
 
 #### Converting empty strings to null values
 
-If `null` and `cast` are both set to `true`, empty string is treated as null value (useful for data input from HTML forms):
+If `blank` is set to `null`, empty strings are converted to `null` (useful for data input from HTML forms):
 
 ```js
-const cleaner = clean.integer({ cast: true, null: true })
+const cleaner = clean.integer({ blank: null })
 await cleaner('') // null
 ```
 
