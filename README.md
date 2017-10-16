@@ -189,10 +189,10 @@ await cleaner(undefined) // throws "Value required."
 
 #### Supported schema parameters
 
-These schema parameters are supported by `clean.any()` and by all other built-in cleaner creators.
+The following schema parameters are supported by `clean.any()` and by all other built-in cleaner creators.
 
-- `required` - set to `false` to allow undefined values
-- `null` - set to `true` to allow null values
+- `required: false` - allow undefined values
+- `null: true` - allow null values
 - `clean` - custom cleaner to run if the validation passes
 
 #### Using custom cleaner
@@ -201,7 +201,7 @@ Example how to pass a custom cleaner:
 
 ```js
 const cleaner = clean.any({
-  clean: function(password) {
+  clean: function (password) {
     return (password === 'secret') ? 'good' : 'bad'
   }
 })
@@ -244,12 +244,12 @@ await cleaner(null) // throws "Value required."
 
 #### Supported schema parameters
 
-- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
-- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
-- `blank` - set to `true` to allow blank values (empty strings)
-- `blank` - set to `null` to convert blank values (empty strings) to `null` (enables `null: true` automatically)
-- `cast` - set to `true` to allow arbitrary objects conversion with `String(obj)`
-- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `blank: true` - allow blank values (empty strings)
+- `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
+- `cast: true` - no strict type check, convert value with `String(value)`
+- `clean` - custom cleaner to run if the validation passes
 
 #### Using custom cleaner
 
@@ -310,12 +310,12 @@ await cleaner(null) // throws "Value required."
 
 #### Supported schema parameters
 
-- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
-- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
-- `cast` - set to `true` to allow arbitrary objects conversion with `parseInt(value)`
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `cast: true` - no strict type check, convert value with `parseInt(value)`
 - `min` - minimum allowed value
 - `max` - maximum allowed value
-- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
+- `clean` - custom cleaner to run if the validation passes
 
 ### `clean.boolean()`
 
@@ -335,15 +335,15 @@ await cleaner(null) // throws "Value required."
 
 #### Supported schema parameters
 
-- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
-- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
-- `cast` - set to `true` to allow arbitrary objects conversion with `!!value`
-- `omit` - set to `true` to return `undefined` for `false`
-- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `cast` - no strict type check, convert value with `!!value`
+- `omit: true` - return `undefined` for `false`
+- `clean` - custom cleaner to run if the validation passes
 
 ### `clean.object()`
 
-Create a cleaner that validates an object by cleaning each key according to the provided fields schema.
+Create a cleaner that validates an object by cleaning each key according to the provided fields schema. Object keys that are not present in the list of declared fields are thrown away.
 
 ```js
 const cleaner = clean.object({
@@ -373,10 +373,10 @@ cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]
 #### Supported schema parameters
 
 - `fields` **(required)** - map of field names to their respective cleaners
-- `required` - set to `false` to allow undefined values (same as in [`clean.any`](#cleanany))
-- `null` - set to `true` to allow null values (same as in [`clean.any`](#cleanany))
-- `nonFieldErrorsKey` - set to group non-field errors under this pseudo field key
-- `clean` - custom cleaner to run if the validation passes (same as in [`clean.any`](#cleanany))
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `nonFieldErrorsKey` - if provided, non-field errors will be grouped under this pseudo field key
+- `clean` - custom cleaner to run if the validation passes
 
 #### Nesting object cleaners
 
