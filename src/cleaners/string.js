@@ -1,6 +1,6 @@
 import { getMessage } from '../utils'
-import ValidationError from '../exceptions/ValidationError'
 import SchemaError from '../exceptions/SchemaError'
+import ValidationError from '../exceptions/ValidationError'
 import cleanAny from './any'
 
 export default function cleanString(schema = {}) {
@@ -8,7 +8,7 @@ export default function cleanString(schema = {}) {
 		if (schema.null === undefined) {
 			schema.null = true
 		} else if (schema.null !== true) {
-			throw new SchemaError("String cleaner with 'blank: null' needs 'null: true'")
+			throw new SchemaError("clean.string with 'blank: null' needs 'null: true'")
 		}
 	}
 	return cleanAny({

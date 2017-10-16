@@ -193,7 +193,17 @@ The following schema parameters are supported by `clean.any()` and by all other 
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `clean` - custom cleaner to run if the validation passes
+
+#### Providing defaults
+
+```js
+const cleaner = clean.any({ default: 'foo' })
+
+await cleaner('bar') // bar
+await cleaner() // 'foo'
+```
 
 #### Using custom cleaner
 
@@ -246,6 +256,7 @@ await cleaner(null) // throws "Value required."
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
@@ -312,6 +323,7 @@ await cleaner(null) // throws "Value required."
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `cast: true` - no strict type check, convert value with `parseInt(value)`
 - `min` - minimum allowed value
 - `max` - maximum allowed value
@@ -337,6 +349,7 @@ await cleaner(null) // throws "Value required."
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `cast` - no strict type check, convert value with `!!value`
 - `omit: true` - return `undefined` for `false`
 - `clean` - custom cleaner to run if the validation passes
@@ -374,9 +387,23 @@ cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]
 
 - `fields` **(required)** - map of field names to their respective cleaners
 - `required: false` - allow undefined values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `null: true` - allow null values
 - `nonFieldErrorsKey` - if provided, non-field errors will be grouped under this pseudo field key
 - `clean` - custom cleaner to run if the validation passes
+
+#### Providing field defaults
+
+```js
+const cleaner = clean.object({
+  fields: {
+    name: clean.string(),
+    lastName: clean.string({ default: null }),
+})
+
+cleaner({name: "John", lastName: "Doe"}) // { name: "John", lastName: "Doe" }
+cleaner({name: "John"}) // { name: "John", lastName: null }
+```
 
 #### Nesting object cleaners
 

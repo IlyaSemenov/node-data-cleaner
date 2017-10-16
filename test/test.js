@@ -23,6 +23,25 @@ describe('Any', function () {
 			await clean.any({null: true})(null).should.become(null)
 		})
 	})
+	it('should use default', async function () {
+		await clean.any({default: 'test'})().should.become('test')
+	})
+	it('should not use default if value provided', async function () {
+		await clean.any({default: 'test'})('boom').should.become('boom')
+	})
+	it('should use default: null', async function () {
+		await clean.any({default: null})().should.become(null)
+	})
+	it('should not use default: undefined', async function () {
+		await clean.any({default: undefined})().should.be.rejectedWith(ValidationError)
+	})
+	it('should not allow default if required set to true', function () {
+		expect(() => clean.string({default: 123, required: true})).to.throw(SchemaError)
+		expect(() => clean.string({default: 123, required: false})).to.not.throw(SchemaError)
+		expect(() => clean.string({default: null, null: false})).to.throw(SchemaError)
+		expect(() => clean.string({default: null, null: true})).to.not.throw(SchemaError)
+		expect(() => clean.string({default: null})).to.not.throw(SchemaError)
+	})
 	describe("Custom cleaner", function() {
 		const value = {foo: [1, 2, 3]}
 		it('should call custom cleaner', async function() {
@@ -306,6 +325,14 @@ describe("Object", function () {
 				b2: clean.boolean({ omit: true }),
 			}
 		})({ b1: false, b2: true }).should.become({ b2: true })
+	})
+    it('should use field defaults', async function () {
+		await clean.object({
+			fields: {
+				s1: clean.string({ default: 'one' }),
+				s2: clean.string({ default: 'two' }),
+			}
+		})({ s2: 'zwei' }).should.become({ s1: 'one', s2: 'zwei' })
 	})
 	it('should call custom cleaner', async function() {
 		const obj = {s1: 'one'}
