@@ -156,6 +156,7 @@ For example, `clean.string()` creates a cleaner that will accept non-blank strin
 * [`clean.any`](#cleanany) (common base for all other creators)
 * [`clean.string`](#cleanstring)
 * [`clean.integer`](#cleaninteger)
+* [`clean.float`](#cleanfloat)
 * [`clean.boolean`](#cleanboolean)
 * [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
@@ -323,6 +324,34 @@ await cleaner(null) // throws "Value required."
 - `null: true` - allow null values
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `cast: true` - no strict type check, convert value with `parseInt(value)`
+- `min` - minimum allowed value
+- `max` - maximum allowed value
+- `clean` - custom cleaner to run if the validation passes
+
+### `clean.float()`
+
+Create a cleaner that returns a float value.
+
+```js
+const cleaner = clean.integer()
+
+await cleaner(123) // 123
+await cleaner(123.45) // 123.45
+await cleaner(0) // 0
+await cleaner(-273.15) // -273.15
+await cleaner('boomer') // throws "Invalid value."
+await cleaner('') // throws "Invalid value."
+await cleaner({ foo: 123 }) // throws "Invalid value."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+#### Supported schema parameters
+
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `cast: true` - no strict type check, convert value with `parseFloat(value)`
 - `min` - minimum allowed value
 - `max` - maximum allowed value
 - `clean` - custom cleaner to run if the validation passes
@@ -613,8 +642,6 @@ This can be directly attached back to the corresponding form fields in the UI.
 
 ## TODO
 
-- `clean.any({ default })`
-- `clean.float()`
 - `clean.uuid()`
 - `clean.date()`
 - `clean.string({ match })`

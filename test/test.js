@@ -137,6 +137,9 @@ describe('String', function () {
 })
 
 describe('Integer', function () {
+	it('should pass zero', async function () {
+		await clean.integer()(0).should.become(0)
+	})
 	it('should pass integer', async function () {
 		await clean.integer()(12345).should.become(12345)
 	})
@@ -153,7 +156,7 @@ describe('Integer', function () {
 		await clean.integer()({}).should.be.rejectedWith(ValidationError)
 	})
 	it('should cast string if cast allowed', async function () {
-		await clean.integer({cast: true})('123').should.become(123)
+		await clean.integer({cast: true})('123.45').should.become(123)
 	})
 	it('should not allow bad string', async function () {
 		await clean.integer({cast: true})('bummer').should.be.rejectedWith(ValidationError)
@@ -202,6 +205,79 @@ describe('Integer', function () {
 					return {value: v}
 				}
 			})(123).should.become({value: 123})
+		})
+	})
+})
+
+describe('Float', function () {
+	it('should pass zero', async function () {
+		await clean.float()(0).should.become(0)
+	})
+	it('should pass integer', async function () {
+		await clean.float()(12345).should.become(12345)
+	})
+	it('should pass float', async function () {
+		await clean.float()(123.67).should.become(123.67)
+	})
+	it('should not accept string', async function () {
+		await clean.float()('test').should.be.rejectedWith(ValidationError)
+	})
+	it('should not accept boolean', async function () {
+		await clean.float()(true).should.be.rejectedWith(ValidationError)
+	})
+	it('should not accept object', async function () {
+		await clean.float()({}).should.be.rejectedWith(ValidationError)
+	})
+	it('should cast string if cast allowed', async function () {
+		await clean.float({cast: true})('123.45').should.become(123.45)
+	})
+	it('should not allow bad string', async function () {
+		await clean.float({cast: true})('bummer').should.be.rejectedWith(ValidationError)
+	})
+	it('should not allow empty string', async function () {
+		await clean.float({cast: true})('').should.be.rejectedWith(ValidationError)
+	})
+	describe("Min/max", function() {
+		it('should reject value < min', async function () {
+			await clean.float({min: 100})(90).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass value == min', async function () {
+			await clean.float({min: 100})(100).should.become(100)
+		})
+		it('should pass value > min', async function () {
+			await clean.float({min: 100})(101).should.become(101)
+		})
+		it('should reject value > min', async function () {
+			await clean.float({max: 100})(101).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass value == max', async function () {
+			await clean.float({max: 100})(100).should.become(100)
+		})
+		it('should pass value < max', async function () {
+			await clean.float({max: 100})(-100).should.become(-100)
+		})
+	})
+	describe("Empty values", function () {
+		it('should not accept undefined', async function () {
+			await clean.float()().should.be.rejectedWith(ValidationError)
+		})
+		it('should pass undefined if allowed', async function () {
+			await clean.float({required: false})().should.become(undefined)
+		})
+		it('should not accept null', async function () {
+			await clean.float()(null).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass null if allowed', async function () {
+			await clean.float({null: true})(null).should.become(null)
+		})
+	})
+	describe("Custom cleaner", function() {
+		it('should call custom cleaner', async function() {
+			await clean.float({
+				clean(v) {
+					return {value: v}
+				}
+			})(123.45).should.become({value: 123.45})
 		})
 	})
 })

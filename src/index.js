@@ -1,6 +1,7 @@
 import any from './cleaners/any'
 import string from './cleaners/string'
 import integer from './cleaners/integer'
+import float from './cleaners/float'
 import boolean from './cleaners/boolean'
 import object from './cleaners/object'
 
@@ -11,6 +12,7 @@ export default {
 	any,
 	string,
 	integer,
+	float,
 	boolean,
 	object,
 	SchemaError,
