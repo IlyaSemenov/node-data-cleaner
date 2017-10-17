@@ -299,8 +299,6 @@ const cleaner = clean.integer({ blank: null })
 await cleaner('') // null
 ```
 
-*TODO: since `cast` may introduce unwanted side effects, this should be reworked to use a separate schema parameter.*
-
 ### `clean.integer()`
 
 Create a cleaner that returns an integer value.
