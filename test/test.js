@@ -164,6 +164,15 @@ describe('Integer', function () {
 	it('should not allow empty string', async function () {
 		await clean.integer({cast: true})('').should.be.rejectedWith(ValidationError)
 	})
+	it('should allow empty string if null is allowed', async function () {
+		await clean.integer({cast: true, null: true})('').should.become(null)
+	})
+	it('should allow empty string if default is null', async function () {
+		await clean.integer({cast: true, default: null})('').should.become(null)
+	})
+	it('should not allow empty string if null is allowed but cast is disabled', async function () {
+		await clean.integer({null: true})('').should.be.rejectedWith(ValidationError)
+	})
 	describe("Min/max", function() {
 		it('should reject value < min', async function () {
 			await clean.integer({min: 100})(90).should.be.rejectedWith(ValidationError)
@@ -236,6 +245,15 @@ describe('Float', function () {
 	})
 	it('should not allow empty string', async function () {
 		await clean.float({cast: true})('').should.be.rejectedWith(ValidationError)
+	})
+	it('should allow empty string if null is allowed', async function () {
+		await clean.float({cast: true, null: true})('').should.become(null)
+	})
+	it('should allow empty string if default is null', async function () {
+		await clean.float({cast: true, default: null})('').should.become(null)
+	})
+	it('should not allow empty string if null is allowed but cast is disabled', async function () {
+		await clean.float({null: true})('').should.be.rejectedWith(ValidationError)
 	})
 	describe("Min/max", function() {
 		it('should reject value < min', async function () {

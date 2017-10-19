@@ -328,6 +328,10 @@ await cleaner(null) // throws "Value required."
 - `max` - maximum allowed value
 - `clean` - custom cleaner to run if the validation passes
 
+#### Handle empty string
+
+If `null` and `cast` are enabled, empty string will be cast to null.
+
 ### `clean.float()`
 
 Create a cleaner that returns a float value.
@@ -355,6 +359,10 @@ await cleaner(null) // throws "Value required."
 - `min` - minimum allowed value
 - `max` - maximum allowed value
 - `clean` - custom cleaner to run if the validation passes
+
+#### Handle empty string
+
+If `null` and `cast` are enabled, empty string will be cast to null.
 
 ### `clean.boolean()`
 

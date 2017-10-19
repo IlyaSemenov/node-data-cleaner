@@ -9,12 +9,12 @@ export default function cleanNumber(schema = {}) {
 	}
 	return cleanAny({
 		...schema,
-		clean(value, opts) {
+		clean (value, opts) {
 			if (!(value === undefined || value === null)) {
 				if (typeof value !== "number" && schema.cast !== true) {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
 				}
-				if (value === "" && schema.null === true) {
+				if (value === "" && (schema.null === true || schema.default === null)) {
 					value = null
 				} else {
 					value = schema.parseNumber(value)
