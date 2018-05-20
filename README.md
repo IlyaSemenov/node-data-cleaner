@@ -4,15 +4,11 @@ This is yet another data object validator and transformer for Node.js, inspired 
 
 It is intended to be used in server-side API or form submit handlers, and focuses on the following goals:
 
-* easily validate fields with *custom* business rules (including async checks involving database access) without additional boilerplate
-* maximize code reuse betwen validation and further data processing
+* minimum boilerplate with reasonable defaults
+* **easily** provide **custom** validation logic
+* async/await support on every step
+* not only validate values but possibly transform them or return artifacts
 * collect and group validation errors for the UI (when errors need to belong to corresponding input fields)
-
-## How it works
-
-A configured *cleaner* accepts some value (typically a data object coming from insecure API client), validates and transforms it into cleaned version, field by field. Every field may run through a predefined sub-cleaner, or a custom ad-hoc cleaner, or any combination of those. All cleaners can be (but don't have to be) asynchronous and return a promise.
-
-A cleaner either returns a fully cleaned object, or throws a `ValidationError` combining all errors associated to respective fields.
 
 ## Why not avj/joi/yup/etc.?
 
@@ -130,9 +126,18 @@ const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 
 ## API
 
+* [Cleaners](#cleaners)
+* [Cleaner creators](#cleaner-creators)
+* [`clean.any`](#cleanany) (common base for all other creators)
+* [`clean.string`](#cleanstring)
+* [`clean.integer`](#cleaninteger)
+* [`clean.float`](#cleanfloat)
+* [`clean.boolean`](#cleanboolean)
+* [`clean.object`](#cleanobject) (the most important aggregation cleaner)
+
 ### Cleaners
 
-*Cleaner* is any function that follows the contract:
+A *cleaner* is any function that follows the contract:
 
 ```js
 function cleaner (value, opts) {
@@ -147,18 +152,9 @@ function cleaner (value, opts) {
 
 ### Cleaner creators
 
-*Cleaner creator* is a function that creates a cleaner according to the provided schema.
+A *cleaner creator* is a function that creates a *cleaner* according to the provided schema.
 
 For example, `clean.string()` creates a cleaner that will accept non-blank strings only, and `clean.string({ blank: true })` creates a cleaner that will accept both blank and non-blank strings.
-
-### Built-in cleaner creators
-
-* [`clean.any`](#cleanany) (common base for all other creators)
-* [`clean.string`](#cleanstring)
-* [`clean.integer`](#cleaninteger)
-* [`clean.float`](#cleanfloat)
-* [`clean.boolean`](#cleanboolean)
-* [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
 ### `clean.any()`
 
