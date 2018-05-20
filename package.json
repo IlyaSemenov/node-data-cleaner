@@ -3,7 +3,8 @@
   "version": "0.8.1",
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
   "main": "dist/bundle.umd.js",
-  "module": "src/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "mocha",
     "build": "rollup -c",
@@ -23,18 +24,11 @@
   },
   "homepage": "https://github.com/IlyaSemenov/node-data-cleaner#readme",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "chai": "^4.1.1",
     "chai-as-promised": "^7.1.1",
     "mocha": "^3.5.0",
-    "rollup": "^0.49.3",
-    "rollup-plugin-babel": "^3.0.2",
-    "rollup-plugin-node-resolve": "^3.0.0"
-  },
-  "engines": {
-    "npm": "~8.3.0"
+    "rollup": "^0.59.1",
+    "rollup-plugin-typescript2": "^0.14.0",
+    "typescript": "^2.8.3"
   }
 }

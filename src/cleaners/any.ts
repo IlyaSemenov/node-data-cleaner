@@ -1,8 +1,16 @@
 import { getMessage } from '../utils'
 import SchemaError from '../exceptions/SchemaError'
 import ValidationError from '../exceptions/ValidationError'
+import { Cleaner } from '../types'
 
-export default function cleanAny(schema = {}) {
+export interface AnySchema<T> {
+	required?: boolean
+	default?: any
+	null?: boolean
+	clean?: Cleaner<T>
+}
+
+export default function cleanAny<T>(schema: AnySchema<T> = {}): Cleaner<T> {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false

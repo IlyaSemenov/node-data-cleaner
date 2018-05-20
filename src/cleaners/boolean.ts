@@ -1,16 +1,22 @@
 import { getMessage } from '../utils'
 import ValidationError from '../exceptions/ValidationError'
-import cleanAny from './any'
+import cleanAny, { AnySchema } from './any'
+import { Cleaner } from '../types'
 
-export default function cleanBoolean(schema = {}) {
+export interface BooleanSchema<T> extends AnySchema<T> {
+	cast?: boolean
+	omit?: boolean
+}
+
+export default function cleanBoolean<T>(schema: BooleanSchema<T> = {}): Cleaner<T> {
 	return cleanAny({
-		...schema,
+		...schema as AnySchema<T>,
 		clean(value, opts) {
 			if (!(value === undefined || value === null)) {
 				if (typeof value !== "boolean" && schema.cast !== true) {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
 				}
-				value = !!value
+				value = !!value // TODO: only do this if not boolean
 				if (value === false && schema.omit === true) {
 					value = undefined
 				}

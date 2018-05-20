@@ -1,14 +1,28 @@
 import { getMessage } from '../utils'
 import SchemaError from '../exceptions/SchemaError'
 import ValidationError from '../exceptions/ValidationError'
-import cleanAny from './any'
+import cleanAny, { AnySchema } from './any'
+import { Cleaner, CleanerOptions } from '../types'
 
-export default function cleanObject(schema = {}) {
-	if (typeof schema.fields !== "object") {
+export interface FieldCleanerOptions extends CleanerOptions {
+	data: Object
+}
+
+export type FieldCleaner<T> = (value, opts: FieldCleanerOptions) => Promise<T>
+
+export interface ObjectSchema<T> extends AnySchema<T> {
+	fields: {
+		[fieldName: string]: FieldCleaner<any>
+	}
+	nonFieldErrorsKey?: string
+}
+
+export default function cleanObject<T>(schema: ObjectSchema<T>): Cleaner<T> {
+	if (!schema || typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
 	}
 	const cleaner = cleanAny({
-		...schema,
+		...schema as AnySchema<T>,
 		async clean(value, opts = {}) {
 			const errorGroups = []
 			if (!(value === undefined || value === null)) {
@@ -70,9 +84,9 @@ export default function cleanObject(schema = {}) {
 		}
 	})
 	if (schema.nonFieldErrorsKey !== undefined) {
-		return async function(...args) {
+		return async function(value, opts) {
 			try {
-				return await cleaner(...args)
+				return await cleaner(value, opts)
 			} catch (err) {
 				if (err instanceof ValidationError && err.messages) {
 					throw new ValidationError({[schema.nonFieldErrorsKey]: err.messages})

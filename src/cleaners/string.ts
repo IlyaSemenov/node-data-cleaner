@@ -1,9 +1,15 @@
 import { getMessage } from '../utils'
 import SchemaError from '../exceptions/SchemaError'
 import ValidationError from '../exceptions/ValidationError'
-import cleanAny from './any'
+import cleanAny, { AnySchema } from './any'
+import { Cleaner } from '../types'
 
-export default function cleanString(schema = {}) {
+export interface StringSchema<T> extends AnySchema<T> {
+	blank?: boolean | null
+	cast?: boolean
+}
+
+export default function cleanString<T>(schema: StringSchema<T> = {}): Cleaner<T> {
 	if (schema.blank === null) {
 		if (schema.null === undefined) {
 			schema.null = true
@@ -12,7 +18,7 @@ export default function cleanString(schema = {}) {
 		}
 	}
 	return cleanAny({
-		...schema,
+		...schema as AnySchema<T>,
 		clean(value, opts) {
 			if (!(value === undefined || value === null)) {
 				if (typeof value === "object" && schema.cast !== true) {

@@ -1,6 +1,8 @@
 export default class ValidationError extends Error {
-	// err.messages = ['err1', 'err2', ...]
-	// err.errors = {field1: ['err1', 'err2', ...], field2: ['err3', ...], ...}
+	messages: Array<string>
+	errors: {
+		[field: string]: Array<string>
+	}
 
 	constructor(arg) {
 		let message, messages, errors
