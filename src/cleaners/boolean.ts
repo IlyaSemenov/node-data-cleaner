@@ -8,7 +8,7 @@ export interface BooleanSchema<T> extends AnySchema<T> {
 	omit?: boolean
 }
 
-export default function cleanBoolean<T>(schema: BooleanSchema<T> = {}): Cleaner<T> {
+export default function cleanBoolean<T = boolean | null | undefined>(schema: BooleanSchema<T> = {}): Cleaner<T> {
 	return cleanAny({
 		...schema as AnySchema<T>,
 		clean(value, opts) {

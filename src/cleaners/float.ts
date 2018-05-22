@@ -1,10 +1,10 @@
-import cleanNumber, { GenericNumberSchema } from './number'
+import cleanNumber, { NumberSchema } from './number'
 import { Cleaner } from '../types'
 
-export interface IntegerSchema<T> extends GenericNumberSchema<T> {}
+export interface FloatSchema<T> extends NumberSchema<T> {}
 
-export default function cleanInteger<T>(schema: IntegerSchema<T> = {}): Cleaner<T> {
-	return cleanNumber({
+export default function cleanFloat<T = number | null | undefined>(schema: FloatSchema<T> = {}): Cleaner<T> {
+	return cleanNumber<T>({
 		...schema,
 		parseNumber: parseFloat
 	})

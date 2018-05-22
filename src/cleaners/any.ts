@@ -10,7 +10,7 @@ export interface AnySchema<T> {
 	clean?: Cleaner<T>
 }
 
-export default function cleanAny<T>(schema: AnySchema<T> = {}): Cleaner<T> {
+export default function cleanAny<T = any>(schema: AnySchema<T> = {}): Cleaner<T> {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false

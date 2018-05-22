@@ -4,4 +4,4 @@ export interface CleanerOptions {
 	}
 }
 
-export type Cleaner<T> = (value, opts?: CleanerOptions) => Promise<T>
+export type Cleaner<T = any> = (value, opts?: CleanerOptions) => Promise<T>

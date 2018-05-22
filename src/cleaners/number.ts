@@ -4,17 +4,17 @@ import SchemaError from '../exceptions/SchemaError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner } from '../types'
 
-export interface GenericNumberSchema<T> extends AnySchema<T> {
+export interface NumberSchema<T> extends AnySchema<T> {
 	cast?: boolean
 	min?: number
 	max?: number
 }
 
-export interface NumberSchema<T> extends GenericNumberSchema<T> {
+export interface NumberParserSchema<T> extends NumberSchema<T> {
 	parseNumber: Function
 }
 
-export default function cleanNumber<T>(schema: NumberSchema<T>): Cleaner<T> {
+export default function cleanNumber<T = number | null | undefined>(schema: NumberParserSchema<T>): Cleaner<T> {
 	if (schema.parseNumber === undefined) {
 		throw new SchemaError("clean.number needs 'parseNumber'")
 	}

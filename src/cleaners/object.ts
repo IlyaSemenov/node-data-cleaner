@@ -8,16 +8,16 @@ export interface FieldCleanerOptions extends CleanerOptions {
 	data: Object
 }
 
-export type FieldCleaner<T> = (value, opts: FieldCleanerOptions) => Promise<T>
+export type FieldCleaner<T = any> = (value, opts: FieldCleanerOptions) => Promise<T>
 
-export interface ObjectSchema<T> extends AnySchema<T> {
-	fields: {
-		[fieldName: string]: FieldCleaner<any>
-	}
+export interface ObjectSchema<T, fields = {
+	[fieldName: string]: FieldCleaner
+}> extends AnySchema<T> {
+	fields: fields
 	nonFieldErrorsKey?: string
 }
 
-export default function cleanObject<T>(schema: ObjectSchema<T>): Cleaner<T> {
+export default function cleanObject<T = object | null | undefined>(schema: ObjectSchema<T>): Cleaner<T> {
 	if (!schema || typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
 	}

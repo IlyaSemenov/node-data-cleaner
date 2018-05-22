@@ -9,7 +9,7 @@ export interface StringSchema<T> extends AnySchema<T> {
 	cast?: boolean
 }
 
-export default function cleanString<T>(schema: StringSchema<T> = {}): Cleaner<T> {
+export default function cleanString<T = string | null | undefined>(schema: StringSchema<T> = {}): Cleaner<T> {
 	if (schema.blank === null) {
 		if (schema.null === undefined) {
 			schema.null = true
