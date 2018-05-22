@@ -3,6 +3,7 @@ import string from './cleaners/string'
 import integer from './cleaners/integer'
 import float from './cleaners/float'
 import boolean from './cleaners/boolean'
+import array from './cleaners/array'
 import object from './cleaners/object'
 
 import SchemaError from './exceptions/SchemaError'
@@ -14,6 +15,7 @@ export default {
 	integer,
 	float,
 	boolean,
+	array,
 	object,
 	SchemaError,
 	ValidationError,

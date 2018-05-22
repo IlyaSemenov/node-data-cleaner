@@ -552,6 +552,96 @@ describe("Object", function () {
 	})
 })
 
+describe("Array", function () {
+	it('should pass array', async function () {
+		await clean.array()([1,'2',3]).should.become([1,'2',3])
+	})
+	it('should reject non-array object', async function () {
+		await clean.array()('boom!').should.be.rejectedWith(ValidationError)
+	})
+	it('should pass array of integers', async function () {
+		await clean.array({element: clean.integer()})([1,2,3]).should.become([1,2,3])
+	})
+	it('should reject string in array of integers', async function () {
+		await clean.array({element: clean.integer()})([1,'2',3]).should.be.rejectedWith(ValidationError)
+	})
+	it('should allow string in array of integers if cast is allowed', async function () {
+		await clean.array({element: clean.integer({cast: true})})([1,'2',3]).should.become([1,2,3])
+	})
+	describe("Min/max", function () {
+		it('should reject too short array', async function () {
+			await clean.array({min:3})([1,2]).should.be.rejectedWith(ValidationError)
+		})
+		it('should not reject just enough short array', async function () {
+			await clean.array({min:3})([1,2,3]).should.not.be.rejected
+		})
+		it('should reject too long array', async function () {
+			await clean.array({max:3})([1,2,3,4]).should.be.rejectedWith(ValidationError)
+		})
+		it('should not reject just enough long array', async function () {
+			await clean.array({max:3})([1,2,3]).should.not.be.rejected
+		})
+		it('should not reject properly sized array', async function () {
+			await clean.array({min:3, max:5})([1,2,3,4]).should.not.be.rejected
+		})
+	})
+	it('should collect validation errors from all elements', async function () {
+		await clean.array({
+			element: clean.any({
+				clean (value) {
+					if (value) {
+						throw new ValidationError("Invalid value: " + value)
+					}
+				}
+			})
+		})(['one', '', 'three']).should.be.rejectedWith(ValidationError, '["Invalid value: one","Invalid value: three"]')
+	})
+	it('should collect named validation errors from all elements', async function () {
+		await clean.array({
+			element: clean.object({
+				fields: {
+					user: clean.string(),
+					password: clean.string({
+						clean (password) {
+							if (password.length < 3) {
+								throw new ValidationError("Password is too short.")
+							}
+						}
+					}),
+				}
+			})
+		})([
+			{user: 'John', password: '1'},
+			{password: '123'},
+			{password: '1'},
+		]).should.be.rejectedWith(ValidationError, '["password: Password is too short.","user: Value required.","user: Value required.","password: Password is too short."]')
+	})
+	describe("Empty values", function () {
+		it('should not accept undefined', async function () {
+			await clean.array()().should.be.rejectedWith(ValidationError)
+		})
+		it('should pass undefined if allowed', async function () {
+			await clean.array({required: false})().should.become(undefined)
+		})
+		it('should not accept null', async function () {
+			await clean.array()(null).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass null if allowed', async function () {
+			await clean.array({null: true})(null).should.become(null)
+		})
+	})
+	describe("Custom cleaner", function() {
+		it('should call custom cleaner', async function() {
+			await clean.array({
+				element: clean.integer(),
+				clean(v) {
+					return v.reverse()
+				}
+			})([1,2,3]).should.become([3,2,1])
+		})
+	})
+})
+
 describe("ValidationError", function() {
 	it('should require a parameter', function() {
 		expect(() => { new ValidationError() }).to.throw()

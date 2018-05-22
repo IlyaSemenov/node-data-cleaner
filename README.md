@@ -133,6 +133,7 @@ const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 * [`clean.integer`](#cleaninteger)
 * [`clean.float`](#cleanfloat)
 * [`clean.boolean`](#cleanboolean)
+* [`clean.array`](#cleanarray)
 * [`clean.object`](#cleanobject) (the most important aggregation cleaner)
 
 ### Cleaners
@@ -383,6 +384,34 @@ await cleaner(null) // throws "Value required."
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `cast` - no strict type check, convert value with `!!value`
 - `omit: true` - return `undefined` for `false`
+- `clean` - custom cleaner to run if the validation passes
+
+### `clean.array()`
+
+Create a cleaner that returns an array of values, where each value is validated against a subcleaner.
+
+```js
+const cleaner = clean.array({
+  element: clean.integer()
+})
+
+await cleaner([1,2,3]) // [1,2,3]
+await cleaner([]) // []
+await cleaner([1,'two',3]) // throws "Invalid value."
+await cleaner('') // throws "Invalid value."
+await cleaner({ foo: 'bar' }) // throws "Invalid value."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+#### Supported schema parameters
+
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `element` - validator for each element
+- `min` - require at least that many elements
+- `max` - require at most that many elements
 - `clean` - custom cleaner to run if the validation passes
 
 ### `clean.object()`
