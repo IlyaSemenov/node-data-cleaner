@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - 10
+cache:
+  directories:
+    - ~/.npm
+notifications:
+  email: false
+env:
+  - BUILD_LEADER_ID=2
+branches:
+  only:
+    - master
+jobs:
+  include:
+    - stage: release
+      node_js: 10
+      after_success:
+        - npx semantic-release

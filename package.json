@@ -1,6 +1,6 @@
 {
   "name": "data-cleaner",
-  "version": "0.10.1",
+  "version": "0.0.0-managed-by-semantic-release",
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
   "main": "dist/bundle.umd.js",
   "source": "src/index.ts",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IlyaSemenov/node-data-cleaner.git"
+    "url": "https://github.com/IlyaSemenov/node-data-cleaner.git"
   },
   "keywords": [
     "validation"
@@ -33,6 +33,7 @@
     "mocha": "^3.5.0",
     "rollup": "^0.59.1",
     "rollup-plugin-typescript2": "^0.14.0",
-    "typescript": "^2.8.3"
+    "typescript": "^2.8.3",
+    "semantic-release": "^15.9.17"
   }
 }
