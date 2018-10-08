@@ -17,7 +17,7 @@ export interface ObjectSchema<T, fields = {
 	nonFieldErrorsKey?: string
 }
 
-export default function cleanObject<T = object | null | undefined>(schema: ObjectSchema<T>): Cleaner<T> {
+export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T> {
 	if (!schema || typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
 	}
