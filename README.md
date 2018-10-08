@@ -7,14 +7,28 @@ It is intended to be used in server-side API or form submit handlers, and focuse
 * minimum boilerplate with reasonable defaults
 * **easily** provide **custom** validation logic
 * async/await support on every step
-* not only validate values but possibly transform them or return artifacts
+* not only validate values but possibly transform them or return side artifacts
 * collect and group validation errors for the UI (when errors need to belong to corresponding input fields)
 
 ## Why not avj/joi/yup/etc.?
 
 See [Comparison to other libraries](#comparison-to-other-libraries) below.
 
-## Example
+## Minimal example
+
+```js
+import clean from 'data-cleaner'
+
+const cleanUser = clean.object({
+  name: clean.string(),
+  age: clean.integer({ required: false }),
+  is_admin: clean.boolean(),
+})
+
+const data = cleanUser(ctx.request.body) // or throw
+```
+
+## Proper example
 
 Define a *cleaner* for imaginary department visitor registration form with the following fields:
 
