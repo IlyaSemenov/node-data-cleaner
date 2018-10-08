@@ -10,9 +10,12 @@ export interface FieldCleanerOptions extends CleanerOptions {
 
 export type FieldCleaner<T = any> = (value, opts: FieldCleanerOptions) => Promise<T>
 
+export type ParseKeysOptions = true | ((key: string) => string[])
+
 export interface ObjectSchema<T, fields = {
 	[fieldName: string]: FieldCleaner
 }> extends AnySchema<T> {
+	parseKeys?: ParseKeysOptions
 	fields: fields
 	nonFieldErrorsKey?: string
 }
@@ -28,6 +31,9 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 			if (!(value === undefined || value === null)) {
 				if (typeof value !== "object") {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
+				}
+				if (schema.parseKeys) {
+					value = parseKeys(value, schema.parseKeys)
 				}
 				const res = {}
                 const customDataStore = {}
@@ -97,5 +103,31 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 		}
 	} else {
 		return cleaner
+	}
+}
+
+function parseKeys (obj, opts: ParseKeysOptions) {
+	const getPathFromKey = typeof opts === 'function' ? opts : key => key.split('.')
+	const res = {}
+	for (const key of Object.keys(obj)) {
+		const path = getPathFromKey(key)
+		if (path) {
+			setObjPath(res, path, obj[key])
+		}
+	}
+	return res
+}
+
+function setObjPath (obj: object, path: string[], value: any): void {
+	for (let i = 0; i < path.length; ++i) {
+		const key = path[i]
+		if (i < path.length - 1) {
+			if (obj[key] === undefined) {
+				obj[key] = {}
+			}
+			obj = obj[key]
+		} else {
+			obj[key] = value
+		}
 	}
 }

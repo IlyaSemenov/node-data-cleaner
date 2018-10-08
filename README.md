@@ -416,7 +416,7 @@ await cleaner(null) // throws "Value required."
 
 ### `clean.object()`
 
-Create a cleaner that validates an object by cleaning each key according to the provided fields schema. Object keys that are not present in the list of declared fields are thrown away.
+Create a cleaner that validates an object by cleaning each key according to the provided fields schema. Object keys that are not present in the list of declared fields will be ignored.
 
 ```js
 const cleaner = clean.object({
@@ -450,6 +450,7 @@ cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `null: true` - allow null values
 - `nonFieldErrorsKey` - if provided, non-field errors will be grouped under this pseudo field key
+- `parseKeys` - create nested objects from keys like `job.position` (see below)
 - `clean` - custom cleaner to run if the validation passes
 
 #### Providing field defaults
@@ -549,6 +550,39 @@ cleaner({ s1: "foo", s2: "foo" }) // throws { "other": ["Strings must differ!"] 
 ```
 
 Without `nonFieldErrorsKey`, these errors will be passed as is.
+
+#### Parse object keys and created nested objects
+
+You can use nested object cleaner (and get nested object result) with non-nested data object by setting `parseKeys` schema parameter.
+
+The typical use is handling POST submit:
+
+```html
+<form method="POST">
+  <input name="name" value="John">
+  <input name="job.position" value="Engineer">
+</form>
+```
+
+then:
+
+```js
+const cleaner = clean.object({
+  parseKeys: true,
+  fields: {
+    name: clean.string(),
+    job: clean.object({
+      fields: {
+        position: clean.string(),
+      }),
+    }
+  },
+})
+
+cleaner(ctx.request.body) // { name: "John", job: { position: "Engineer" } }
+```
+
+The default is to split by dot characters, like in the example above. You may pass a custom function instead, for example: `parseKeys: key => key.split('__')`
 
 #### Setting additional data keys from a validator
 

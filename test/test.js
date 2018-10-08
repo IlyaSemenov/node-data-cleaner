@@ -550,6 +550,94 @@ describe("Object", function () {
 			}
 		})({ text: "hello", postId: 123 }).should.become({ text: "hello", postId: 123, post: { title: "post 123" } })
 	})
+	describe("Parsing object keys", function () {
+		it('should parse keys', function () {
+			return clean.object({
+				parseKeys: true,
+				fields: {
+					name: clean.string(),
+					age: clean.integer(),
+					job: clean.object({
+						fields: {
+							position: clean.string(),
+							salary: clean.integer(),
+							project: clean.object({
+								fields: {
+									name: clean.string(),
+								}
+							})
+						}
+					})
+				}
+			})({
+				name: "John Doe",
+				age: 24,
+				'job.position': "Engineer",
+				'job.salary': 50000,
+				'job.project.name': "Doomsday machine",
+			}).should.become({
+				name: "John Doe",
+				age: 24,
+				job: {
+					position: "Engineer",
+					salary: 50000,
+					project: {
+						name: "Doomsday machine"
+					},
+				},
+			})
+		})
+		it('should not parse keys if not explicitly set', function () {
+			return clean.object({
+				fields: {
+					foo: clean.integer(),
+					'bar.baz': clean.integer(),
+				}
+			})({
+				foo: 1,
+				'bar.baz': 2,
+			}).should.become({
+				foo: 1,
+				'bar.baz': 2,
+			})
+		})
+		it('should support custom split function and keep dots', function () {
+			return clean.object({
+				parseKeys: key => key.split('__'),
+				fields: {
+					name: clean.string(),
+					age: clean.integer(),
+					job: clean.object({
+						fields: {
+							position: clean.string(),
+							salary: clean.integer(),
+							'project.or.department': clean.object({
+								fields: {
+									name: clean.string(),
+								}
+							})
+						}
+					})
+				}
+			})({
+				name: "John Doe",
+				age: 24,
+				job__position: "Engineer",
+				job__salary: 50000,
+				'job__project.or.department__name': "Doomsday machine",
+			}).should.become({
+				name: "John Doe",
+				age: 24,
+				job: {
+					position: "Engineer",
+					salary: 50000,
+					'project.or.department': {
+						name: "Doomsday machine"
+					},
+				},
+			})
+		})
+	})
 })
 
 describe("Array", function () {
