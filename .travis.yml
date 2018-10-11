@@ -6,8 +6,6 @@ cache:
     - ~/.npm
 notifications:
   email: false
-env:
-  - BUILD_LEADER_ID=2
 branches:
   only:
     - master

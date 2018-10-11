@@ -4,7 +4,6 @@
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
   "main": "dist/bundle.umd.js",
   "source": "src/index.ts",
-  "types": "dist/index.d.ts",
   "files": [
     "src/**",
     "dist/**"
