@@ -1,3 +1,4 @@
+import cleaner from 'rollup-plugin-cleaner'
 import typescript from 'rollup-plugin-typescript2'
 
 export default {
@@ -9,6 +10,7 @@ export default {
     sourcemap: true,
   },
   plugins: [
+		cleaner({ targets: ['./dist/'] }),
     typescript(),
   ]
 }

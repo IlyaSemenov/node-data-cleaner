@@ -31,8 +31,9 @@
     "chai-as-promised": "^7.1.1",
     "mocha": "^3.5.0",
     "rollup": "^0.59.1",
+    "rollup-plugin-cleaner": "^0.2.0",
     "rollup-plugin-typescript2": "^0.14.0",
-    "typescript": "^2.8.3",
-    "semantic-release": "^15.9.17"
+    "semantic-release": "^15.9.17",
+    "typescript": "^2.8.3"
   }
 }
