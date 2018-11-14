@@ -1,5 +1,6 @@
 export { default as any, AnySchema } from './cleaners/any'
 export { default as string, StringSchema } from './cleaners/string'
+export { default as date, DateSchema } from './cleaners/date'
 export { default as integer, IntegerSchema } from './cleaners/integer'
 export { default as float, FloatSchema } from './cleaners/float'
 export { default as boolean, BooleanSchema } from './cleaners/boolean'

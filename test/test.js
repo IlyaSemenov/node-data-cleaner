@@ -136,6 +136,89 @@ describe('String', function () {
 	})
 })
 
+describe('Date', function () {
+	const testIsoValue = '2018-11-14T09:28:19Z'
+	const testIsoTzValue = '2018-11-14T16:28:19+07:00'
+	const testDateLikeValue = 'Wed, 14 Nov 2018 09:28:19 GMT'
+	const testValues = [testIsoValue, testIsoTzValue, testDateLikeValue]
+	const resultIsoValue = '2018-11-14T09:28:19.000Z'
+	const result = new Date(resultIsoValue)
+
+	it('should accept UTC ISO string', async function () {
+		await clean.date()(testIsoValue).should.become(result)
+	})
+	it('should pass timezone ISO string', async function () {
+		await clean.date()(testIsoTzValue).should.become(result)
+	})
+	it('should accept date-like string', async function () {
+		await clean.date()(testDateLikeValue).should.become(result)
+	})
+	it('should not accept non-date-like string', async function () {
+		await clean.date()('bummer').should.be.rejectedWith(ValidationError)
+	})
+	it('should return UTC ISO-formatted string', async function () {
+		const cleaner = clean.date({ format: 'iso' })
+		for (const value of testValues) {
+			await cleaner(value).should.become(resultIsoValue)
+		}
+	})
+	it('should return Date object', async function () {
+		const cleaner = clean.date({ format: null })
+		for (const value of testValues) {
+			await cleaner(value).should.become(value)
+		}
+	})
+	// Upstream tests
+	describe("Empty values", function () {
+		it('should not accept undefined', async function () {
+			await clean.date()().should.be.rejectedWith(ValidationError)
+		})
+		it('should pass undefined if allowed', async function () {
+			await clean.date({required: false})().should.become(undefined)
+		})
+		it('should not accept null', async function () {
+			await clean.date()(null).should.be.rejectedWith(ValidationError)
+		})
+		it('should pass null if allowed', async function () {
+			await clean.date({null: true})(null).should.become(null)
+		})
+		it('should not accept blank string', async function () {
+			await clean.date()('').should.be.rejectedWith(ValidationError)
+		})
+		it('should pass blank string if allowed', async function () {
+			await clean.date({blank: true})('').should.become('')
+		})
+		it('should convert blank to null if specified by schema', async function () {
+			await clean.date({blank: null})('').should.become(null)
+		})
+		it('should not allow blank to null conversion if blank set to false', function () {
+			expect(() => clean.date({blank: null, null: false})).to.throw(SchemaError)
+			expect(() => clean.date({blank: null, null: true})).to.not.throw(SchemaError)
+			expect(() => clean.date({blank: null})).to.not.throw(SchemaError)
+		})
+	})
+	describe("Custom cleaner", function() {
+		it('should call custom cleaner', async function() {
+			await clean.date({
+				clean(d) {
+					return {date: d}
+				}
+			})(testIsoValue).should.become({date: result})
+		})
+		it('should call custom async cleaner', async function() {
+			await clean.date({
+				clean(d) {
+					return new Promise(resolve => {
+						setTimeout(() => {
+							resolve({date: d})
+						}, 1)
+					})
+				}
+			})(testIsoValue).should.become({date: result})
+		})
+	})
+})
+
 describe('Integer', function () {
 	it('should pass zero', async function () {
 		await clean.integer()(0).should.become(0)

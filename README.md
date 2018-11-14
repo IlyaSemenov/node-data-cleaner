@@ -140,15 +140,27 @@ const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 
 ## API
 
+Type definitions:
+
 * [Cleaners](#cleaners)
 * [Cleaner creators](#cleaner-creators)
+
+Base cleaners:
+
 * [`clean.any`](#cleanany) (common base for all other creators)
+
+Scalar cleaners:
+
 * [`clean.string`](#cleanstring)
 * [`clean.integer`](#cleaninteger)
 * [`clean.float`](#cleanfloat)
 * [`clean.boolean`](#cleanboolean)
+* [`clean.date`](#cleandate)
+
+Aggregation cleaners:
+
 * [`clean.array`](#cleanarray)
-* [`clean.object`](#cleanobject) (the most important aggregation cleaner)
+* [`clean.object`](#cleanobject)
 
 ### Cleaners
 
@@ -232,6 +244,8 @@ await cleaner('hacker') // 'bad'
 await cleaner('secret') // 'good'
 await cleaner(null) // throws "Value required."
 ```
+
+See `clean.string` for a more complex custom cleaner example.
 
 #### Passing validation context
 
@@ -398,6 +412,31 @@ await cleaner(null) // throws "Value required."
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `cast` - no strict type check, convert value with `!!value`
 - `omit: true` - return `undefined` for `false`
+- `clean` - custom cleaner to run if the validation passes
+
+### `clean.date()`
+
+Create a cleaner that returns a Date object.
+
+```js
+const cleaner = clean.string()
+
+await cleaner('2018-11-14T09:28:19.387+07:00') // Date object
+await cleaner('non date text') // throws "Invalid value."
+await cleaner('') // throws "Value required."
+await cleaner() // throws "Value required."
+await cleaner(null) // throws "Value required."
+```
+
+#### Supported schema parameters
+
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `blank: true` - allow blank values (empty strings)
+- `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
+- `format: null` - return valid value as is (instead of Date object)
+- `format: 'iso'` - return ISO-formatted date (instead of Date object)
 - `clean` - custom cleaner to run if the validation passes
 
 ### `clean.array()`
