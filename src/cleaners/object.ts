@@ -8,7 +8,7 @@ export interface FieldCleanerOptions extends CleanerOptions {
 	data: Object
 }
 
-export type FieldCleaner<T = any> = (value, opts: FieldCleanerOptions) => Promise<T>
+export type FieldCleaner<T = any> = (value, opts: FieldCleanerOptions) => T | Promise<T>
 
 export type ParseKeysOptions = true | ((key: string) => string[])
 
