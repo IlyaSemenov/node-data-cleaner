@@ -83,9 +83,8 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 			}
 
 			if (schema.clean) {
-				value = await Promise.resolve(schema.clean(value, opts))
+				value = schema.clean(value, opts)
 			}
-
 			return value
 		}
 	})

@@ -27,6 +27,7 @@ export default function cleanArray<T = Array<E> | null | undefined, E = any>(sch
 				if (schema.element) {
 					const cleanedArray = []
 					const errors = []
+					// TODO: use Promise.all instead of loop
 					for (const el of value) {
 						const cleanedEl = await Promise.resolve(schema.element(el, opts)).catch(err => {
 							if (err instanceof ValidationError) {
@@ -53,9 +54,8 @@ export default function cleanArray<T = Array<E> | null | undefined, E = any>(sch
 			}
 
 			if (schema.clean) {
-				value = await Promise.resolve(schema.clean(value, opts))
+				value = schema.clean(value, opts)
 			}
-
 			return value
 		}
 	})

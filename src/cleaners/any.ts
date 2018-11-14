@@ -25,6 +25,7 @@ export default function cleanAny<T = any>(schema: AnySchema<T> = {}): Cleaner<T>
 			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
 		}
 	}
+	// TODO: return non-async function (all tests must be fixed).
 	return async function(value, opts) {
 		if (value === undefined && schema.required !== false) {
 			throw new ValidationError(getMessage(opts, 'required', "Value required."))
