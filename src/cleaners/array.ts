@@ -4,16 +4,16 @@ import ValidationError from '../exceptions/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
 
-export interface ObjectSchema<T, E = any> extends AnySchema<T> {
+export interface ArraySchema<T, E = any> extends AnySchema<T> {
 	element?: Cleaner<E>,
 	min?: number,
 	max?: number
 }
 
-export default function cleanArray<T = Array<E> | null | undefined, E = any>(schema: ObjectSchema<T> = {}): Cleaner<T> {
+export default function cleanArray<T = Array<E> | null | undefined, E = any>(schema: ArraySchema<T> = {}): Cleaner<T> {
 	return cleanAny<T>({
 		...schema as AnySchema<T>,
-		async clean(value, opts = {}) {
+		async clean(value, opts: CleanerOptions = {}) {
 			if (!(value === undefined || value === null)) {
 				if (!Array.isArray(value)) {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
