@@ -25,100 +25,12 @@ const cleanUser = clean.object({
   is_admin: clean.boolean(),
 })
 
-const data = cleanUser(ctx.request.body) // or throw
+const data = await cleanUser(ctx.request.body)
+// may throw ValidationError with errors attributed to the respective fields
+// data is guaranteed to be { name: string, age?: number, is_admin: boolean }
 ```
 
-## Proper example
-
-Define a *cleaner* for imaginary department visitor registration form with the following fields:
-
-- Name
-- Gender
-- Email
-- Department
-
-Use imaginary async data access library for data validation.
-
-```js
-import clean, { ValidationError } from 'data-cleaner'
-
-const cleanVisitorData = clean.object({
-  fields: {
-    name: clean.string(), // Name must be a proper non-blank string.
-    gender: g => {
-      // Gender must be male or female
-      if (g == 'male' || g == 'female') {
-        return g
-      }
-      raise ValidationError("Invalid gender.")
-    },
-    email: clean.string({ // Email must be a proper non-blank string.
-      async clean(email) {
-        // Email must be valid.
-        if (!isEmail(email)) {
-          throw new ValidationError("Invalid email address.")
-        }
-        // Email must not be already registered.
-        if (await User.findByEmail(email)) {
-          throw new ValidationError(
-            `User with email ${email} already registered.`
-          )
-        }
-        return email
-      },
-    }),
-    department: clean.integer({
-      async clean(depId) {
-        // Transform department from id to model object.
-        const dep = await Department.findById(depId)
-        if (!dep) {
-          throw new ValidationError("Invalid value.")
-        }
-        return dep
-      }
-    }),
-  },
-  clean(visitor) {
-    // If all object fields validated, run it through additional cleaner.
-    if (visitor.department.isFemaleOnly && visitor.gender !== 'female') {
-      throw new ValidationError({
-        department: `Only women allowed in ${visitor.department.name}.`
-      })
-    }
-    return visitor
-  }
-})
-```
-
-Use the defined cleaner in imaginary API handler:
-
-```js
-router.post('/register', async ctx => {
-  let data
-  try {
-    data = await cleanVisitorData(ctx.request.body)
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      // err.errors = {
-      //   name: ['Error message 1', 'Error message 2', ...],
-      //   email: ['Error message'],
-      //   ...
-      // }
-      ctx.body = { errors: err.errors }
-      return
-    }
-    throw err
-  }
-  // data here is guaranteed to be an object
-  // data.name will be a non-blank string
-  // data.gender will be either 'male' or 'female'
-  // data.email will be a valid email
-  // data.department will be an instance of class Department
-  // It is also guaranteed that if data.department.isFemaleOnly
-  // then data.gender is 'female'
-  ctx.body = { ok: true, user: await User.insert(data) }
-})
-```
+See [full example](#full-example) to see more options (including asynchronous custom validation and custom error messages) in action.
 
 ## Installation
 
@@ -140,7 +52,7 @@ const clean = require('data-cleaner'), ValidationError = clean.ValidationError
 
 ## API
 
-Type definitions:
+Terms:
 
 * [Cleaners](#cleaners)
 * [Cleaner creators](#cleaner-creators)
@@ -657,6 +569,100 @@ const cleaner = clean.object({
 
 cleaner({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo" }, comment: "hello" }
 ```
+
+## Full example
+
+Define a *cleaner* for imaginary department visitor registration form with the following fields:
+
+- Name
+- Gender
+- Email
+- Department
+
+Use imaginary async data access library for data validation.
+
+```js
+import clean, { ValidationError } from 'data-cleaner'
+
+const cleanVisitorData = clean.object({
+  fields: {
+    name: clean.string(), // Name must be a proper non-blank string.
+    gender: g => {
+      // Gender must be male or female
+      if (g == 'male' || g == 'female') {
+        return g
+      }
+      raise ValidationError("Invalid gender.")
+    },
+    email: clean.string({ // Email must be a proper non-blank string.
+      async clean(email) {
+        // Email must be valid.
+        if (!isEmail(email)) {
+          throw new ValidationError("Invalid email address.")
+        }
+        // Email must not be already registered.
+        if (await User.findByEmail(email)) {
+          throw new ValidationError(
+            `User with email ${email} already registered.`
+          )
+        }
+        return email
+      },
+    }),
+    department: clean.integer({
+      async clean(depId) {
+        // Transform department from id to model object.
+        const dep = await Department.findById(depId)
+        if (!dep) {
+          throw new ValidationError("Invalid value.")
+        }
+        return dep
+      }
+    }),
+  },
+  clean(visitor) {
+    // If all object fields validated, run it through additional cleaner.
+    if (visitor.department.isFemaleOnly && visitor.gender !== 'female') {
+      throw new ValidationError({
+        department: `Only women allowed in ${visitor.department.name}.`
+      })
+    }
+    return visitor
+  }
+})
+```
+
+Use the defined cleaner in imaginary API handler:
+
+```js
+router.post('/register', async ctx => {
+  let data
+  try {
+    data = await cleanVisitorData(ctx.request.body)
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      // err.errors = {
+      //   name: ['Error message 1', 'Error message 2', ...],
+      //   email: ['Error message'],
+      //   ...
+      // }
+      ctx.body = { errors: err.errors }
+      return
+    }
+    throw err
+  }
+  // data here is guaranteed to be an object
+  // data.name will be a non-blank string
+  // data.gender will be either 'male' or 'female'
+  // data.email will be a valid email
+  // data.department will be an instance of class Department
+  // It is also guaranteed that if data.department.isFemaleOnly
+  // then data.gender is 'female'
+  ctx.body = { ok: true, user: await User.insert(data) }
+})
+```
+
+NOTE: the code above mocks Koa requests handling. The actual Koa requests handling can be performed with less boilerplate using [data-cleaner-koa](https://github.com/IlyaSemenov/node-data-cleaner-koa).
 
 ## Comparison to other libraries
 
