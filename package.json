@@ -3,6 +3,7 @@
   "version": "0.0.0-managed-by-semantic-release",
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
   "main": "dist/bundle.umd.js",
+  "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "files": [
     "src/**",
