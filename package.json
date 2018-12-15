@@ -15,6 +15,17 @@
     "prepublish": "npm run build",
     "lint": "prettier-eslint --write '{src,test}/**/*.{js,ts}'"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier-eslint --write",
+      "git add"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/IlyaSemenov/node-data-cleaner.git"
@@ -33,6 +44,8 @@
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.10.0",
     "eslint-plugin-typescript": "^0.14.0",
+    "husky": "^1.2.1",
+    "lint-staged": "^8.1.0",
     "mocha": "^3.5.0",
     "prettier-eslint-cli": "^4.7.1",
     "rollup": "^0.59.1",
