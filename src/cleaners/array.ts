@@ -1,6 +1,5 @@
 import { getMessage } from '../utils'
-import SchemaError from '../exceptions/SchemaError'
-import ValidationError from '../exceptions/ValidationError'
+import { ValidationError, ErrorMessages } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
 
@@ -26,7 +25,7 @@ export default function cleanArray<T = Array<E> | null | undefined, E = any>(sch
 				}
 				if (schema.element) {
 					const cleanedArray = []
-					const errors = []
+					const errors: ErrorMessages = []
 					// TODO: use Promise.all instead of loop
 					for (const el of value) {
 						const cleanedEl = await Promise.resolve(schema.element(el, opts)).catch(err => {

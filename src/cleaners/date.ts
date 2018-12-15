@@ -1,6 +1,6 @@
 import cleanString, { StringSchema } from './string'
-import SchemaError from '../exceptions/SchemaError'
-import ValidationError from '../exceptions/ValidationError'
+import { SchemaError } from '../errors/SchemaError'
+import { ValidationError } from '../errors/ValidationError'
 import { Cleaner } from '../types'
 import { getMessage } from '../utils'
 

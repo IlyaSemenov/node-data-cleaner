@@ -1,6 +1,6 @@
 import { getMessage } from '../utils'
-import SchemaError from '../exceptions/SchemaError'
-import ValidationError from '../exceptions/ValidationError'
+import { SchemaError } from '../errors/SchemaError'
+import { ValidationError } from '../errors/ValidationError'
 import { Cleaner } from '../types'
 
 export interface AnySchema<T> {

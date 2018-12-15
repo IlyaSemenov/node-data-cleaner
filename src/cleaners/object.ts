@@ -1,14 +1,18 @@
 import { getMessage } from '../utils'
-import SchemaError from '../exceptions/SchemaError'
-import ValidationError from '../exceptions/ValidationError'
+import { SchemaError } from '../errors/SchemaError'
+import { ValidationError, FieldErrorMessages, ErrorMessages } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
+
+export type DirtyObject = { [field: string]: any }
+
+export type CleanObject = { [field: string]: any }
 
 export interface FieldCleanerOptions extends CleanerOptions {
 	data: Object
 }
 
-export type FieldCleaner<T = any> = (value, opts: FieldCleanerOptions) => T | Promise<T>
+export type FieldCleaner<T = any> = (value: any, opts: FieldCleanerOptions) => T | Promise<T>
 
 export type ParseKeysOptions = true | ((key: string) => string[])
 
@@ -27,7 +31,7 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 	const cleaner = cleanAny({
 		...schema as AnySchema<T>,
 		async clean(value, opts = {}) {
-			const errorGroups = []
+			const errorGroups: Array<[string, ErrorMessages]> = []
 			if (!(value === undefined || value === null)) {
 				if (typeof value !== "object") {
 					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
@@ -35,7 +39,7 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 				if (schema.parseKeys) {
 					value = parseKeys(value, schema.parseKeys)
 				}
-				const res = {}
+				const res: CleanObject = {}
                 const customDataStore = {}
 				for (const field of Object.keys(schema.fields)) {
 					const fieldValue = value.hasOwnProperty(field) ? value[field] : undefined
@@ -72,7 +76,7 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 
 			if (errorGroups.length) {
 				// Combine field validation errors
-				const errors = {}
+				const errors: FieldErrorMessages = {}
 				for (const [field, messages] of errorGroups) {
 					if (!errors[field]) {
 						errors[field] = []
@@ -88,13 +92,15 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 			return value
 		}
 	})
-	if (schema.nonFieldErrorsKey !== undefined) {
+
+	const { nonFieldErrorsKey } = schema
+	if (nonFieldErrorsKey !== undefined) {
 		return async function(value, opts) {
 			try {
 				return await cleaner(value, opts)
 			} catch (err) {
 				if (err instanceof ValidationError && err.messages) {
-					throw new ValidationError({[schema.nonFieldErrorsKey]: err.messages})
+					throw new ValidationError({[nonFieldErrorsKey]: err.messages})
 				} else {
 					throw err
 				}
@@ -105,9 +111,9 @@ export default function cleanObject<T = any>(schema: ObjectSchema<T>): Cleaner<T
 	}
 }
 
-function parseKeys (obj, opts: ParseKeysOptions) {
-	const getPathFromKey = typeof opts === 'function' ? opts : key => key.split('.')
-	const res = {}
+function parseKeys (obj: DirtyObject, opts: ParseKeysOptions) {
+	const getPathFromKey = typeof opts === 'function' ? opts : (key: string) => key.split('.')
+	const res: DirtyObject = {}
 	for (const key of Object.keys(obj)) {
 		const path = getPathFromKey(key)
 		if (path) {
@@ -117,7 +123,7 @@ function parseKeys (obj, opts: ParseKeysOptions) {
 	return res
 }
 
-function setObjPath (obj: object, path: string[], value: any): void {
+function setObjPath (obj: DirtyObject, path: string[], value: any): void {
 	for (let i = 0; i < path.length; ++i) {
 		const key = path[i]
 		if (i < path.length - 1) {

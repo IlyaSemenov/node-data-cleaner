@@ -1,11 +1,20 @@
-export default class ValidationError extends Error {
-	messages: Array<string>
-	errors: {
-		[field: string]: Array<string>
-	}
+export type ErrorMessage = string
 
-	constructor(arg) {
-		let message, messages, errors
+export type ErrorMessages = ErrorMessage[]
+
+export type FieldErrorMessages = {
+	[field: string]: ErrorMessages
+}
+
+export class ValidationError extends Error {
+	messages?: ErrorMessages
+	errors?: FieldErrorMessages
+
+	constructor(arg: ErrorMessage | ErrorMessages | FieldErrorMessages) {
+		let message: ErrorMessage | undefined
+		let messages: ErrorMessages | undefined
+		let errors: FieldErrorMessages | undefined
+
 		if (typeof arg === "string") {
 			messages = [arg]
 			message = arg

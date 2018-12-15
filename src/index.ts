@@ -17,8 +17,8 @@
 // export { default as array, ArraySchema } from './cleaners/array'
 // export { default as object, ObjectSchema } from './cleaners/object'
 
-// export { default as SchemaError } from './exceptions/SchemaError'
-// export { default as ValidationError } from './exceptions/ValidationError'
+// export { SchemaError } from './errors/SchemaError'
+// export { ValidationError } from './errors/ValidationError'
 
 // export { CleanerOptions, Cleaner } from './types'
 
@@ -26,17 +26,16 @@
 
 //  So for the time being I ended up with this:
 
-import cleanAny, { AnySchema } from './cleaners/any'
-import cleanString, { StringSchema } from './cleaners/string'
-import cleanDate, { DateSchema } from './cleaners/date'
-import cleanInteger, { IntegerSchema } from './cleaners/integer'
-import cleanFloat, { FloatSchema } from './cleaners/float'
-import cleanBoolean, { BooleanSchema } from './cleaners/boolean'
-import cleanArray, { ArraySchema } from './cleaners/array'
-import cleanObject, { ObjectSchema } from './cleaners/object'
-
-import SchemaError from './exceptions/SchemaError'
-import ValidationError from './exceptions/ValidationError'
+import cleanAny from './cleaners/any'
+import cleanString from './cleaners/string'
+import cleanDate from './cleaners/date'
+import cleanInteger from './cleaners/integer'
+import cleanFloat from './cleaners/float'
+import cleanBoolean from './cleaners/boolean'
+import cleanArray from './cleaners/array'
+import cleanObject from './cleaners/object'
+import { SchemaError } from './errors/SchemaError'
+import { ValidationError } from './errors/ValidationError'
 
 export default {
 	any: cleanAny,
@@ -47,19 +46,21 @@ export default {
 	boolean: cleanBoolean,
 	array: cleanArray,
 	object: cleanObject,
-	// TODO: convert the below to named imports??
+	// TODO: convert the below to named exports??
 	SchemaError,
 	ValidationError,
 }
 
+// Export types as named exports.
+// Unlike exporting of values, this does not break CJS/ES6 default export.
+
 export { CleanerOptions, Cleaner } from './types'
-export {
-	AnySchema,
-	StringSchema,
-	DateSchema,
-	IntegerSchema,
-	FloatSchema,
-	BooleanSchema,
-	ArraySchema,
-	ObjectSchema,
-}
+export { AnySchema } from './cleaners/any'
+export { StringSchema } from './cleaners/string'
+export { DateSchema } from './cleaners/date'
+export { IntegerSchema } from './cleaners/integer'
+export { FloatSchema } from './cleaners/float'
+export { BooleanSchema } from './cleaners/boolean'
+export { ArraySchema } from './cleaners/array'
+export { ObjectSchema } from './cleaners/object'
+export { ErrorMessage, ErrorMessages, FieldErrorMessages } from './errors/ValidationError'

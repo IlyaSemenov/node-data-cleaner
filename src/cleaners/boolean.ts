@@ -1,5 +1,5 @@
 import { getMessage } from '../utils'
-import ValidationError from '../exceptions/ValidationError'
+import { ValidationError } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner } from '../types'
 
