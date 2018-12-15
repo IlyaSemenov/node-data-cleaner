@@ -63,4 +63,8 @@ export { FloatSchema } from './cleaners/float'
 export { BooleanSchema } from './cleaners/boolean'
 export { ArraySchema } from './cleaners/array'
 export { ObjectSchema } from './cleaners/object'
-export { ErrorMessage, ErrorMessages, FieldErrorMessages } from './errors/ValidationError'
+export {
+	ErrorMessage,
+	ErrorMessages,
+	FieldErrorMessages,
+} from './errors/ValidationError'

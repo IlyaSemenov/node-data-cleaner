@@ -9,27 +9,35 @@ export interface StringSchema<T> extends AnySchema<T> {
 	cast?: boolean
 }
 
-export default function cleanString<T = string | null | undefined>(schema: StringSchema<T> = {}): Cleaner<T> {
+export default function cleanString<T = string | null | undefined>(
+	schema: StringSchema<T> = {},
+): Cleaner<T> {
 	if (schema.blank === null) {
 		if (schema.null === undefined) {
 			schema.null = true
 		} else if (schema.null !== true) {
-			throw new SchemaError("clean.string with 'blank: null' needs 'null: true'")
+			throw new SchemaError(
+				"clean.string with 'blank: null' needs 'null: true'",
+			)
 		}
 	}
 	return cleanAny({
-		...schema as AnySchema<T>,
+		...(schema as AnySchema<T>),
 		clean(value, opts) {
 			if (!(value === undefined || value === null)) {
-				if (typeof value === "object" && schema.cast !== true) {
-					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
+				if (typeof value === 'object' && schema.cast !== true) {
+					throw new ValidationError(
+						getMessage(opts, 'invalid', 'Invalid value.'),
+					)
 				}
 				value = String(value)
 				if (value === '') {
 					if (schema.blank === null) {
 						value = null
 					} else if (schema.blank !== true) {
-						throw new ValidationError(getMessage(opts, 'required', "Value required."))
+						throw new ValidationError(
+							getMessage(opts, 'required', 'Value required.'),
+						)
 					}
 				}
 			}
@@ -37,6 +45,6 @@ export default function cleanString<T = string | null | undefined>(schema: Strin
 				value = schema.clean(value, opts)
 			}
 			return value
-		}
+		},
 	})
 }

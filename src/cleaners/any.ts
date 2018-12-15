@@ -10,7 +10,9 @@ export interface AnySchema<T> {
 	clean?: Cleaner<T>
 }
 
-export default function cleanAny<T = any>(schema: AnySchema<T> = {}): Cleaner<T> {
+export default function cleanAny<T = any>(
+	schema: AnySchema<T> = {},
+): Cleaner<T> {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false
@@ -28,13 +30,13 @@ export default function cleanAny<T = any>(schema: AnySchema<T> = {}): Cleaner<T>
 	// TODO: return non-async function (all tests must be fixed).
 	return async function(value, opts) {
 		if (value === undefined && schema.required !== false) {
-			throw new ValidationError(getMessage(opts, 'required', "Value required."))
+			throw new ValidationError(getMessage(opts, 'required', 'Value required.'))
 		}
 		if (value === undefined && schema.default !== undefined) {
 			value = schema.default
 		}
 		if (value === null && schema.null !== true) {
-			throw new ValidationError(getMessage(opts, 'required', "Value required."))
+			throw new ValidationError(getMessage(opts, 'required', 'Value required.'))
 		}
 		if (schema.clean) {
 			value = schema.clean(value, opts)

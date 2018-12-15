@@ -8,13 +8,17 @@ export interface BooleanSchema<T> extends AnySchema<T> {
 	omit?: boolean
 }
 
-export default function cleanBoolean<T = boolean | null | undefined>(schema: BooleanSchema<T> = {}): Cleaner<T> {
+export default function cleanBoolean<T = boolean | null | undefined>(
+	schema: BooleanSchema<T> = {},
+): Cleaner<T> {
 	return cleanAny({
-		...schema as AnySchema<T>,
+		...(schema as AnySchema<T>),
 		clean(value, opts) {
 			if (!(value === undefined || value === null)) {
-				if (typeof value !== "boolean" && schema.cast !== true) {
-					throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
+				if (typeof value !== 'boolean' && schema.cast !== true) {
+					throw new ValidationError(
+						getMessage(opts, 'invalid', 'Invalid value.'),
+					)
 				}
 				value = !!value // TODO: only do this if not boolean
 				if (value === false && schema.omit === true) {
@@ -25,6 +29,6 @@ export default function cleanBoolean<T = boolean | null | undefined>(schema: Boo
 				value = schema.clean(value, opts)
 			}
 			return value
-		}
+		},
 	})
 }

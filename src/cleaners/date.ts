@@ -9,21 +9,31 @@ export interface DateSchema<T> extends StringSchema<T> {
 	format?: null | 'iso'
 }
 
-export default function cleanDate<T = string>(schema: DateSchema<T> = {}): Cleaner<T> {
-	if (!(schema.format === undefined || schema.format === null || schema.format === 'iso')) {
-		throw new SchemaError("clean.date result may be only: undefined, null, 'iso'")
+export default function cleanDate<T = string>(
+	schema: DateSchema<T> = {},
+): Cleaner<T> {
+	if (
+		!(
+			schema.format === undefined ||
+			schema.format === null ||
+			schema.format === 'iso'
+		)
+	) {
+		throw new SchemaError(
+			"clean.date result may be only: undefined, null, 'iso'",
+		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
 	return cleanString<T>({
-		...schema as StringSchema<T>,
+		...(schema as StringSchema<T>),
 		cast: true,
-		clean (value, opts) {
+		clean(value, opts) {
 			if (value === null || value === undefined || value === '') {
 				return value
 			}
 			const date = new Date(value)
 			if (isNaN(date.getTime())) {
-				throw new ValidationError(getMessage(opts, 'invalid', "Invalid value."))
+				throw new ValidationError(getMessage(opts, 'invalid', 'Invalid value.'))
 			}
 			let result
 			if (schema.format === null) {
@@ -37,6 +47,6 @@ export default function cleanDate<T = string>(schema: DateSchema<T> = {}): Clean
 				result = schema.clean(result, opts)
 			}
 			return result
-		}
+		},
 	})
 }

@@ -12,7 +12,8 @@
   "scripts": {
     "test": "mocha",
     "build": "rollup -c",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "lint": "prettier-eslint --write '{src,test}/**/*.{js,ts}'"
   },
   "repository": {
     "type": "git",
@@ -30,11 +31,15 @@
   "devDependencies": {
     "chai": "^4.1.1",
     "chai-as-promised": "^7.1.1",
+    "eslint": "^5.10.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "mocha": "^3.5.0",
+    "prettier-eslint-cli": "^4.7.1",
     "rollup": "^0.59.1",
     "rollup-plugin-cleaner": "^0.2.0",
     "rollup-plugin-typescript2": "^0.14.0",
     "semantic-release": "^15.9.17",
-    "typescript": "^2.8.3"
+    "typescript": "^2.8.3",
+    "typescript-eslint-parser": "^21.0.2"
   }
 }
