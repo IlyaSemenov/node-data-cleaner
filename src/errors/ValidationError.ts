@@ -6,11 +6,15 @@ export type FieldErrorMessages = {
 	[field: string]: ErrorMessages
 }
 
+export type SimpleFieldErrorMessages = {
+	[field: string]: ErrorMessage | ErrorMessages
+}
+
 export class ValidationError extends Error {
 	messages?: ErrorMessages
 	errors?: FieldErrorMessages
 
-	constructor(arg: ErrorMessage | ErrorMessages | FieldErrorMessages) {
+	constructor(arg: ErrorMessage | ErrorMessages | SimpleFieldErrorMessages) {
 		let message: ErrorMessage | undefined
 		let messages: ErrorMessages | undefined
 		let errors: FieldErrorMessages | undefined
