@@ -1,4 +1,5 @@
 export interface CleanerOptions {
+	context?: any
 	messages?: {
 		[key: string]: string
 	}
