@@ -39,9 +39,9 @@ export default function cleanArray<E = any, T = E[], V = T>(
 					const errors: ErrorMessages = []
 					// TODO: use Promise.all instead of loop
 					for (const el of res) {
-						const cleanedEl = await Promise.resolve(
-							schema.element(el, opts),
-						).catch(err => {
+						try {
+							cleanedArray.push(await schema.element(el, opts))
+						} catch (err) {
 							if (err instanceof ValidationError) {
 								if (err.messages) {
 									errors.push(...err.messages)
@@ -55,8 +55,7 @@ export default function cleanArray<E = any, T = E[], V = T>(
 							} else {
 								throw err
 							}
-						})
-						cleanedArray.push(cleanedEl)
+						}
 					}
 					if (errors.length) {
 						throw new ValidationError(errors)

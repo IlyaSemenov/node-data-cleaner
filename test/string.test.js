@@ -12,19 +12,19 @@ t.test('convert integer to string', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		await t.rejects(clean.string()(), ValidationError)
+		t.throws(() => clean.string()(), ValidationError)
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(await clean.string({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		await t.rejects(clean.string()(null), ValidationError)
+		t.throws(() => clean.string()(null), ValidationError)
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(await clean.string({ null: true })(null), null)
 	})
 	await t.test('reject blank string', async t => {
-		await t.rejects(clean.string()(''), ValidationError)
+		t.throws(() => clean.string()(''), ValidationError)
 	})
 	await t.test('pass blank string if allowed', async t => {
 		t.equal(await clean.string({ blank: true })(''), '')
@@ -50,7 +50,7 @@ t.test('Converting objects', async t => {
 	}
 	const test = new Test()
 	await t.test('reject object', async t => {
-		await t.rejects(clean.string()(test), ValidationError)
+		t.throws(() => clean.string()(test), ValidationError)
 	})
 	await t.test('accept object if allowed', async t => {
 		t.equal(await clean.string({ cast: true })(test), 'test')

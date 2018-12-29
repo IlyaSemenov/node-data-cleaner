@@ -92,13 +92,13 @@ t.test('collect named validation errors from all elements', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		await t.rejects(clean.array()(), ValidationError)
+		t.throws(() => clean.array()(), ValidationError)
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(await clean.array({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		await t.rejects(clean.array()(null), ValidationError)
+		t.throws(() => clean.array()(null), ValidationError)
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(await clean.array({ null: true })(null), null)

@@ -2,11 +2,11 @@ const t = require('tap')
 const clean = require('..'),
 	{ SchemaError, ValidationError } = clean
 
-t.test('not allow empty schema', async t => {
+t.test('reject empty schema', async t => {
 	t.throws(() => clean.object(), SchemaError)
 })
 
-t.test('not allow schema without fields', async t => {
+t.test('reject schema without fields', async t => {
 	t.throws(() => clean.object({}), SchemaError)
 })
 
@@ -30,7 +30,7 @@ t.test('Multiple fields', async t => {
 		t.same(await cleaner(obj), obj)
 	})
 	await t.test('reject if some fields not present', async t => {
-		await t.rejects(
+		t.rejects(
 			cleaner({ s2: 'two' }),
 			new ValidationError({
 				s1: ['Value required.'],
@@ -40,7 +40,7 @@ t.test('Multiple fields', async t => {
 	})
 })
 
-t.test('not reject non-required field', async t => {
+t.test('allow missing non-required field', async t => {
 	t.same(
 		await clean.object({
 			fields: {

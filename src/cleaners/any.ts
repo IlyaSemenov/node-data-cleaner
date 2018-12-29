@@ -27,8 +27,7 @@ export default function cleanAny<T = any, V = T>(
 			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
 		}
 	}
-	return async function(value, opts) {
-		// TODO: make the function non async (need to update tests)
+	return function(value, opts) {
 		let res: any = value
 		if (res === undefined && schema.required !== false) {
 			throw new ValidationError(getMessage(opts, 'required', 'Value required.'))
