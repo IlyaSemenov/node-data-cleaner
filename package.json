@@ -25,25 +25,23 @@
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",
-    "chai": "^4.1.1",
-    "chai-as-promised": "^7.1.1",
     "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^1.2.1",
     "lint-staged": "^8.1.0",
-    "mocha": "^3.5.0",
     "prettier-eslint-cli": "^4.7.1",
     "rollup": "^0.59.1",
     "rollup-plugin-cleaner": "^0.2.0",
     "rollup-plugin-typescript2": "^0.14.0",
     "semantic-release": "^15.9.17",
+    "tap": "^12.1.1",
     "typescript": "^2.8.3",
     "typescript-eslint-parser": "^21.0.2"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "tap --jobs-auto 'test/**/*.test.js'",
     "build": "rollup -c",
     "prepublish": "npm run build",
     "lint": "eslint --fix '**/*.{js,ts}'"
