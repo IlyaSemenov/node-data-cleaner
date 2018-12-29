@@ -9,8 +9,5 @@ export default {
 		name: 'dataCleaner',
 		sourcemap: true,
 	},
-	plugins: [
-		cleaner({ targets: ['./dist/'] }),
-		typescript(),
-	]
+	plugins: [cleaner({ targets: ['./dist/'] }), typescript()],
 }

@@ -27,7 +27,9 @@
     "@commitlint/config-conventional": "^7.1.2",
     "chai": "^4.1.1",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^5.10.0",
+    "eslint": "^5.11.1",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^1.2.1",
     "lint-staged": "^8.1.0",
@@ -44,7 +46,13 @@
     "test": "mocha",
     "build": "rollup -c",
     "prepublish": "npm run build",
-    "lint": "prettier-eslint --write '{src,test}/**/*.{js,ts}'"
+    "lint": "eslint --fix '**/*.{js,ts}'"
+  },
+  "prettier": {
+    "useTabs": true,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all"
   },
   "husky": {
     "hooks": {
@@ -54,11 +62,13 @@
   },
   "lint-staged": {
     "*.{js,ts}": [
-      "prettier-eslint --write",
+      "eslint --fix",
       "git add"
     ]
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
