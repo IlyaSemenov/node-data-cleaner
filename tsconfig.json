@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "esnext",
+		"moduleResolution": "node",
 		"declaration": true,
 		"strict": true,
 		"lib": ["es2015"]

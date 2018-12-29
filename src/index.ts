@@ -29,6 +29,7 @@
 import cleanAny from './cleaners/any'
 import cleanString from './cleaners/string'
 import cleanDate from './cleaners/date'
+import cleanEmail from './cleaners/email'
 import cleanInteger from './cleaners/integer'
 import cleanFloat from './cleaners/float'
 import cleanBoolean from './cleaners/boolean'
@@ -41,6 +42,7 @@ export default {
 	any: cleanAny,
 	string: cleanString,
 	date: cleanDate,
+	email: cleanEmail,
 	integer: cleanInteger,
 	float: cleanFloat,
 	boolean: cleanBoolean,
@@ -58,6 +60,7 @@ export { CleanerOptions, Cleaner } from './types'
 export { AnySchema } from './cleaners/any'
 export { StringSchema } from './cleaners/string'
 export { DateSchema } from './cleaners/date'
+export { EmailSchema } from './cleaners/email'
 export { IntegerSchema } from './cleaners/integer'
 export { FloatSchema } from './cleaners/float'
 export { BooleanSchema } from './cleaners/boolean'
