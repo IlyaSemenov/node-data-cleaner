@@ -8,57 +8,50 @@ import {
 import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
 
-export type DirtyObject = { [field: string]: any }
-
-export type CleanObject = { [field: string]: any }
+export type Dict = {
+	[field: string]: any
+}
 
 export interface FieldCleanerOptions extends CleanerOptions {
 	data: Object
 }
 
-export type FieldCleaner<T = any> = (
-	value: any,
-	opts: FieldCleanerOptions,
-) => T | Promise<T>
+export type ParseKeysOptions = boolean | ((key: string) => string[])
 
-export type ParseKeysOptions = true | ((key: string) => string[])
-
-export interface ObjectSchema<
-	T,
-	fields = {
-		[fieldName: string]: FieldCleaner
-	}
-> extends AnySchema<T> {
+export interface ObjectSchema<T, V> extends AnySchema<T, V> {
 	parseKeys?: ParseKeysOptions
-	fields: fields
+	fields: {
+		[fieldName: string]: Cleaner<any, any, FieldCleanerOptions>
+	}
 	nonFieldErrorsKey?: string
 }
 
-export default function cleanObject<T = any>(
-	schema: ObjectSchema<T>,
-): Cleaner<T> {
+export default function cleanObject<T = Dict, V = T>(
+	schema: ObjectSchema<T, V>,
+): Cleaner<T, V> {
 	if (!schema || typeof schema.fields !== 'object') {
 		throw new SchemaError('clean.object schema must include fields.')
 	}
-	const cleaner = cleanAny({
-		...(schema as AnySchema<T>),
+	const cleaner = cleanAny<T, V>({
+		required: schema.required,
+		default: schema.default,
+		null: schema.null,
 		async clean(value, opts = {}) {
+			let res: any = value
 			const errorGroups: Array<[string, ErrorMessages]> = []
-			if (!(value === undefined || value === null)) {
-				if (typeof value !== 'object') {
+			if (!(res === undefined || res === null)) {
+				if (typeof res !== 'object') {
 					throw new ValidationError(
 						getMessage(opts, 'invalid', 'Invalid value.'),
 					)
 				}
 				if (schema.parseKeys) {
-					value = parseKeys(value, schema.parseKeys)
+					res = parseKeys(res, schema.parseKeys)
 				}
-				const res: CleanObject = {}
+				const cleanRes: Dict = {}
 				const customDataStore = {}
 				for (const field of Object.keys(schema.fields)) {
-					const fieldValue = value.hasOwnProperty(field)
-						? value[field]
-						: undefined
+					const fieldValue = res.hasOwnProperty(field) ? res[field] : undefined
 					const fieldCleaner = schema.fields[field]
 					let cleanedFieldValue
 					try {
@@ -88,11 +81,11 @@ export default function cleanObject<T = any>(
 						}
 					}
 					if (cleanedFieldValue !== undefined) {
-						res[field] = cleanedFieldValue
+						cleanRes[field] = cleanedFieldValue
 					}
 				}
-				Object.assign(res, customDataStore)
-				value = res
+				Object.assign(cleanRes, customDataStore)
+				res = cleanRes
 			}
 
 			if (errorGroups.length) {
@@ -108,9 +101,9 @@ export default function cleanObject<T = any>(
 			}
 
 			if (schema.clean) {
-				value = schema.clean(value, opts)
+				res = schema.clean(res, opts)
 			}
-			return value
+			return res
 		},
 	})
 
@@ -132,10 +125,10 @@ export default function cleanObject<T = any>(
 	}
 }
 
-function parseKeys(obj: DirtyObject, opts: ParseKeysOptions) {
+function parseKeys(obj: Dict, opts: ParseKeysOptions) {
 	const getPathFromKey =
 		typeof opts === 'function' ? opts : (key: string) => key.split('.')
-	const res: DirtyObject = {}
+	const res: Dict = {}
 	for (const key of Object.keys(obj)) {
 		const path = getPathFromKey(key)
 		if (path) {
@@ -145,7 +138,7 @@ function parseKeys(obj: DirtyObject, opts: ParseKeysOptions) {
 	return res
 }
 
-function setObjPath(obj: DirtyObject, path: string[], value: any): void {
+function setObjPath(obj: Dict, path: string[], value: any): void {
 	for (let i = 0; i < path.length; ++i) {
 		const key = path[i]
 		if (i < path.length - 1) {

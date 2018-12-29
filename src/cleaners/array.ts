@@ -3,30 +3,33 @@ import { ValidationError, ErrorMessages } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
 
-export interface ArraySchema<T, E = any> extends AnySchema<T> {
+export interface ArraySchema<E, T, V> extends AnySchema<T, V> {
 	element?: Cleaner<E>
 	min?: number
 	max?: number
 }
 
-export default function cleanArray<T = Array<E> | null | undefined, E = any>(
-	schema: ArraySchema<T> = {},
-): Cleaner<T> {
-	return cleanAny<T>({
-		...(schema as AnySchema<T>),
+export default function cleanArray<E = any, T = E[], V = T>(
+	schema: ArraySchema<E, T, V> = {},
+): Cleaner<T, V> {
+	return cleanAny<T, V>({
+		required: schema.required,
+		default: schema.default,
+		null: schema.null,
 		async clean(value, opts: CleanerOptions = {}) {
-			if (!(value === undefined || value === null)) {
-				if (!Array.isArray(value)) {
+			let res: any = value
+			if (!(res === undefined || res === null)) {
+				if (!Array.isArray(res)) {
 					throw new ValidationError(
 						getMessage(opts, 'invalid', 'Invalid value.'),
 					)
 				}
-				if (schema.min && value.length < schema.min) {
+				if (schema.min && res.length < schema.min) {
 					throw new ValidationError(
 						getMessage(opts, 'array_min', 'Not enough values.'),
 					)
 				}
-				if (schema.max && value.length > schema.max) {
+				if (schema.max && res.length > schema.max) {
 					throw new ValidationError(
 						getMessage(opts, 'array_max', 'Too many values.'),
 					)
@@ -35,7 +38,7 @@ export default function cleanArray<T = Array<E> | null | undefined, E = any>(
 					const cleanedArray = []
 					const errors: ErrorMessages = []
 					// TODO: use Promise.all instead of loop
-					for (const el of value) {
+					for (const el of res) {
 						const cleanedEl = await Promise.resolve(
 							schema.element(el, opts),
 						).catch(err => {
@@ -58,14 +61,14 @@ export default function cleanArray<T = Array<E> | null | undefined, E = any>(
 					if (errors.length) {
 						throw new ValidationError(errors)
 					}
-					value = cleanedArray
+					res = cleanedArray
 				}
 			}
 
 			if (schema.clean) {
-				value = schema.clean(value, opts)
+				res = schema.clean(res, opts)
 			}
-			return value
+			return res
 		},
 	})
 }

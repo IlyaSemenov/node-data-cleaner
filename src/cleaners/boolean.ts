@@ -3,32 +3,35 @@ import { ValidationError } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner } from '../types'
 
-export interface BooleanSchema<T> extends AnySchema<T> {
+export interface BooleanSchema<T, V> extends AnySchema<T, V> {
 	cast?: boolean
 	omit?: boolean
 }
 
-export default function cleanBoolean<T = boolean | null | undefined>(
-	schema: BooleanSchema<T> = {},
-): Cleaner<T> {
-	return cleanAny({
-		...(schema as AnySchema<T>),
+export default function cleanBoolean<T = boolean, V = T>(
+	schema: BooleanSchema<T, V> = {},
+): Cleaner<T, V> {
+	return cleanAny<T, V>({
+		required: schema.required,
+		default: schema.default,
+		null: schema.null,
 		clean(value, opts) {
-			if (!(value === undefined || value === null)) {
-				if (typeof value !== 'boolean' && schema.cast !== true) {
+			let res: any = value
+			if (!(res === undefined || res === null)) {
+				if (typeof res !== 'boolean' && schema.cast !== true) {
 					throw new ValidationError(
 						getMessage(opts, 'invalid', 'Invalid value.'),
 					)
 				}
-				value = !!value // TODO: only do this if not boolean
-				if (value === false && schema.omit === true) {
-					value = undefined
+				res = !!res // TODO: only do this if not boolean
+				if (res === false && schema.omit === true) {
+					res = undefined
 				}
 			}
 			if (schema.clean) {
-				value = schema.clean(value, opts)
+				res = schema.clean(res, opts)
 			}
-			return value
+			return res
 		},
 	})
 }

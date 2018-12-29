@@ -4,14 +4,14 @@ import { ValidationError } from '../errors/ValidationError'
 import cleanAny, { AnySchema } from './any'
 import { Cleaner } from '../types'
 
-export interface StringSchema<T> extends AnySchema<T> {
+export interface StringSchema<T, V> extends AnySchema<T, V> {
 	blank?: boolean | null
 	cast?: boolean
 }
 
-export default function cleanString<T = string | null | undefined>(
-	schema: StringSchema<T> = {},
-): Cleaner<T> {
+export default function cleanString<T = string, V = string>(
+	schema: StringSchema<T, V> = {},
+): Cleaner<T, V> {
 	if (schema.blank === null) {
 		if (schema.null === undefined) {
 			schema.null = true
@@ -21,19 +21,22 @@ export default function cleanString<T = string | null | undefined>(
 			)
 		}
 	}
-	return cleanAny({
-		...(schema as AnySchema<T>),
+	return cleanAny<T, V>({
+		required: schema.required,
+		default: schema.default,
+		null: schema.null,
 		clean(value, opts) {
-			if (!(value === undefined || value === null)) {
-				if (typeof value === 'object' && schema.cast !== true) {
+			let res: any = value
+			if (!(res === undefined || res === null)) {
+				if (typeof res === 'object' && schema.cast !== true) {
 					throw new ValidationError(
 						getMessage(opts, 'invalid', 'Invalid value.'),
 					)
 				}
-				value = String(value)
-				if (value === '') {
+				res = String(res)
+				if (res === '') {
 					if (schema.blank === null) {
-						value = null
+						res = null
 					} else if (schema.blank !== true) {
 						throw new ValidationError(
 							getMessage(opts, 'required', 'Value required.'),
@@ -42,9 +45,9 @@ export default function cleanString<T = string | null | undefined>(
 				}
 			}
 			if (schema.clean) {
-				value = schema.clean(value, opts)
+				res = schema.clean(res, opts)
 			}
-			return value
+			return res
 		},
 	})
 }
