@@ -31,7 +31,6 @@
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^1.2.1",
     "lint-staged": "^8.1.0",
-    "prettier-eslint-cli": "^4.7.1",
     "rollup": "^0.59.1",
     "rollup-plugin-cleaner": "^0.2.0",
     "rollup-plugin-typescript2": "^0.14.0",
