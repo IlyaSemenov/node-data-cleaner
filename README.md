@@ -34,10 +34,10 @@ See [full example](#full-example) to see more options (including asynchronous cu
 
 ## Installation
 
-Use npm:
+Use npm or yarn:
 
 ```bash
-npm install data-cleaner
+yarn add data-cleaner
 ```
 
 Then import or require:
