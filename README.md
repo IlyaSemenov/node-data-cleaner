@@ -774,13 +774,11 @@ This can be directly attached back to the corresponding form fields in the UI.
 
 ## Testing
 
-Testing is performed with `mocha` and `chai`:
-
 ```bash
 git clone https://github.com/IlyaSemenov/node-data-cleaner.git
 cd node-data-cleaner
-npm install
-npm test
+yarn
+yarn test
 ```
 
 ## Contributing
