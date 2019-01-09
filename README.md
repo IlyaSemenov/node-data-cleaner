@@ -68,6 +68,7 @@ Scalar cleaners:
 * [`clean.float`](#cleanfloat)
 * [`clean.boolean`](#cleanboolean)
 * [`clean.date`](#cleandate)
+* [`clean.email`](#cleanemail)
 
 Aggregation cleaners:
 
@@ -349,6 +350,28 @@ await cleaner(null) // throws "Value required."
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `format: null` - return valid value as is (instead of Date object)
 - `format: 'iso'` - return ISO-formatted date (instead of Date object)
+- `clean` - custom cleaner to run if the validation passes
+
+### `clean.email()`
+
+Create an instance of a string cleaner that returns a valid email string.
+
+```js
+const cleaner = clean.email()
+
+await cleaner('user@example.com') // 'user@example.com'
+await cleaner('non email garbage') // throws "Invalid value."
+await cleaner('') // throws "Value required."
+```
+
+#### Supported schema parameters
+
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `blank: true` - allow blank values (empty strings)
+- `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
+- `cast: true` - no strict type check, convert value with `String(value)`
 - `clean` - custom cleaner to run if the validation passes
 
 ### `clean.array()`
