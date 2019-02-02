@@ -2,36 +2,33 @@ import { getMessage } from '../utils'
 import { ValidationError } from '../errors/ValidationError'
 import { SchemaError } from '../errors/SchemaError'
 import cleanAny, { AnySchema, setSchema } from './any'
-import { CleanerOptions } from '../types'
 
-export interface NumberSchema<T, V, O> extends AnySchema<T, V, O> {
+export interface NumberSchema<T, V> extends AnySchema<T, V> {
 	cast?: boolean
 	min?: number
 	max?: number
 }
 
-export interface NumberParserSchema<T, V, O> extends NumberSchema<T, V, O> {
+export interface NumberParserSchema<T, V> extends NumberSchema<T, V> {
 	parseNumber: (value: any) => number
 }
 
-export default function cleanNumber<
-	T = number,
-	V = T,
-	O extends CleanerOptions = CleanerOptions
->(schema: NumberParserSchema<T, V, O>) {
+export default function cleanNumber<T = number, V = T>(
+	schema: NumberParserSchema<T, V>,
+) {
 	if (schema.parseNumber === undefined) {
 		throw new SchemaError("clean.number needs 'parseNumber'")
 	}
-	const cleaner = cleanAny<T, V, O>({
+	const cleaner = cleanAny<T, V>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
-		clean(value, opts) {
+		clean(value, context) {
 			let res: any = value
 			if (!(res === undefined || res === null)) {
 				if (typeof res !== 'number' && schema.cast !== true) {
 					throw new ValidationError(
-						getMessage(opts, 'invalid', 'Invalid value.'),
+						getMessage(context, 'invalid', 'Invalid value.'),
 					)
 				}
 				if (res === '' && (schema.null === true || schema.default === null)) {
@@ -40,23 +37,23 @@ export default function cleanNumber<
 					res = schema.parseNumber(res)
 					if (isNaN(res)) {
 						throw new ValidationError(
-							getMessage(opts, 'invalid', 'Invalid value.'),
+							getMessage(context, 'invalid', 'Invalid value.'),
 						)
 					}
 					if (schema.min !== undefined && res < schema.min) {
 						throw new ValidationError(
-							getMessage(opts, 'invalid', 'Value too low.'),
+							getMessage(context, 'invalid', 'Value too low.'),
 						)
 					}
 					if (schema.max !== undefined && res > schema.max) {
 						throw new ValidationError(
-							getMessage(opts, 'invalid', 'Value too high.'),
+							getMessage(context, 'invalid', 'Value too high.'),
 						)
 					}
 				}
 			}
 			if (schema.clean) {
-				res = schema.clean(res, opts)
+				res = schema.clean(res, context)
 			}
 			return res
 		},

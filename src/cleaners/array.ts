@@ -1,40 +1,37 @@
 import { getMessage } from '../utils'
 import { ValidationError, ErrorMessages } from '../errors/ValidationError'
 import cleanAny, { AnySchema, setSchema } from './any'
-import { Cleaner, CleanerOptions } from '../types'
+import { Cleaner } from '../types'
 
-export interface ArraySchema<E, T, V, O> extends AnySchema<T, V, O> {
+export interface ArraySchema<E, T, V> extends AnySchema<T, V> {
 	element?: Cleaner<E>
 	min?: number
 	max?: number
 }
 
-export default function cleanArray<
-	E = any,
-	T = E[],
-	V = T,
-	O extends CleanerOptions = CleanerOptions
->(schema: ArraySchema<E, T, V, O> = {}) {
-	const cleaner = cleanAny<T, V, O>({
+export default function cleanArray<E = any, T = E[], V = T>(
+	schema: ArraySchema<E, T, V> = {},
+) {
+	const cleaner = cleanAny<T, V>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
-		async clean(value, opts) {
+		async clean(value, context) {
 			let res: any = value
 			if (!(res === undefined || res === null)) {
 				if (!Array.isArray(res)) {
 					throw new ValidationError(
-						getMessage(opts, 'invalid', 'Invalid value.'),
+						getMessage(context, 'invalid', 'Invalid value.'),
 					)
 				}
 				if (schema.min && res.length < schema.min) {
 					throw new ValidationError(
-						getMessage(opts, 'array_min', 'Not enough values.'),
+						getMessage(context, 'array_min', 'Not enough values.'),
 					)
 				}
 				if (schema.max && res.length > schema.max) {
 					throw new ValidationError(
-						getMessage(opts, 'array_max', 'Too many values.'),
+						getMessage(context, 'array_max', 'Too many values.'),
 					)
 				}
 				if (schema.element) {
@@ -43,7 +40,7 @@ export default function cleanArray<
 					// TODO: use Promise.all instead of loop
 					for (const el of res) {
 						try {
-							cleanedArray.push(await schema.element(el, opts))
+							cleanedArray.push(await schema.element(el, context))
 						} catch (err) {
 							if (err instanceof ValidationError) {
 								if (err.messages) {
@@ -68,7 +65,7 @@ export default function cleanArray<
 			}
 
 			if (schema.clean) {
-				res = schema.clean(res, opts)
+				res = schema.clean(res, context)
 			}
 			return res
 		},

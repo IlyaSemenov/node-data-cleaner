@@ -1,20 +1,17 @@
 import cleanString, { StringSchema } from './string'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import { CleanerOptions } from '../types'
 import { getMessage } from '../utils'
 import { setSchema } from './any'
 
-export interface DateSchema<T, V, O> extends StringSchema<T, V, O> {
+export interface DateSchema<T, V> extends StringSchema<T, V> {
 	cast?: never
 	format?: null | 'iso'
 }
 
-export default function cleanDate<
-	T = string,
-	V = T,
-	O extends CleanerOptions = CleanerOptions
->(schema: DateSchema<T, V, O> = {}) {
+export default function cleanDate<T = string, V = T>(
+	schema: DateSchema<T, V> = {},
+) {
 	if (
 		!(
 			schema.format === undefined ||
@@ -27,19 +24,19 @@ export default function cleanDate<
 		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
-	const cleaner = cleanString<T, V, O>({
+	const cleaner = cleanString<T, V>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
 		blank: schema.blank,
 		cast: true,
-		clean(value, opts) {
+		clean(value, context) {
 			let res: any = value
 			if (!(res === undefined || res === null || res === '')) {
 				const date = new Date(res)
 				if (isNaN(date.getTime())) {
 					throw new ValidationError(
-						getMessage(opts, 'invalid', 'Invalid value.'),
+						getMessage(context, 'invalid', 'Invalid value.'),
 					)
 				}
 				if (schema.format === null) {
@@ -51,7 +48,7 @@ export default function cleanDate<
 				}
 			}
 			if (schema.clean) {
-				res = schema.clean(res, opts)
+				res = schema.clean(res, context)
 			}
 			return res
 		},

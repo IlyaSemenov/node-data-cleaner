@@ -56,7 +56,7 @@ export default {
 // Export types as named exports.
 // Unlike exporting of values, this does not break CJS/ES6 default export.
 
-export { CleanerOptions, Cleaner } from './types'
+export { Cleaner } from './types'
 export { AnySchema } from './cleaners/any'
 export { StringSchema } from './cleaners/string'
 export { DateSchema } from './cleaners/date'

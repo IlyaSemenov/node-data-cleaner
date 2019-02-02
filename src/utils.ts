@@ -1,9 +1,11 @@
-import { CleanerOptions } from './types'
+export interface MessageContext {
+	messages?: Record<string, string>
+}
 
 export function getMessage(
-	opts: CleanerOptions | undefined,
+	context: MessageContext | undefined,
 	name: string,
 	defaultText: string,
 ) {
-	return (opts && opts.messages && opts.messages[name]) || defaultText
+	return (context && context.messages && context.messages[name]) || defaultText
 }

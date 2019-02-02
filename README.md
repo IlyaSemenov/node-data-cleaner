@@ -80,7 +80,7 @@ Aggregation cleaners:
 A *cleaner* is any function that follows the contract:
 
 ```js
-function cleaner (value, opts) {
+function cleaner (value, context) {
   // either return the value as is
   // or return a transformed value
   // or throw a ValidationError("Message")
@@ -175,19 +175,21 @@ See `clean.string` for a more complex custom cleaner example.
 
 #### Passing validation context
 
-Use cleaner's `opts.context` to pass execution context data to the nested cleaner:
+Use cleaner's `context` to pass execution context data to the nested cleaner:
 
 ```js
 const cleaner = clean.any({
-  async clean (password, opts) {
-    const dbPassword = await opts.context.db.fetch('password')
+  async clean (password, { db }) {
+    const dbPassword = await db.fetch('password')
     return (password === dbPassword) ? 'good' : 'bad'
   }
 })
 
 const db = await DB.getConnection()
-await cleaner('secret', { context: { db } }) // either 'good' or 'bad'
+await cleaner('secret', { db }) // either 'good' or 'bad'
 ```
+
+* Certain context keys (e.g. `data`) could be used by cleaners themselves.
 
 ### `clean.string()`
 
@@ -630,12 +632,12 @@ const cleaner = clean.object({
   fields: {
     comment: clean.string(),
     postId: clean.integer({
-      async clean (postId, opts) {
+      async clean (postId, context) {
         const post = await db.getPostById(postId)
         if (!post) {
           throw new ValidationError("Post not found")
         }
-        opts.data.post = post // store fetched instance
+        context.data.post = post // store fetched instance
       }
     }),
   }
