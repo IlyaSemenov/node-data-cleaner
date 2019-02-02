@@ -323,6 +323,22 @@ t.test('flat field name conversion', async t => {
 	)
 })
 
+t.test('disable error grouping for nested cleaners', async t => {
+	await t.rejects(
+		clean.object({
+			fields: {
+				data: clean.object({
+					fields: {
+						foo: clean.any(),
+					},
+				}),
+			},
+			groupErrors: false,
+		})({ data: {} }),
+		new ValidationError('Data: Foo: Value required.'),
+	)
+})
+
 t.test('allow storing sibling keys from custom cleaner', async t => {
 	t.same(
 		await clean.object({

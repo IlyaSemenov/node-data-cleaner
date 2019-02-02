@@ -34,7 +34,11 @@ export default function cleanObject<T = Dict, V = T>(
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
-		async clean(value, context) {
+		async clean(value, context = {}) {
+			const groupErrors =
+				context.groupErrors !== undefined
+					? !!context.groupErrors
+					: schemaGroupErrors
 			let res: any = value
 			const errors: string[] = [] // non-grouped errors
 			const errorGroups: Array<[string, ErrorMessages]> = [] // grouped errors
@@ -49,6 +53,11 @@ export default function cleanObject<T = Dict, V = T>(
 				}
 				const cleanRes: Dict = {}
 				const customDataStore = {}
+				const fieldCleanerContext = {
+					...context,
+					data: customDataStore,
+					groupErrors: groupErrors === false ? groupErrors : undefined,
+				}
 				for (const field of Object.keys(schema.fields)) {
 					const fieldValue = res.hasOwnProperty(field) ? res[field] : undefined
 					const fieldCleaner = schema.fields[field]
@@ -57,17 +66,13 @@ export default function cleanObject<T = Dict, V = T>(
 					let cleanedFieldValue
 					try {
 						cleanedFieldValue = await Promise.resolve(
-							fieldCleaner(fieldValue, {
-								// Prevent semantic error TS2698 Spread types may only be created from object types
-								...(context as object),
-								data: customDataStore,
-							}),
+							fieldCleaner(fieldValue, fieldCleanerContext),
 						)
 					} catch (err) {
 						if (err instanceof ValidationError) {
 							if (err.messages) {
 								// plain errors -> {field: errors}
-								if (schemaGroupErrors) {
+								if (groupErrors) {
 									errorGroups.push([field, err.messages])
 								} else {
 									let label = err.opts.label
@@ -88,7 +93,7 @@ export default function cleanObject<T = Dict, V = T>(
 							}
 							if (err.errors) {
 								// {subfield: errors}  -> {field.subfield: errors}
-								if (schemaGroupErrors) {
+								if (groupErrors) {
 									for (const subfield of Object.keys(err.errors)) {
 										errorGroups.push([
 											field + '.' + subfield,
