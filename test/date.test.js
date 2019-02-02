@@ -98,3 +98,8 @@ t.test('call custom async cleaner', async t => {
 		{ date: result },
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = { format: 'iso' }
+	t.equal(clean.date(schema).schema, schema)
+})

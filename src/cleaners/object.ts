@@ -5,8 +5,8 @@ import {
 	FieldErrorMessages,
 	ErrorMessages,
 } from '../errors/ValidationError'
-import cleanAny, { AnySchema } from './any'
 import { Cleaner, CleanerOptions } from '../types'
+import cleanAny, { AnySchema, setSchema } from './any'
 
 export type Dict = {
 	[field: string]: any
@@ -18,7 +18,7 @@ export interface FieldCleanerOptions extends CleanerOptions {
 
 export type ParseKeysOptions = boolean | ((key: string) => string[])
 
-export interface ObjectSchema<T, V> extends AnySchema<T, V> {
+export interface ObjectSchema<T, V, O> extends AnySchema<T, V, O> {
 	parseKeys?: ParseKeysOptions
 	fields: {
 		[fieldName: string]: Cleaner<any, any, FieldCleanerOptions>
@@ -27,19 +27,23 @@ export interface ObjectSchema<T, V> extends AnySchema<T, V> {
 	groupErrors?: boolean
 }
 
-export default function cleanObject<T = Dict, V = T>(
-	schema: ObjectSchema<T, V>,
-): Cleaner<T, V> {
+export default function cleanObject<
+	T = Dict,
+	V = T,
+	O extends CleanerOptions = CleanerOptions
+>(schema: ObjectSchema<T, V, O>) {
 	if (!schema || typeof schema.fields !== 'object') {
 		throw new SchemaError('clean.object schema must include fields.')
 	}
 	const schemaGroupErrors =
 		schema.groupErrors !== undefined ? !!schema.groupErrors : true
-	const cleaner = cleanAny<T, V>({
+	// TODO: prevent !groupErrors && nonFieldErrorsKey
+
+	let cleaner: Cleaner<T, V, O> = cleanAny<T, V, O>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
-		async clean(value, opts = {}) {
+		async clean(value, opts) {
 			let res: any = value
 			const errors: string[] = [] // non-grouped errors
 			const errorGroups: Array<[string, ErrorMessages]> = [] // grouped errors
@@ -61,7 +65,8 @@ export default function cleanObject<T = Dict, V = T>(
 					try {
 						cleanedFieldValue = await Promise.resolve(
 							fieldCleaner(fieldValue, {
-								...opts,
+								// Prevent semantic error TS2698 Spread types may only be created from object types
+								...(opts as object),
 								data: customDataStore,
 							}),
 						)
@@ -127,9 +132,10 @@ export default function cleanObject<T = Dict, V = T>(
 
 	const { nonFieldErrorsKey } = schema
 	if (nonFieldErrorsKey !== undefined) {
-		return async function(value, opts) {
+		const wrapped_cleaner = cleaner
+		cleaner = async function(value, opts) {
 			try {
-				return await cleaner(value, opts)
+				return await wrapped_cleaner(value, opts)
 			} catch (err) {
 				if (err instanceof ValidationError && err.messages) {
 					throw new ValidationError({ [nonFieldErrorsKey]: err.messages })
@@ -138,9 +144,9 @@ export default function cleanObject<T = Dict, V = T>(
 				}
 			}
 		}
-	} else {
-		return cleaner
 	}
+
+	return setSchema(cleaner, schema)
 }
 
 function parseKeys(obj: Dict, opts: ParseKeysOptions) {

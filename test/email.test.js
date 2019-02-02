@@ -73,3 +73,8 @@ t.test('call custom async cleaner', async t => {
 		{ email },
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = {}
+	t.equal(clean.email(schema).schema, schema)
+})

@@ -124,6 +124,18 @@ await cleaner(null) // null
 await cleaner(undefined) // throws "Value required."
 ```
 
+##### Accessing schema from a cleaner
+
+All built-in cleaner creators save schema into `schema` property:
+
+```js
+const cleaner = clean.any({
+  null: true
+})
+
+cleaner.schema.null // true
+```
+
 #### Supported schema parameters
 
 The following schema parameters are supported by `clean.any()` and by all other built-in cleaner creators.

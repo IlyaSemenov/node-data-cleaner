@@ -75,3 +75,8 @@ t.test('call custom cleaner', async t => {
 		{ value: true },
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = { omit: true }
+	t.equal(clean.boolean(schema).schema, schema)
+})

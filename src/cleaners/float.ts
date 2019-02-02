@@ -1,13 +1,17 @@
 import cleanNumber, { NumberSchema } from './number'
-import { Cleaner } from '../types'
+import { CleanerOptions } from '../types'
+import { setSchema } from './any'
 
-export interface FloatSchema<T, V> extends NumberSchema<T, V> {}
+export interface FloatSchema<T, V, O> extends NumberSchema<T, V, O> {}
 
-export default function cleanFloat<T = number, V = T>(
-	schema: FloatSchema<T, V> = {},
-): Cleaner<T, V> {
-	return cleanNumber<T, V>({
+export default function cleanFloat<
+	T = number,
+	V = T,
+	O extends CleanerOptions = CleanerOptions
+>(schema: FloatSchema<T, V, O> = {}) {
+	const cleaner = cleanNumber<T, V, O>({
 		...schema,
 		parseNumber: parseFloat,
 	})
+	return setSchema(cleaner, schema)
 }

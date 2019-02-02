@@ -99,3 +99,8 @@ t.test('call custom cleaner', async t => {
 		{ value: 123.45 },
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = {}
+	t.equal(clean.float(schema).schema, schema)
+})

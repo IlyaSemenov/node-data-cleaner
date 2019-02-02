@@ -116,3 +116,8 @@ t.test('call custom cleaner', async t => {
 		[3, 2, 1],
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = { element: clean.integer() }
+	t.equal(clean.array(schema).schema, schema)
+})

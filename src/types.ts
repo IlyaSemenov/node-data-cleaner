@@ -5,7 +5,8 @@ export interface CleanerOptions {
 	}
 }
 
-export type Cleaner<T = any, V = T, O = CleanerOptions> = (
-	value: V,
-	opts?: O,
-) => T | Promise<T>
+export type Cleaner<
+	T = any,
+	V = T,
+	O extends CleanerOptions = CleanerOptions
+> = (value: V, opts?: O) => T | Promise<T>

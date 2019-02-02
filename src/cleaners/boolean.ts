@@ -1,17 +1,19 @@
 import { getMessage } from '../utils'
 import { ValidationError } from '../errors/ValidationError'
-import cleanAny, { AnySchema } from './any'
-import { Cleaner } from '../types'
+import { CleanerOptions } from '../types'
+import cleanAny, { AnySchema, setSchema } from './any'
 
-export interface BooleanSchema<T, V> extends AnySchema<T, V> {
+export interface BooleanSchema<T, V, O> extends AnySchema<T, V, O> {
 	cast?: boolean
 	omit?: boolean
 }
 
-export default function cleanBoolean<T = boolean, V = T>(
-	schema: BooleanSchema<T, V> = {},
-): Cleaner<T, V> {
-	return cleanAny<T, V>({
+export default function cleanBoolean<
+	T = boolean,
+	V = T,
+	O extends CleanerOptions = CleanerOptions
+>(schema: BooleanSchema<T, V, O> = {}) {
+	const cleaner = cleanAny<T, V, O>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
@@ -34,4 +36,5 @@ export default function cleanBoolean<T = boolean, V = T>(
 			return res
 		},
 	})
+	return setSchema(cleaner, schema)
 }

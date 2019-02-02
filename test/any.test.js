@@ -70,3 +70,8 @@ t.test('custom async cleaner', async t => {
 		10,
 	)
 })
+
+t.test('saving schema', async t => {
+	const schema = { null: true, default: 555 }
+	t.equal(clean.any(schema).schema, schema)
+})

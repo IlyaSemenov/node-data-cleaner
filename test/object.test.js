@@ -411,3 +411,8 @@ t.test('Parsing object keys', async t => {
 		)
 	})
 })
+
+t.test('saving schema', async t => {
+	const schema = { fields: {} }
+	t.equal(clean.object(schema).schema, schema)
+})

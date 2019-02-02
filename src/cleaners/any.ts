@@ -1,18 +1,32 @@
 import { getMessage } from '../utils'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import { Cleaner } from '../types'
+import { Cleaner, CleanerOptions } from '../types'
 
-export interface AnySchema<T, V> {
+export interface AnySchema<T, V, O> {
 	required?: boolean
 	default?: any
 	null?: boolean
-	clean?: Cleaner<T, V>
+	clean?: Cleaner<T, V, O>
 }
 
-export default function cleanAny<T = any, V = T>(
-	schema: AnySchema<T, V> = {},
-): Cleaner<T, V> {
+export type WithSchema<C> = C & {
+	schema: any
+}
+
+export function setSchema<C extends Cleaner<any, any, any>>(
+	fn: C,
+	schema: any,
+) {
+	;(fn as any).schema = schema
+	return fn as WithSchema<C>
+}
+
+export default function cleanAny<
+	T = any,
+	V = T,
+	O extends CleanerOptions = CleanerOptions
+>(schema: AnySchema<T, V, O> = {}) {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false
@@ -27,7 +41,7 @@ export default function cleanAny<T = any, V = T>(
 			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
 		}
 	}
-	return function(value, opts) {
+	const cleaner: Cleaner<T, V, O> = function(value, opts) {
 		let res: any = value
 		if (res === undefined && schema.required !== false) {
 			throw new ValidationError(getMessage(opts, 'required', 'Value required.'))
@@ -43,4 +57,5 @@ export default function cleanAny<T = any, V = T>(
 		}
 		return res
 	}
+	return setSchema(cleaner, schema)
 }
