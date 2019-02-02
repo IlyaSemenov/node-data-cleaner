@@ -146,6 +146,21 @@ t.test('pass plain ValidationError from custom cleaner', async t => {
 	)
 })
 
+t.test('store field validation errors in proper field keys', async t => {
+	await t.rejects(
+		clean.object({
+			fields: {
+				foo: clean.any(),
+				bar: clean.any(),
+			},
+		})({}),
+		new ValidationError({
+			foo: ['Value required.'],
+			bar: ['Value required.'],
+		}),
+	)
+})
+
 t.test(
 	'store custom field cleaner validation error in proper field key',
 	async t => {
@@ -254,6 +269,27 @@ t.test('handle schema.nonFieldErrorsKey in nested field', async t => {
 			nonFieldErrorsKey: 'other',
 		})({ obj: {} }),
 		new ValidationError({ 'obj.other1': ['bang'] }),
+	)
+})
+
+t.test('store non-grouped field errors', async t => {
+	await t.rejects(
+		clean.object({
+			fields: {
+				foo: clean.any({
+					clean() {
+						throw new ValidationError('boom')
+					},
+				}),
+				bar: clean.any({
+					clean() {
+						throw new ValidationError('bang')
+					},
+				}),
+			},
+			groupErrors: false,
+		})({ foo: 1, bar: 2 }),
+		new ValidationError(['boom', 'bang']),
 	)
 })
 

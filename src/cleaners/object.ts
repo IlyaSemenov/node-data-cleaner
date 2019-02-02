@@ -24,6 +24,7 @@ export interface ObjectSchema<T, V> extends AnySchema<T, V> {
 		[fieldName: string]: Cleaner<any, any, FieldCleanerOptions>
 	}
 	nonFieldErrorsKey?: string
+	groupErrors?: boolean
 }
 
 export default function cleanObject<T = Dict, V = T>(
@@ -32,13 +33,16 @@ export default function cleanObject<T = Dict, V = T>(
 	if (!schema || typeof schema.fields !== 'object') {
 		throw new SchemaError('clean.object schema must include fields.')
 	}
+	const schemaGroupErrors =
+		schema.groupErrors !== undefined ? !!schema.groupErrors : true
 	const cleaner = cleanAny<T, V>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
 		async clean(value, opts = {}) {
 			let res: any = value
-			const errorGroups: Array<[string, ErrorMessages]> = []
+			const errors: string[] = [] // non-grouped errors
+			const errorGroups: Array<[string, ErrorMessages]> = [] // grouped errors
 			if (!(res === undefined || res === null)) {
 				if (typeof res !== 'object') {
 					throw new ValidationError(
@@ -65,15 +69,25 @@ export default function cleanObject<T = Dict, V = T>(
 						if (err instanceof ValidationError) {
 							if (err.messages) {
 								// plain errors -> {field: errors}
-								errorGroups.push([field, err.messages])
+								if (schemaGroupErrors) {
+									errorGroups.push([field, err.messages])
+								} else {
+									errors.push(...err.messages)
+								}
 							}
 							if (err.errors) {
 								// {subfield: errors}  -> {field.subfield: errors}
-								for (const subfield of Object.keys(err.errors)) {
-									errorGroups.push([
-										field + '.' + subfield,
-										err.errors[subfield],
-									])
+								if (schemaGroupErrors) {
+									for (const subfield of Object.keys(err.errors)) {
+										errorGroups.push([
+											field + '.' + subfield,
+											err.errors[subfield],
+										])
+									}
+								} else {
+									throw new Error(
+										'Ungrouping grouped errors not supported. Convert nested cleaner to return ungrouped errors.',
+									)
 								}
 							}
 						} else {
@@ -86,6 +100,10 @@ export default function cleanObject<T = Dict, V = T>(
 				}
 				Object.assign(cleanRes, customDataStore)
 				res = cleanRes
+			}
+
+			if (errors.length) {
+				throw new ValidationError(errors)
 			}
 
 			if (errorGroups.length) {
