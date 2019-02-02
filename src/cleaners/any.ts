@@ -8,6 +8,7 @@ export interface AnySchema<T, V, O> {
 	default?: any
 	null?: boolean
 	clean?: Cleaner<T, V, O>
+	label?: string
 }
 
 export type WithSchema<C> = C & {

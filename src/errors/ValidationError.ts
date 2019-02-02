@@ -10,11 +10,19 @@ export type SimpleFieldErrorMessages = {
 	[field: string]: ErrorMessage | ErrorMessages
 }
 
+export interface ErrorOptions {
+	label?: string | null
+}
+
 export class ValidationError extends Error {
 	messages?: ErrorMessages
 	errors?: FieldErrorMessages
+	opts: ErrorOptions
 
-	constructor(arg: ErrorMessage | ErrorMessages | SimpleFieldErrorMessages) {
+	constructor(
+		arg: ErrorMessage | ErrorMessages | SimpleFieldErrorMessages,
+		opts?: Partial<ErrorOptions>,
+	) {
 		let message: ErrorMessage | undefined
 		let messages: ErrorMessages | undefined
 		let errors: FieldErrorMessages | undefined
@@ -75,5 +83,6 @@ export class ValidationError extends Error {
 		super(message)
 		this.messages = messages
 		this.errors = errors
+		this.opts = { ...opts }
 	}
 }

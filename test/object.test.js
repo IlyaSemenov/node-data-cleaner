@@ -273,23 +273,35 @@ t.test('handle schema.nonFieldErrorsKey in nested field', async t => {
 })
 
 t.test('store non-grouped field errors', async t => {
+	const cleaner = clean.object({
+		fields: {
+			one: clean.any(),
+			two: clean.any({
+				label: 'Zwei',
+				clean(value) {
+					if (value === 'boom') {
+						throw new ValidationError('Boom is a wrong value for two!', {
+							label: null,
+						})
+					}
+					return value
+				},
+			}),
+			three: clean.any({ label: null }),
+		},
+		groupErrors: false,
+	})
 	await t.rejects(
-		clean.object({
-			fields: {
-				foo: clean.any({
-					clean() {
-						throw new ValidationError('boom')
-					},
-				}),
-				bar: clean.any({
-					clean() {
-						throw new ValidationError('bang')
-					},
-				}),
-			},
-			groupErrors: false,
-		})({ foo: 1, bar: 2 }),
-		new ValidationError(['boom', 'bang']),
+		cleaner({}),
+		new ValidationError([
+			'One: Value required.',
+			'Zwei: Value required.',
+			'Value required.',
+		]),
+	)
+	await t.rejects(
+		cleaner({ one: 1, two: 'boom', three: 3 }),
+		new ValidationError('Boom is a wrong value for two!'),
 	)
 })
 

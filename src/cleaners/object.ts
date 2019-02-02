@@ -61,6 +61,8 @@ export default function cleanObject<
 				for (const field of Object.keys(schema.fields)) {
 					const fieldValue = res.hasOwnProperty(field) ? res[field] : undefined
 					const fieldCleaner = schema.fields[field]
+					const fieldLabel =
+						(fieldCleaner as any).schema && (fieldCleaner as any).schema.label
 					let cleanedFieldValue
 					try {
 						cleanedFieldValue = await Promise.resolve(
@@ -77,7 +79,20 @@ export default function cleanObject<
 								if (schemaGroupErrors) {
 									errorGroups.push([field, err.messages])
 								} else {
-									errors.push(...err.messages)
+									let label = err.opts.label
+									if (label === undefined) {
+										label = fieldLabel
+									}
+									if (label === undefined) {
+										label = makeLabelFromFieldName(field)
+									}
+									if (label) {
+										errors.push(
+											...err.messages.map(message => `${label}: ${message}`),
+										)
+									} else {
+										errors.push(...err.messages)
+									}
 								}
 							}
 							if (err.errors) {
@@ -174,4 +189,9 @@ function setObjPath(obj: Dict, path: string[], value: any): void {
 			obj[key] = value
 		}
 	}
+}
+
+function makeLabelFromFieldName(name: string) {
+	// TODO: parse camelCase, snake_case
+	return name[0].toUpperCase() + name.slice(1)
 }
