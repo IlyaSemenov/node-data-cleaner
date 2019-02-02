@@ -305,6 +305,24 @@ t.test('store non-grouped field errors', async t => {
 	)
 })
 
+t.test('flat field name conversion', async t => {
+	await t.rejects(
+		clean.object({
+			fields: {
+				longFieldName1: clean.any(),
+				long_field_name2: clean.any(),
+				LONG_FIELD_NAME3: clean.any(),
+			},
+			groupErrors: false,
+		})({}),
+		new ValidationError([
+			'Long Field Name1: Value required.',
+			'Long Field Name2: Value required.',
+			'Long Field Name3: Value required.',
+		]),
+	)
+})
+
 t.test('allow storing sibling keys from custom cleaner', async t => {
 	t.same(
 		await clean.object({

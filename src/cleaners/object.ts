@@ -1,3 +1,4 @@
+import titleCase from 'title-case'
 import { getMessage } from '../utils'
 import { SchemaError } from '../errors/SchemaError'
 import {
@@ -84,7 +85,7 @@ export default function cleanObject<
 										label = fieldLabel
 									}
 									if (label === undefined) {
-										label = makeLabelFromFieldName(field)
+										label = titleCase(field)
 									}
 									if (label) {
 										errors.push(
@@ -189,9 +190,4 @@ function setObjPath(obj: Dict, path: string[], value: any): void {
 			obj[key] = value
 		}
 	}
-}
-
-function makeLabelFromFieldName(name: string) {
-	// TODO: parse camelCase, snake_case
-	return name[0].toUpperCase() + name.slice(1)
 }
