@@ -339,6 +339,77 @@ t.test('disable error grouping for nested cleaners', async t => {
 	)
 })
 
+t.test('flatten field error messages from custom cleaner', async t => {
+	await t.rejects(
+		clean.object({
+			groupErrors: false,
+			fields: {
+				foo: clean.any(),
+			},
+			clean() {
+				throw new ValidationError({ custom_field: 'Boom' })
+			},
+		})({ foo: 1 }),
+		new ValidationError('Custom Field: Boom'),
+	)
+})
+
+t.test(
+	'flatten field error messages from custom cleaner - reusing field labels',
+	async t => {
+		await t.rejects(
+			clean.object({
+				groupErrors: false,
+				fields: {
+					foo: clean.any({ label: 'Moo' }),
+				},
+				clean() {
+					throw new ValidationError({ foo: 'Boom' })
+				},
+			})({ foo: 1 }),
+			new ValidationError('Moo: Boom'),
+		)
+	},
+)
+
+t.test(
+	'disable label when flatten field error messages from custom cleaner',
+	async t => {
+		await t.rejects(
+			clean.object({
+				groupErrors: false,
+				fields: {
+					foo: clean.any(),
+				},
+				clean() {
+					throw new ValidationError({ custom_field: 'Boom' }, { label: null })
+				},
+			})({ foo: 1 }),
+			new ValidationError('Boom'),
+		)
+	},
+)
+
+t.test('flatten field error messages from nested custom cleaner', async t => {
+	await t.rejects(
+		clean.object({
+			groupErrors: false,
+			fields: {
+				data: clean.object({
+					label: null,
+					fields: {
+						foo: clean.any(),
+					},
+					clean() {
+						throw new ValidationError({ custom_field: 'Boom' })
+					},
+				}),
+			},
+		})({ data: { foo: 1 } }),
+		new ValidationError('Custom Field: Boom'),
+	)
+})
+
 t.test('allow storing sibling keys from custom cleaner', async t => {
 	t.same(
 		await clean.object({

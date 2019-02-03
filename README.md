@@ -578,7 +578,7 @@ const cleaner = clean.object({
       label: "Zwei",
       clean(value) {
         if (value === "boom") {
-          throw new ValidationError("Boom is a wrong value for two!", { label: null })
+          throw new ValidationError("Boom is a wrong value for Zwei!", { label: null })
         }
         return value
       }
@@ -589,7 +589,7 @@ const cleaner = clean.object({
 })
 
 cleaner() // throws ["One: Value required.", "Zwei: Value required.", "Value required."]
-cleaner({ one: 1, two: 'boom', three: 3 }) // throws ["Boom is a wrong value for two!"]
+cleaner({ one: 1, two: 'boom', three: 3 }) // throws ["Boom is a wrong value for Zwei!"] - note the omitted label.
 ```
 
 #### Parse object keys and created nested objects
