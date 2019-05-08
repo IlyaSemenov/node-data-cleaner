@@ -20,7 +20,7 @@ export function setSchema<C extends Cleaner<any, any>>(fn: C, schema: any) {
 	return fn as WithSchema<C>
 }
 
-export default function cleanAny<T = any, V = T>(schema: AnySchema<T, V> = {}) {
+export function cleanAny<T = any, V = T>(schema: AnySchema<T, V> = {}) {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false

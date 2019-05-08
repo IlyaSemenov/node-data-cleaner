@@ -1,14 +1,12 @@
 import { validate as validateEmail } from 'email-validator'
-import cleanString, { StringSchema } from './string'
+import { cleanString, StringSchema } from './string'
 import { ValidationError } from '../errors/ValidationError'
 import { getMessage } from '../utils'
 import { setSchema } from './any'
 
 export interface EmailSchema<T, V> extends StringSchema<T, V> {}
 
-export default function cleanEmail<T = string, V = T>(
-	schema: EmailSchema<T, V> = {},
-) {
+export function cleanEmail<T = string, V = T>(schema: EmailSchema<T, V> = {}) {
 	const cleaner = cleanString<T, V>({
 		required: schema.required,
 		default: schema.default,

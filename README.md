@@ -17,7 +17,7 @@ See [Comparison to other libraries](#comparison-to-other-libraries) below.
 ## Minimal example
 
 ```js
-import clean from 'data-cleaner'
+import * as clean from 'data-cleaner'
 
 const cleanUser = clean.object({
   name: clean.string(),
@@ -43,7 +43,8 @@ yarn add data-cleaner
 Then import or require:
 
 ```js
-import clean, { ValidationError } from 'data-cleaner'
+import * as clean from 'data-cleaner'
+import { ValidationError } from 'data-cleaner'
 
 // or
 
@@ -658,7 +659,8 @@ Define a *cleaner* for imaginary department visitor registration form with the f
 Use imaginary async data access library for data validation.
 
 ```js
-import clean, { ValidationError } from 'data-cleaner'
+import * as clean from 'data-cleaner'
+import { ValidationError } from 'data-cleaner'
 
 const cleanVisitorData = clean.object({
   fields: {

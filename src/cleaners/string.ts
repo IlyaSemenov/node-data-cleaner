@@ -1,14 +1,14 @@
 import { getMessage } from '../utils'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import cleanAny, { AnySchema, setSchema } from './any'
+import { cleanAny, setSchema, AnySchema } from './any'
 
 export interface StringSchema<T, V> extends AnySchema<T, V> {
 	blank?: boolean | null
 	cast?: boolean
 }
 
-export default function cleanString<T = string, V = string>(
+export function cleanString<T = string, V = string>(
 	schema: StringSchema<T, V> = {},
 ) {
 	if (schema.blank === null) {

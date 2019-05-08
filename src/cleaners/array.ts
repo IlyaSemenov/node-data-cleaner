@@ -1,6 +1,6 @@
 import { getMessage } from '../utils'
 import { ValidationError, ErrorMessages } from '../errors/ValidationError'
-import cleanAny, { AnySchema, setSchema } from './any'
+import { cleanAny, setSchema, AnySchema } from './any'
 import { Cleaner } from '../types'
 
 export interface ArraySchema<E, T, V> extends AnySchema<T, V> {
@@ -9,7 +9,7 @@ export interface ArraySchema<E, T, V> extends AnySchema<T, V> {
 	max?: number
 }
 
-export default function cleanArray<E = any, T = E[], V = T>(
+export function cleanArray<E = any, T = E[], V = T>(
 	schema: ArraySchema<E, T, V> = {},
 ) {
 	const cleaner = cleanAny<T, V>({

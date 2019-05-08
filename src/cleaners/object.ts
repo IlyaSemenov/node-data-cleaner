@@ -8,7 +8,7 @@ import {
 	ErrorOptions,
 } from '../errors/ValidationError'
 import { Cleaner } from '../types'
-import cleanAny, { AnySchema, setSchema } from './any'
+import { cleanAny, setSchema, AnySchema } from './any'
 
 export type Dict = Record<string, any>
 
@@ -21,9 +21,7 @@ export interface ObjectSchema<T, V> extends AnySchema<T, V> {
 	groupErrors?: boolean
 }
 
-export default function cleanObject<T = Dict, V = T>(
-	schema: ObjectSchema<T, V>,
-) {
+export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
 	if (!schema || typeof schema.fields !== 'object') {
 		throw new SchemaError('clean.object schema must include fields.')
 	}

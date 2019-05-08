@@ -1,4 +1,4 @@
-import cleanString, { StringSchema } from './string'
+import { cleanString, StringSchema } from './string'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
 import { getMessage } from '../utils'
@@ -9,9 +9,7 @@ export interface DateSchema<T, V> extends StringSchema<T, V> {
 	format?: null | 'iso'
 }
 
-export default function cleanDate<T = string, V = T>(
-	schema: DateSchema<T, V> = {},
-) {
+export function cleanDate<T = string, V = T>(schema: DateSchema<T, V> = {}) {
 	if (
 		!(
 			schema.format === undefined ||

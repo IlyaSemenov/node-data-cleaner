@@ -1,7 +1,7 @@
 import { getMessage } from '../utils'
 import { ValidationError } from '../errors/ValidationError'
 import { SchemaError } from '../errors/SchemaError'
-import cleanAny, { AnySchema, setSchema } from './any'
+import { cleanAny, setSchema, AnySchema } from './any'
 
 export interface NumberSchema<T, V> extends AnySchema<T, V> {
 	cast?: boolean
@@ -13,7 +13,7 @@ export interface NumberParserSchema<T, V> extends NumberSchema<T, V> {
 	parseNumber: (value: any) => number
 }
 
-export default function cleanNumber<T = number, V = T>(
+export function cleanNumber<T = number, V = T>(
 	schema: NumberParserSchema<T, V>,
 ) {
 	if (schema.parseNumber === undefined) {
