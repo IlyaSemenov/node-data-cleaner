@@ -1,7 +1,7 @@
-import { getMessage } from '../utils'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import { cleanAny, setSchema, AnySchema } from './any'
+import { getMessage } from '../utils'
+import { AnySchema, cleanAny, setSchema } from './any'
 
 export interface StringSchema<T, V> extends AnySchema<T, V> {
 	blank?: boolean | null

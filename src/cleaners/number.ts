@@ -1,7 +1,7 @@
-import { getMessage } from '../utils'
-import { ValidationError } from '../errors/ValidationError'
 import { SchemaError } from '../errors/SchemaError'
-import { cleanAny, setSchema, AnySchema } from './any'
+import { ValidationError } from '../errors/ValidationError'
+import { getMessage } from '../utils'
+import { AnySchema, cleanAny, setSchema } from './any'
 
 export interface NumberSchema<T, V> extends AnySchema<T, V> {
 	cast?: boolean

@@ -1,8 +1,9 @@
 import { validate as validateEmail } from 'email-validator'
-import { cleanString, StringSchema } from './string'
+
 import { ValidationError } from '../errors/ValidationError'
 import { getMessage } from '../utils'
 import { setSchema } from './any'
+import { StringSchema, cleanString } from './string'
 
 export interface EmailSchema<T, V> extends StringSchema<T, V> {}
 

@@ -1,5 +1,5 @@
-import { cleanNumber, NumberSchema } from './number'
 import { setSchema } from './any'
+import { NumberSchema, cleanNumber } from './number'
 
 export interface IntegerSchema<T, V> extends NumberSchema<T, V> {}
 

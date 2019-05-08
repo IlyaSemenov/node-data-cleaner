@@ -1,7 +1,7 @@
-import { getMessage } from '../utils'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
 import { Cleaner } from '../types'
+import { getMessage } from '../utils'
 
 export interface AnySchema<T, V> {
 	required?: boolean

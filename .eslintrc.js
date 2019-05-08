@@ -1,6 +1,6 @@
 module.exports = {
 	root: true,
-	plugins: ['prettier', '@typescript-eslint'],
+	plugins: ['prettier', '@typescript-eslint', 'simple-import-sort'],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		sourceType: 'module',
@@ -8,5 +8,6 @@ module.exports = {
 	extends: ['prettier'],
 	rules: {
 		'prettier/prettier': 'warn',
+		'simple-import-sort/sort': 'warn',
 	},
 }

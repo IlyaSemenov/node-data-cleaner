@@ -1,8 +1,8 @@
-import { cleanString, StringSchema } from './string'
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
 import { getMessage } from '../utils'
 import { setSchema } from './any'
+import { StringSchema, cleanString } from './string'
 
 export interface DateSchema<T, V> extends StringSchema<T, V> {
 	cast?: never
