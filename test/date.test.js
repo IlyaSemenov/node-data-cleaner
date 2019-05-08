@@ -22,7 +22,7 @@ t.test('accept date-like string', async t => {
 })
 
 t.test('reject non-date-like string', async t => {
-	t.throws(() => clean.date()('bummer'), ValidationError)
+	t.throws(() => clean.date()('bummer'), new ValidationError('Invalid value.'))
 })
 
 t.test('return UTC ISO-formatted string', async t => {
@@ -43,19 +43,19 @@ t.test('return Date object', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		t.throws(() => clean.date()(), ValidationError)
+		t.throws(() => clean.date()(), new ValidationError('Value required.'))
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(clean.date({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		t.throws(() => clean.date()(null), ValidationError)
+		t.throws(() => clean.date()(null), new ValidationError('Value required.'))
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(clean.date({ null: true })(null), null)
 	})
 	await t.test('reject blank string', async t => {
-		t.throws(() => clean.date()(''), ValidationError)
+		t.throws(() => clean.date()(''), new ValidationError('Value required.'))
 	})
 	await t.test('pass blank string if allowed', async t => {
 		t.equal(clean.date({ blank: true })(''), '')
@@ -66,7 +66,10 @@ t.test('Empty values', async t => {
 	await t.test(
 		'not allow blank to null conversion if blank set to false',
 		async t => {
-			t.throws(() => clean.date({ blank: null, null: false }), SchemaError)
+			t.throws(
+				() => clean.date({ blank: null, null: false }),
+				new SchemaError(`clean.string with 'blank: null' needs 'null: true'`),
+			)
 			t.doesNotThrow(() => clean.date({ blank: null, null: true }))
 			t.doesNotThrow(() => clean.date({ blank: null }))
 		},

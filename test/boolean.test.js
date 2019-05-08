@@ -19,15 +19,15 @@ t.test('pass true if omit enabled', async t => {
 })
 
 t.test('reject string', async t => {
-	t.throws(() => clean.boolean()('test'), ValidationError)
+	t.throws(() => clean.boolean()('test'), new ValidationError('Invalid value.'))
 })
 
 t.test('reject number', async t => {
-	t.throws(() => clean.boolean()(0), ValidationError)
+	t.throws(() => clean.boolean()(0), new ValidationError('Invalid value.'))
 })
 
 t.test('reject object', async t => {
-	t.throws(() => clean.boolean()({}), ValidationError)
+	t.throws(() => clean.boolean()({}), new ValidationError('Invalid value.'))
 })
 
 t.test('cast string if cast allowed', async t => {
@@ -52,13 +52,16 @@ t.test('cast zero if cast allowed', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		t.throws(() => clean.boolean()(), ValidationError)
+		t.throws(() => clean.boolean()(), new ValidationError('Value required.'))
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(clean.boolean({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		t.throws(() => clean.boolean()(null), ValidationError)
+		t.throws(
+			() => clean.boolean()(null),
+			new ValidationError('Value required.'),
+		)
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(clean.boolean({ null: true })(null), null)

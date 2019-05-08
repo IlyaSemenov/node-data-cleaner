@@ -3,11 +3,17 @@ const clean = require('..'),
 	{ SchemaError, ValidationError } = clean
 
 t.test('reject empty schema', async t => {
-	t.throws(() => clean.object(), SchemaError)
+	t.throws(
+		() => clean.object(),
+		new SchemaError(`clean.object schema must include fields.`),
+	)
 })
 
 t.test('reject schema without fields', async t => {
-	t.throws(() => clean.object({}), SchemaError)
+	t.throws(
+		() => clean.object({}),
+		new SchemaError(`clean.object schema must include fields.`),
+	)
 })
 
 t.test(

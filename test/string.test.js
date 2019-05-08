@@ -12,19 +12,19 @@ t.test('convert integer to string', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		t.throws(() => clean.string()(), ValidationError)
+		t.throws(() => clean.string()(), new ValidationError('Value required.'))
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(await clean.string({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		t.throws(() => clean.string()(null), ValidationError)
+		t.throws(() => clean.string()(null), new ValidationError('Value required.'))
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(await clean.string({ null: true })(null), null)
 	})
 	await t.test('reject blank string', async t => {
-		t.throws(() => clean.string()(''), ValidationError)
+		t.throws(() => clean.string()(''), new ValidationError('Value required.'))
 	})
 	await t.test('pass blank string if allowed', async t => {
 		t.equal(await clean.string({ blank: true })(''), '')
@@ -35,9 +35,12 @@ t.test('Empty values', async t => {
 	await t.test(
 		'not allow blank to null conversion if blank set to false',
 		async t => {
-			t.throws(() => clean.string({ blank: null, null: false }), SchemaError)
+			t.throws(
+				() => clean.string({ blank: null, null: false }),
+				new SchemaError(`clean.string with 'blank: null' needs 'null: true'`),
+			)
 			t.doesNotThrow(() => clean.string({ blank: null, null: true }))
-			t.doesNotThrow(() => clean.string({ blank: null }), SchemaError)
+			t.doesNotThrow(() => clean.string({ blank: null }))
 		},
 	)
 })
@@ -50,7 +53,7 @@ t.test('Converting objects', async t => {
 	}
 	const test = new Test()
 	await t.test('reject object', async t => {
-		t.throws(() => clean.string()(test), ValidationError)
+		t.throws(() => clean.string()(test), new ValidationError('Invalid value.'))
 	})
 	await t.test('accept object if allowed', async t => {
 		t.equal(await clean.string({ cast: true })(test), 'test')

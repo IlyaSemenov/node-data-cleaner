@@ -42,7 +42,7 @@
     "typescript": "^3.4.5"
   },
   "scripts": {
-    "test": "tap --jobs-auto 'test/**/*.test.js'",
+    "test": "tap --jobs-auto --no-coverage 'test/**/*.test.js'",
     "build": "rollup -c",
     "prepublish": "npm run build",
     "lint": "eslint --fix '**/*.{js,ts}'"

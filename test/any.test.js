@@ -8,8 +8,8 @@ t.test('pass value as is', async t => {
 })
 
 t.test('reject undefined', async t => {
-	t.throws(() => clean.any()(), ValidationError)
-	t.throws(() => clean.any()(undefined), ValidationError)
+	t.throws(() => clean.any()(), new ValidationError('Value required.'))
+	t.throws(() => clean.any()(undefined), new ValidationError('Value required.'))
 })
 
 t.test('pass undefined if allowed', async t => {
@@ -17,7 +17,7 @@ t.test('pass undefined if allowed', async t => {
 })
 
 t.test('reject null', async t => {
-	t.throws(() => clean.any()(null), ValidationError)
+	t.throws(() => clean.any()(null), new ValidationError('Value required.'))
 })
 
 t.test('pass null if allowed', async t => {
@@ -37,16 +37,25 @@ t.test('use default null', async t => {
 })
 
 t.test('not use default undefined', async t => {
-	t.throws(() => clean.any({ default: undefined })(undefined), ValidationError)
+	t.throws(
+		() => clean.any({ default: undefined })(undefined),
+		new ValidationError('Value required.'),
+	)
 })
 
 t.test('reject default if required set to true', async t => {
 	t.doesNotThrow(() => clean.string({ default: 123 }))
 	t.doesNotThrow(() => clean.string({ default: 123, required: false }))
-	t.throws(() => clean.string({ default: 123, required: true }), SchemaError)
+	t.throws(
+		() => clean.string({ default: 123, required: true }),
+		new SchemaError(`clean.any with 'default' needs 'required: false'`),
+	)
 	t.doesNotThrow(() => clean.string({ default: null }))
 	t.doesNotThrow(() => clean.string({ default: null, null: true }))
-	t.throws(() => clean.string({ default: null, null: false }), SchemaError)
+	t.throws(
+		() => clean.string({ default: null, null: false }),
+		new SchemaError(`clean.any with 'default: null' needs 'null: true'`),
+	)
 })
 
 t.test('custom cleaner', async t => {

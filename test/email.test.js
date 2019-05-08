@@ -6,19 +6,19 @@ const email = 'foo@bar.com'
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		t.throws(() => clean.email()(), ValidationError)
+		t.throws(() => clean.email()(), new ValidationError('Value required.'))
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(clean.email({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		t.throws(() => clean.email()(null), ValidationError)
+		t.throws(() => clean.email()(null), new ValidationError('Value required.'))
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(clean.email({ null: true })(null), null)
 	})
 	await t.test('reject blank string', async t => {
-		t.throws(() => clean.email()(''), ValidationError)
+		t.throws(() => clean.email()(''), new ValidationError('Value required.'))
 	})
 	await t.test('pass blank string if allowed', async t => {
 		t.equal(clean.email({ blank: true })(''), '')
@@ -29,7 +29,10 @@ t.test('Empty values', async t => {
 	await t.test(
 		'not allow blank to null conversion if blank set to false',
 		async t => {
-			t.throws(() => clean.email({ blank: null, null: false }), SchemaError)
+			t.throws(
+				() => clean.email({ blank: null, null: false }),
+				new SchemaError(`clean.string with 'blank: null' needs 'null: true'`),
+			)
 			t.doesNotThrow(() => clean.email({ blank: null, null: true }))
 			t.doesNotThrow(() => clean.email({ blank: null }))
 		},
@@ -41,11 +44,26 @@ t.test('pass email', async t => {
 })
 
 t.test('reject non-email', async t => {
-	t.throws(() => clean.email()('boom'), ValidationError)
-	t.throws(() => clean.email()('foobar.com'), ValidationError)
-	t.throws(() => clean.email()('foo@bar'), ValidationError)
-	t.throws(() => clean.email()(` ${email}`), ValidationError)
-	t.throws(() => clean.email()(`${email} `), ValidationError)
+	t.throws(
+		() => clean.email()('boom'),
+		new ValidationError('Invalid e-mail address.'),
+	)
+	t.throws(
+		() => clean.email()('foobar.com'),
+		new ValidationError('Invalid e-mail address.'),
+	)
+	t.throws(
+		() => clean.email()('foo@bar'),
+		new ValidationError('Invalid e-mail address.'),
+	)
+	t.throws(
+		() => clean.email()(` ${email}`),
+		new ValidationError('Invalid e-mail address.'),
+	)
+	t.throws(
+		() => clean.email()(`${email} `),
+		new ValidationError('Invalid e-mail address.'),
+	)
 })
 
 t.test('call custom cleaner', async t => {

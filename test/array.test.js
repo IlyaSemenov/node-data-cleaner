@@ -7,7 +7,7 @@ t.test('pass array', async t => {
 })
 
 t.test('reject non-array object', async t => {
-	await t.rejects(clean.array()('boom!'), ValidationError)
+	await t.rejects(clean.array()('boom!'), new ValidationError('Invalid value.'))
 })
 
 t.test('pass array of integers', async t => {
@@ -17,7 +17,7 @@ t.test('pass array of integers', async t => {
 t.test('reject string in array of integers', async t => {
 	await t.rejects(
 		clean.array({ element: clean.integer() })([1, '2', 3]),
-		ValidationError,
+		new ValidationError('Invalid value.'),
 	)
 })
 
@@ -30,13 +30,19 @@ t.test('allow string in array of integers if cast is allowed', async t => {
 
 t.test('Min/max', async t => {
 	await t.test('reject too short array', async t => {
-		await t.rejects(clean.array({ min: 3 })([1, 2]), ValidationError)
+		await t.rejects(
+			clean.array({ min: 3 })([1, 2]),
+			new ValidationError('Not enough values.'),
+		)
 	})
 	await t.test('not reject just enough short array', async t => {
 		await t.resolves(clean.array({ min: 3 })([1, 2, 3]))
 	})
 	await t.test('reject too long array', async t => {
-		await t.rejects(clean.array({ max: 3 })([1, 2, 3, 4]), ValidationError)
+		await t.rejects(
+			clean.array({ max: 3 })([1, 2, 3, 4]),
+			new ValidationError('Too many values.'),
+		)
 	})
 	await t.test('not reject just enough long array', async t => {
 		await t.resolves(clean.array({ max: 3 })([1, 2, 3]))
@@ -92,13 +98,13 @@ t.test('collect named validation errors from all elements', async t => {
 
 t.test('Empty values', async t => {
 	await t.test('reject undefined', async t => {
-		t.throws(() => clean.array()(), ValidationError)
+		t.throws(() => clean.array()(), new ValidationError('Value required.'))
 	})
 	await t.test('pass undefined if allowed', async t => {
 		t.equal(await clean.array({ required: false })(), undefined)
 	})
 	await t.test('reject null', async t => {
-		t.throws(() => clean.array()(null), ValidationError)
+		t.throws(() => clean.array()(null), new ValidationError('Value required.'))
 	})
 	await t.test('pass null if allowed', async t => {
 		t.equal(await clean.array({ null: true })(null), null)
