@@ -6,6 +6,7 @@ import { AnySchema, cleanAny, setSchema } from './any'
 export interface StringSchema<T, V> extends AnySchema<T, V> {
 	blank?: boolean | null
 	cast?: boolean
+	regexp?: RegExp
 }
 
 export function cleanString<T = string, V = string>(
@@ -19,6 +20,9 @@ export function cleanString<T = string, V = string>(
 				"clean.string with 'blank: null' needs 'null: true'",
 			)
 		}
+	}
+	if (schema.regexp && typeof schema.regexp.test !== 'function') {
+		throw new SchemaError('clean.string regexp must be a RegExp object')
 	}
 	const cleaner = cleanAny<T, V>({
 		required: schema.required,
@@ -41,6 +45,12 @@ export function cleanString<T = string, V = string>(
 							getMessage(context, 'required', 'Value required.'),
 						)
 					}
+				}
+				if (res && schema.regexp && !schema.regexp.test(res)) {
+					// Only test non-empty values
+					throw new ValidationError(
+						getMessage(context, 'invalid', 'Invalid value.'),
+					)
 				}
 			}
 			if (schema.clean) {

@@ -10,6 +10,24 @@ t.test('convert integer to string', async (t) => {
 	t.equal(await clean.string()(123), '123')
 })
 
+t.test('pass string matching regexp', async (t) => {
+	t.equal(await clean.string({ regexp: /a\wc/ })('fancy'), 'fancy')
+})
+
+t.test('reject string not matching regexp', async (t) => {
+	t.throws(
+		() => clean.string({ regexp: /a\wc/ })('fanny'),
+		new ValidationError('Invalid value.'),
+	)
+})
+
+t.test('invalid regexp value', async (t) => {
+	t.throws(
+		() => clean.string({ regexp: 'foo' }),
+		new SchemaError('clean.string regexp must be a RegExp object'),
+	)
+})
+
 t.test('Empty values', async (t) => {
 	await t.test('reject undefined', async (t) => {
 		t.throws(() => clean.string()(), new ValidationError('Value required.'))
@@ -41,6 +59,12 @@ t.test('Empty values', async (t) => {
 			)
 			t.doesNotThrow(() => clean.string({ blank: null, null: true }))
 			t.doesNotThrow(() => clean.string({ blank: null }))
+		},
+	)
+	await t.test(
+		'pass blank string if allowed even if regexp is provided',
+		async (t) => {
+			t.equal(await clean.string({ blank: true, regexp: /\w/ })(''), '')
 		},
 	)
 })

@@ -70,6 +70,7 @@ Scalar cleaners:
 * [`clean.boolean`](#cleanboolean)
 * [`clean.date`](#cleandate)
 * [`clean.email`](#cleanemail)
+* [`clean.uuid`](#cleanuuid)
 
 Aggregation cleaners:
 
@@ -215,6 +216,7 @@ await cleaner(null) // throws "Value required."
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
+- `regexp` - test non-blank values to match against regexp
 - `label` - field label (used by flat error collector)
 - `clean` - custom cleaner to run if the validation passes
 
@@ -352,7 +354,7 @@ await cleaner(null) // throws "Value required."
 Create a cleaner that returns a Date object.
 
 ```js
-const cleaner = clean.string()
+const cleaner = clean.date()
 
 await cleaner('2018-11-14T09:28:19.387+07:00') // Date object
 await cleaner('non date text') // throws "Invalid value."
@@ -382,6 +384,29 @@ const cleaner = clean.email()
 
 await cleaner('user@example.com') // 'user@example.com'
 await cleaner('non email garbage') // throws "Invalid value."
+await cleaner('') // throws "Value required."
+```
+
+#### Schema options
+
+- `required: false` - allow undefined values
+- `null: true` - allow null values
+- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `blank: true` - allow blank values (empty strings)
+- `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
+- `cast: true` - no strict type check, convert value with `String(value)`
+- `label` - field label (used by flat error collector)
+- `clean` - custom cleaner to run if the validation passes
+
+### `clean.uuid()`
+
+Create an instance of a string cleaner that returns a valid UUID.
+
+```js
+const cleaner = clean.uuid()
+
+await cleaner('282f570c-d19c-4b85-870b-49129409ea92') // '282f570c-d19c-4b85-870b-49129409ea92'
+await cleaner('non uuid garbage') // throws "Invalid value."
 await cleaner('') // throws "Value required."
 ```
 

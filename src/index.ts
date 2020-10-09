@@ -9,6 +9,7 @@ export { cleanFloat as float, FloatSchema } from './cleaners/float'
 export { cleanInteger as integer, IntegerSchema } from './cleaners/integer'
 export { cleanObject as object, ObjectSchema } from './cleaners/object'
 export { cleanString as string, StringSchema } from './cleaners/string'
+export { cleanUuid as uuid, UuidSchema } from './cleaners/uuid'
 
 export { SchemaError } from './errors/SchemaError'
 export {

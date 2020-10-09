@@ -6,6 +6,7 @@ import { cleanString, StringSchema } from './string'
 
 export interface DateSchema<T, V> extends StringSchema<T, V> {
 	cast?: never
+	regexp?: never
 	format?: null | 'iso'
 }
 
@@ -18,16 +19,14 @@ export function cleanDate<T = string, V = T>(schema: DateSchema<T, V> = {}) {
 		)
 	) {
 		throw new SchemaError(
-			"clean.date result may be only: undefined, null, 'iso'",
+			"clean.date format may be only: undefined, null, 'iso'",
 		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
 	const cleaner = cleanString<T, V>({
-		required: schema.required,
-		default: schema.default,
-		null: schema.null,
-		blank: schema.blank,
-		cast: true,
+		...schema,
+		cast: true, // TODO: double check this
+		regexp: undefined,
 		clean(value, context) {
 			let res: any = value
 			if (!(res === undefined || res === null || res === '')) {
