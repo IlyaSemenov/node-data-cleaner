@@ -35,7 +35,7 @@ export function cleanAny<T = any, V = T>(schema: AnySchema<T, V> = {}) {
 			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
 		}
 	}
-	const cleaner: Cleaner<T, V> = function(value, context) {
+	const cleaner: Cleaner<T, V> = function (value, context) {
 		let res: any = value
 		if (res === undefined && schema.required !== false) {
 			throw new ValidationError(

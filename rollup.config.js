@@ -9,5 +9,5 @@ export default {
 		sourcemap: true,
 	},
 	plugins: [cleaner({ targets: ['./dist/'] }), typescript()],
-	external: ['email-validator', 'title-case'],
+	external: ['email-validator', 'capital-case'],
 }

@@ -1,4 +1,4 @@
-import titleCase from 'title-case'
+import { capitalCase } from 'capital-case'
 
 import { SchemaError } from '../errors/SchemaError'
 import {
@@ -154,11 +154,11 @@ export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
 							fieldCleaner && fieldCleaner.schema && fieldCleaner.schema.label
 					}
 					if (label === undefined) {
-						label = titleCase(field)
+						label = capitalCase(field)
 					}
 					allMessages.push(
 						...(label
-							? messages.map(message => `${label}: ${message}`)
+							? messages.map((message) => `${label}: ${message}`)
 							: messages),
 					)
 				}
@@ -170,7 +170,7 @@ export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
 	const { nonFieldErrorsKey } = schema
 	if (nonFieldErrorsKey !== undefined) {
 		const wrapped_cleaner = cleaner
-		cleaner = async function(value, context) {
+		cleaner = async function (value, context) {
 			try {
 				return await wrapped_cleaner(value, context)
 			} catch (err) {

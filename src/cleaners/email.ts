@@ -3,7 +3,7 @@ import { validate as validateEmail } from 'email-validator'
 import { ValidationError } from '../errors/ValidationError'
 import { getMessage } from '../utils'
 import { setSchema } from './any'
-import { StringSchema, cleanString } from './string'
+import { cleanString, StringSchema } from './string'
 
 export interface EmailSchema<T, V> extends StringSchema<T, V> {}
 

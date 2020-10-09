@@ -2,14 +2,14 @@ const t = require('tap')
 const clean = require('..'),
 	{ SchemaError, ValidationError } = clean
 
-t.test('reject empty schema', async t => {
+t.test('reject empty schema', async (t) => {
 	t.throws(
 		() => clean.object(),
 		new SchemaError(`clean.object schema must include fields.`),
 	)
 })
 
-t.test('reject schema without fields', async t => {
+t.test('reject schema without fields', async (t) => {
 	t.throws(
 		() => clean.object({}),
 		new SchemaError(`clean.object schema must include fields.`),
@@ -18,12 +18,12 @@ t.test('reject schema without fields', async t => {
 
 t.test(
 	'allow schema with empty fields set and disregard passed data',
-	async t => {
+	async (t) => {
 		t.same(await clean.object({ fields: {} })({ s1: 'one' }), {})
 	},
 )
 
-t.test('Multiple fields', async t => {
+t.test('Multiple fields', async (t) => {
 	const cleaner = clean.object({
 		fields: {
 			s1: clean.string(),
@@ -31,11 +31,11 @@ t.test('Multiple fields', async t => {
 			s3: clean.string(),
 		},
 	})
-	await t.test('pick all fields', async t => {
+	await t.test('pick all fields', async (t) => {
 		const obj = { s1: 'one', s2: 'two', s3: 'three' }
 		t.same(await cleaner(obj), obj)
 	})
-	await t.test('reject if some fields not present', async t => {
+	await t.test('reject if some fields not present', async (t) => {
 		t.rejects(
 			cleaner({ s2: 'two' }),
 			new ValidationError({
@@ -46,7 +46,7 @@ t.test('Multiple fields', async t => {
 	})
 })
 
-t.test('allow missing non-required field', async t => {
+t.test('allow missing non-required field', async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -59,7 +59,7 @@ t.test('allow missing non-required field', async t => {
 	)
 })
 
-t.test('skip extra field', async t => {
+t.test('skip extra field', async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -70,7 +70,7 @@ t.test('skip extra field', async t => {
 	)
 })
 
-t.test('accept undefined if allowed', async t => {
+t.test('accept undefined if allowed', async (t) => {
 	t.equal(
 		await clean.object({
 			required: false,
@@ -82,7 +82,7 @@ t.test('accept undefined if allowed', async t => {
 	)
 })
 
-t.test('omit omittable boolean', async t => {
+t.test('omit omittable boolean', async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -94,7 +94,7 @@ t.test('omit omittable boolean', async t => {
 	)
 })
 
-t.test('use field defaults', async t => {
+t.test('use field defaults', async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -106,7 +106,7 @@ t.test('use field defaults', async t => {
 	)
 })
 
-t.test('call custom cleaner', async t => {
+t.test('call custom cleaner', async (t) => {
 	const obj = { s1: 'one' }
 	t.same(
 		await clean.object({
@@ -121,7 +121,7 @@ t.test('call custom cleaner', async t => {
 	)
 })
 
-t.test('call custom async cleaner', async t => {
+t.test('call custom async cleaner', async (t) => {
 	const obj = { s1: 'one' }
 	t.same(
 		await clean.object({
@@ -129,7 +129,7 @@ t.test('call custom async cleaner', async t => {
 				s1: clean.string(),
 			},
 			clean(obj) {
-				return new Promise(resolve => {
+				return new Promise((resolve) => {
 					setTimeout(() => {
 						resolve({ object: obj })
 					}, 1)
@@ -140,7 +140,7 @@ t.test('call custom async cleaner', async t => {
 	)
 })
 
-t.test('pass plain ValidationError from custom cleaner', async t => {
+t.test('pass plain ValidationError from custom cleaner', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {},
@@ -152,7 +152,7 @@ t.test('pass plain ValidationError from custom cleaner', async t => {
 	)
 })
 
-t.test('store field validation errors in proper field keys', async t => {
+t.test('store field validation errors in proper field keys', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -169,7 +169,7 @@ t.test('store field validation errors in proper field keys', async t => {
 
 t.test(
 	'store custom field cleaner validation error in proper field key',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
@@ -187,7 +187,7 @@ t.test(
 
 t.test(
 	'store custom field cleaner field-aware validation error in proper field key',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
@@ -205,7 +205,7 @@ t.test(
 
 t.test(
 	'store nested object custom field cleaner validation error in proper field key',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
@@ -227,7 +227,7 @@ t.test(
 
 t.test(
 	'store nested object custom field cleaner validation error in proper field key',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
@@ -247,7 +247,7 @@ t.test(
 	},
 )
 
-t.test('use schema.nonFieldErrorsKey', async t => {
+t.test('use schema.nonFieldErrorsKey', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {},
@@ -260,7 +260,7 @@ t.test('use schema.nonFieldErrorsKey', async t => {
 	)
 })
 
-t.test('handle schema.nonFieldErrorsKey in nested field', async t => {
+t.test('handle schema.nonFieldErrorsKey in nested field', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -278,7 +278,7 @@ t.test('handle schema.nonFieldErrorsKey in nested field', async t => {
 	)
 })
 
-t.test('store non-grouped field errors', async t => {
+t.test('store non-grouped field errors', async (t) => {
 	const cleaner = clean.object({
 		fields: {
 			one: clean.any(),
@@ -311,7 +311,7 @@ t.test('store non-grouped field errors', async t => {
 	)
 })
 
-t.test('flat field name conversion', async t => {
+t.test('flat field name conversion', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -329,7 +329,7 @@ t.test('flat field name conversion', async t => {
 	)
 })
 
-t.test('disable error grouping for nested cleaners', async t => {
+t.test('disable error grouping for nested cleaners', async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -345,7 +345,7 @@ t.test('disable error grouping for nested cleaners', async t => {
 	)
 })
 
-t.test('flatten field error messages from custom cleaner', async t => {
+t.test('flatten field error messages from custom cleaner', async (t) => {
 	await t.rejects(
 		clean.object({
 			groupErrors: false,
@@ -362,7 +362,7 @@ t.test('flatten field error messages from custom cleaner', async t => {
 
 t.test(
 	'flatten field error messages from custom cleaner - reusing field labels',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				groupErrors: false,
@@ -380,7 +380,7 @@ t.test(
 
 t.test(
 	'disable label when flatten field error messages from custom cleaner',
-	async t => {
+	async (t) => {
 		await t.rejects(
 			clean.object({
 				groupErrors: false,
@@ -396,7 +396,7 @@ t.test(
 	},
 )
 
-t.test('flatten field error messages from nested custom cleaner', async t => {
+t.test('flatten field error messages from nested custom cleaner', async (t) => {
 	await t.rejects(
 		clean.object({
 			groupErrors: false,
@@ -416,7 +416,7 @@ t.test('flatten field error messages from nested custom cleaner', async t => {
 	)
 })
 
-t.test('allow storing sibling keys from custom cleaner', async t => {
+t.test('allow storing sibling keys from custom cleaner', async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -437,8 +437,8 @@ t.test('allow storing sibling keys from custom cleaner', async t => {
 	)
 })
 
-t.test('Parsing object keys', async t => {
-	await t.test('parse keys', async t => {
+t.test('Parsing object keys', async (t) => {
+	await t.test('parse keys', async (t) => {
 		t.same(
 			await clean.object({
 				parseKeys: true,
@@ -477,7 +477,7 @@ t.test('Parsing object keys', async t => {
 			},
 		)
 	})
-	await t.test('not parse keys if not explicitly set', async t => {
+	await t.test('not parse keys if not explicitly set', async (t) => {
 		t.same(
 			await clean.object({
 				fields: {
@@ -494,10 +494,10 @@ t.test('Parsing object keys', async t => {
 			},
 		)
 	})
-	await t.test('support custom split function and keep dots', async t => {
+	await t.test('support custom split function and keep dots', async (t) => {
 		t.same(
 			await clean.object({
-				parseKeys: key => key.split('__'),
+				parseKeys: (key) => key.split('__'),
 				fields: {
 					name: clean.string(),
 					age: clean.integer(),
@@ -535,7 +535,7 @@ t.test('Parsing object keys', async t => {
 	})
 })
 
-t.test('saving schema', async t => {
+t.test('saving schema', async (t) => {
 	const schema = { fields: {} }
 	t.equal(clean.object(schema).schema, schema)
 })

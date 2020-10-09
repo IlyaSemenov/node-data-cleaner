@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - 10
+  - 14
 cache:
   directories:
     - ~/.npm
@@ -12,6 +12,6 @@ branches:
 jobs:
   include:
     - stage: release
-      node_js: 10
+      node_js: 14
       after_success:
         - npx semantic-release
