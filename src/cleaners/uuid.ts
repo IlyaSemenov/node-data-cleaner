@@ -3,7 +3,7 @@ import { setSchema } from './any'
 import { cleanString, StringSchema } from './string'
 
 export interface UuidSchema<T, V> extends StringSchema<T, V> {
-	regexp: never
+	regexp?: never
 }
 
 export function cleanUuid<T = string, V = T>(schema?: UuidSchema<T, V>) {
