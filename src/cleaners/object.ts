@@ -212,3 +212,9 @@ function setObjPath(obj: Dict, path: string[], value: any): void {
 		}
 	}
 }
+
+cleanObject.fields = function <T = Dict, V = T>(
+	fields: ObjectSchema<T, V>['fields'],
+) {
+	return cleanObject({ fields })
+}

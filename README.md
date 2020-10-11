@@ -498,6 +498,21 @@ const cleaner = clean.object({
   fields: {
     name: clean.string(),
     lastName: clean.string({ default: null }),
+  }
+})
+
+cleaner({name: "John", lastName: "Doe"}) // { name: "John", lastName: "Doe" }
+cleaner({name: "John"}) // { name: "John", lastName: null }
+```
+
+#### Shorthand syntax
+
+If the only schema field used is `fields`, you can create a cleaner with:
+
+```js
+const cleaner = clean.object.fields({
+  name: clean.string(),
+  lastName: clean.string({ default: null }),
 })
 
 cleaner({name: "John", lastName: "Doe"}) // { name: "John", lastName: "Doe" }

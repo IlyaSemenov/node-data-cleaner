@@ -539,3 +539,24 @@ t.test('saving schema', async (t) => {
 	const schema = { fields: {} }
 	t.equal(clean.object(schema).schema, schema)
 })
+
+t.test('clean.object.simple', async (t) => {
+	const cleaner = clean.object.fields({
+		s1: clean.string(),
+		s2: clean.string(),
+		s3: clean.string(),
+	})
+	await t.test('pick all fields', async (t) => {
+		const obj = { s1: 'one', s2: 'two', s3: 'three' }
+		t.same(await cleaner(obj), obj)
+	})
+	await t.test('reject if some fields not present', async (t) => {
+		t.rejects(
+			cleaner({ s2: 'two' }),
+			new ValidationError({
+				s1: ['Value required.'],
+				s3: ['Value required.'],
+			}),
+		)
+	})
+})
