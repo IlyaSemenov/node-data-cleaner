@@ -884,12 +884,6 @@ Typically, you either get a single (first) validation error, or a flat list of a
 
 This can be directly attached back to the corresponding form fields in the UI.
 
-## TODO
-
-- `clean.uuid()`
-- `clean.date()`
-- `clean.string({ match })`
-
 ## Testing
 
 ```bash
