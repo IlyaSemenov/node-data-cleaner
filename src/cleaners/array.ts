@@ -1,23 +1,28 @@
 import { ErrorMessages, ValidationError } from '../errors/ValidationError'
 import { Cleaner } from '../types'
-import { getMessage } from '../utils'
+import { getMessage, LimitTo } from '../utils'
 import { AnySchema, cleanAny, setSchema } from './any'
 
-export interface ArraySchema<E, T, V> extends AnySchema<T, V> {
+export type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
+
+export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
+	extends AnySchema<T, M> {
 	element?: Cleaner<E>
 	min?: number
 	max?: number
 }
 
-export function cleanArray<E = any, T = E[], V = T>(
-	schema: ArraySchema<E, T, V> = {},
-) {
-	const cleaner = cleanAny<T, V>({
+export function cleanArray<
+	E = any,
+	T = E[],
+	M extends TypeM<T, E> = TypeM<T, E>
+>(schema: ArraySchema<T, E, M> = {}) {
+	const cleaner = cleanAny<T>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
 		async clean(value, context) {
-			let res: any = value
+			let res: M = value
 			if (!(res === undefined || res === null)) {
 				if (!Array.isArray(res)) {
 					throw new ValidationError(
@@ -35,7 +40,7 @@ export function cleanArray<E = any, T = E[], V = T>(
 					)
 				}
 				if (schema.element) {
-					const cleanedArray = []
+					const cleanedArray: E[] = []
 					const errors: ErrorMessages = []
 					// TODO: use Promise.all instead of loop
 					for (const el of res) {
@@ -60,14 +65,10 @@ export function cleanArray<E = any, T = E[], V = T>(
 					if (errors.length) {
 						throw new ValidationError(errors)
 					}
-					res = cleanedArray
+					res = cleanedArray as M
 				}
 			}
-
-			if (schema.clean) {
-				res = schema.clean(res, context)
-			}
-			return res
+			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
 		},
 	})
 	return setSchema(cleaner, schema)

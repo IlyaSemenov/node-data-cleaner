@@ -1,16 +1,20 @@
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import { getMessage } from '../utils'
-import { setSchema } from './any'
+import { getMessage, LimitTo } from '../utils'
+import { AnySchema, setSchema } from './any'
 import { cleanString, StringSchema } from './string'
 
-export interface DateSchema<T, V> extends StringSchema<T, V> {
-	cast?: never
-	regexp?: never
+export type TypeM<T> = LimitTo<T, string | Date | null | undefined>
+
+export interface DateSchema<T, M extends TypeM<T> = TypeM<T>>
+	extends Omit<StringSchema<T>, 'cast' | 'regexp' | 'clean'> {
 	format?: null | 'iso'
+	clean?: AnySchema<T, M>['clean']
 }
 
-export function cleanDate<T = string, V = T>(schema: DateSchema<T, V> = {}) {
+export function cleanDate<T = string, M extends TypeM<T> = TypeM<T>>(
+	schema: DateSchema<T, M> = {},
+) {
 	if (
 		!(
 			schema.format === undefined ||
@@ -23,14 +27,14 @@ export function cleanDate<T = string, V = T>(schema: DateSchema<T, V> = {}) {
 		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
-	const cleaner = cleanString<T, V>({
+	const cleaner = cleanString<T>({
 		...schema,
 		cast: true, // TODO: double check this
 		regexp: undefined,
 		clean(value, context) {
-			let res: any = value
-			if (!(res === undefined || res === null || res === '')) {
-				const date = new Date(res)
+			let res: M = value as M
+			if (res) {
+				const date = new Date(res as string)
 				if (isNaN(date.getTime())) {
 					throw new ValidationError(
 						getMessage(context, 'invalid', 'Invalid value.'),
@@ -39,15 +43,12 @@ export function cleanDate<T = string, V = T>(schema: DateSchema<T, V> = {}) {
 				if (schema.format === null) {
 					// ok
 				} else if (schema.format === 'iso') {
-					res = date.toISOString()
+					res = date.toISOString() as M
 				} else {
-					res = date
+					res = date as M
 				}
 			}
-			if (schema.clean) {
-				res = schema.clean(res, context)
-			}
-			return res
+			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
 		},
 	})
 	return setSchema(cleaner, schema)

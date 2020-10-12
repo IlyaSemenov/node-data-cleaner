@@ -1,25 +1,24 @@
 import { SchemaError } from '../errors/SchemaError'
 import { ValidationError } from '../errors/ValidationError'
-import { getMessage } from '../utils'
+import { getMessage, LimitTo } from '../utils'
 import { AnySchema, cleanAny, setSchema } from './any'
 
-export interface NumberSchema<T, V> extends AnySchema<T, V> {
+export type TypeM<T> = LimitTo<T, number | null | undefined>
+
+export type NumberSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<T, M> & {
 	cast?: boolean
 	min?: number
 	max?: number
-}
-
-export interface NumberParserSchema<T, V> extends NumberSchema<T, V> {
 	parseNumber: (value: any) => number
 }
 
-export function cleanNumber<T = number, V = T>(
-	schema: NumberParserSchema<T, V>,
+export function cleanNumber<T = number, M extends TypeM<T> = TypeM<T>>(
+	schema: NumberSchema<T, M>,
 ) {
-	if (schema.parseNumber === undefined) {
+	if (!schema.parseNumber) {
 		throw new SchemaError("clean.number needs 'parseNumber'")
 	}
-	const cleaner = cleanAny<T, V>({
+	const cleaner = cleanAny<T>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,

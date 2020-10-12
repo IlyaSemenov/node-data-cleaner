@@ -5,28 +5,21 @@ import { getMessage } from '../utils'
 import { setSchema } from './any'
 import { cleanString, StringSchema } from './string'
 
-export interface EmailSchema<T, V> extends StringSchema<T, V> {}
+export type EmailSchema<T> = StringSchema<T>
 
-export function cleanEmail<T = string, V = T>(schema: EmailSchema<T, V> = {}) {
-	const cleaner = cleanString<T, V>({
-		required: schema.required,
-		default: schema.default,
-		null: schema.null,
-		blank: schema.blank,
-		cast: true,
+export function cleanEmail<T = string>(schema: EmailSchema<T> = {}) {
+	const cleaner = cleanString<T>({
+		...schema,
+		cast: true, // why?
 		clean(value, context) {
-			let res: any = value
-			if (!(res === undefined || res === null || res === '')) {
-				if (!validateEmail(res)) {
-					throw new ValidationError(
-						getMessage(context, 'invalid_email', 'Invalid e-mail address.'),
-					)
-				}
+			if (value && !validateEmail(value as string)) {
+				throw new ValidationError(
+					getMessage(context, 'invalid_email', 'Invalid e-mail address.'),
+				)
 			}
-			if (schema.clean) {
-				res = schema.clean(res, context)
-			}
-			return res
+			return schema.clean
+				? schema.clean(value, context)
+				: ((value as unknown) as T)
 		},
 	})
 	return setSchema(cleaner, schema)

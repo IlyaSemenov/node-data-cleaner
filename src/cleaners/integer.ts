@@ -1,12 +1,10 @@
 import { setSchema } from './any'
 import { cleanNumber, NumberSchema } from './number'
 
-export interface IntegerSchema<T, V> extends NumberSchema<T, V> {}
+export type IntegerSchema<T> = Omit<NumberSchema<T>, 'parseNumber'>
 
-export function cleanInteger<T = number, V = T>(
-	schema: IntegerSchema<T, V> = {},
-) {
-	const cleaner = cleanNumber<T, V>({
+export function cleanInteger<T = number>(schema: IntegerSchema<T> = {}) {
+	const cleaner = cleanNumber<T>({
 		...schema,
 		parseNumber: parseInt,
 	})

@@ -1,13 +1,10 @@
-import { SchemaError } from '../errors/SchemaError'
 import { setSchema } from './any'
 import { cleanString, StringSchema } from './string'
 
-export interface UuidSchema<T, V> extends StringSchema<T, V> {
-	regexp?: never
-}
+export type UuidSchema<T> = Omit<StringSchema<T>, 'regexp'>
 
-export function cleanUuid<T = string, V = T>(schema?: UuidSchema<T, V>) {
-	const cleaner = cleanString({
+export function cleanUuid<T = string>(schema: UuidSchema<T> = {}) {
+	const cleaner = cleanString<T>({
 		...schema,
 		regexp: /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/,
 	})

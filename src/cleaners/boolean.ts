@@ -1,36 +1,38 @@
 import { ValidationError } from '../errors/ValidationError'
-import { getMessage } from '../utils'
+import { getMessage, LimitTo } from '../utils'
 import { AnySchema, cleanAny, setSchema } from './any'
 
-export interface BooleanSchema<T, V> extends AnySchema<T, V> {
+export type BooleanSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<
+	T,
+	M
+> & {
 	cast?: boolean
 	omit?: boolean
 }
 
-export function cleanBoolean<T = boolean, V = T>(
-	schema: BooleanSchema<T, V> = {},
+type TypeM<T> = LimitTo<T, boolean | null | undefined>
+
+export function cleanBoolean<T = boolean, M extends TypeM<T> = TypeM<T>>(
+	schema: BooleanSchema<T, M> = {} as BooleanSchema<T, M>,
 ) {
-	const cleaner = cleanAny<T, V>({
+	const cleaner = cleanAny<T>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
 		clean(value, context) {
-			let res: any = value
+			let res: M = value
 			if (!(res === undefined || res === null)) {
 				if (typeof res !== 'boolean' && schema.cast !== true) {
 					throw new ValidationError(
 						getMessage(context, 'invalid', 'Invalid value.'),
 					)
 				}
-				res = !!res // TODO: only do this if not boolean
+				res = !!res as M // TODO: only do this if not boolean
 				if (res === false && schema.omit === true) {
-					res = undefined
+					res = undefined as M
 				}
 			}
-			if (schema.clean) {
-				res = schema.clean(res, context)
-			}
-			return res
+			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
 		},
 	})
 	return setSchema(cleaner, schema)

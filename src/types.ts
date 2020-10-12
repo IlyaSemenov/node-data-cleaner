@@ -1,4 +1,6 @@
-export type Cleaner<T = any, V = T> = (
+type SyncOrAsync<T> = T | Promise<T>
+
+export type Cleaner<T, V = any> = (
 	value: V,
 	context?: Record<string, any>,
-) => T | Promise<T>
+) => SyncOrAsync<T>

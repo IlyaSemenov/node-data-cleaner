@@ -15,14 +15,18 @@ export type Dict = Record<string, any>
 
 export type ParseKeysOptions = boolean | ((key: string) => string[])
 
-export interface ObjectSchema<T, V> extends AnySchema<T, V> {
+export type ObjectSchema<T, M> = AnySchema<T, M> & {
 	parseKeys?: ParseKeysOptions
-	fields: Record<string, Cleaner<any, any>>
+	fields: {
+		[field in keyof M]?: Cleaner<M[field]>
+	}
 	nonFieldErrorsKey?: string
 	groupErrors?: boolean
 }
 
-export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
+export function cleanObject<M extends Record<string, any>, T = M>(
+	schema: ObjectSchema<T, M>,
+) {
 	if (!schema || typeof schema.fields !== 'object') {
 		throw new SchemaError('clean.object schema must include fields.')
 	}
@@ -30,7 +34,7 @@ export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
 		schema.groupErrors !== undefined ? !!schema.groupErrors : true
 	// TODO: prevent !groupErrors && nonFieldErrorsKey
 
-	let cleaner: Cleaner<T, V> = cleanAny<T, V>({
+	let cleaner: Cleaner<T> = cleanAny({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
@@ -61,9 +65,8 @@ export function cleanObject<T = Dict, V = T>(schema: ObjectSchema<T, V>) {
 					data: customDataStore,
 					groupErrors: groupErrors === false ? groupErrors : undefined,
 				}
-				for (const field of Object.keys(schema.fields)) {
+				for (const [field, fieldCleaner] of Object.entries(schema.fields)) {
 					const fieldValue = res.hasOwnProperty(field) ? res[field] : undefined
-					const fieldCleaner = schema.fields[field]
 					let cleanedFieldValue
 					try {
 						cleanedFieldValue = await Promise.resolve(
@@ -213,8 +216,8 @@ function setObjPath(obj: Dict, path: string[], value: any): void {
 	}
 }
 
-cleanObject.fields = function <T = Dict, V = T>(
-	fields: ObjectSchema<T, V>['fields'],
+cleanObject.fields = function <T extends Record<string, any>>(
+	fields: ObjectSchema<T, T>['fields'],
 ) {
-	return cleanObject({ fields })
+	return cleanObject<T, T>({ fields })
 }
