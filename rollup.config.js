@@ -8,6 +8,13 @@ export default {
 		format: 'cjs',
 		sourcemap: true,
 	},
-	plugins: [cleaner({ targets: ['./dist/'] }), typescript()],
+	plugins: [
+		cleaner({ targets: ['./dist/'] }),
+		typescript({
+			tsconfigOverride: {
+				include: ['src'],
+			},
+		}),
+	],
 	external: ['email-validator', 'capital-case'],
 }
