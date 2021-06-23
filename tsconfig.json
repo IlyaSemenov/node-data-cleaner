@@ -4,7 +4,7 @@
 		"moduleResolution": "node",
 		"declaration": true,
 		"strict": true,
-		"lib": ["es2015"],
+		"lib": ["esnext"],
 		"allowSyntheticDefaultImports": true
 	},
 	"exclude": ["dist"]
