@@ -55,7 +55,7 @@ export function cleanString<T = string, M extends TypeM<T> = TypeM<T>>(
 					)
 				}
 			}
-			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
+			return schema.clean ? schema.clean(res, context) : (res as unknown as T)
 		},
 	})
 	return setSchema(cleaner, schema)

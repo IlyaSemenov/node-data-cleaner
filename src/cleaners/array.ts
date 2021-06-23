@@ -15,7 +15,7 @@ export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
 export function cleanArray<
 	E = any,
 	T = E[],
-	M extends TypeM<T, E> = TypeM<T, E>
+	M extends TypeM<T, E> = TypeM<T, E>,
 >(schema: ArraySchema<T, E, M> = {}) {
 	const cleaner = cleanAny<T>({
 		required: schema.required,
@@ -68,7 +68,7 @@ export function cleanArray<
 					res = cleanedArray as M
 				}
 			}
-			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
+			return schema.clean ? schema.clean(res, context) : (res as unknown as T)
 		},
 	})
 	return setSchema(cleaner, schema)

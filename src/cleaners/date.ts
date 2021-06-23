@@ -48,7 +48,7 @@ export function cleanDate<T = string, M extends TypeM<T> = TypeM<T>>(
 					res = date as M
 				}
 			}
-			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
+			return schema.clean ? schema.clean(res, context) : (res as unknown as T)
 		},
 	})
 	return setSchema(cleaner, schema)

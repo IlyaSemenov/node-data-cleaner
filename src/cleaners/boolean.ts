@@ -32,7 +32,7 @@ export function cleanBoolean<T = boolean, M extends TypeM<T> = TypeM<T>>(
 					res = undefined as M
 				}
 			}
-			return schema.clean ? schema.clean(res, context) : ((res as unknown) as T)
+			return schema.clean ? schema.clean(res, context) : (res as unknown as T)
 		},
 	})
 	return setSchema(cleaner, schema)

@@ -1,5 +1,3 @@
-export { Cleaner } from './types'
-
 export { cleanAny as any, AnySchema } from './cleaners/any'
 export { cleanArray as array, ArraySchema } from './cleaners/array'
 export { cleanBoolean as boolean, BooleanSchema } from './cleaners/boolean'
@@ -10,7 +8,6 @@ export { cleanInteger as integer, IntegerSchema } from './cleaners/integer'
 export { cleanObject as object, ObjectSchema } from './cleaners/object'
 export { cleanString as string, StringSchema } from './cleaners/string'
 export { cleanUuid as uuid, UuidSchema } from './cleaners/uuid'
-
 export { SchemaError } from './errors/SchemaError'
 export {
 	ErrorMessage,
@@ -18,3 +15,4 @@ export {
 	FieldErrorMessages,
 	ValidationError,
 } from './errors/ValidationError'
+export { Cleaner } from './types'

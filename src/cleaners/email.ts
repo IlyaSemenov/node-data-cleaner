@@ -19,7 +19,7 @@ export function cleanEmail<T = string>(schema: EmailSchema<T> = {}) {
 			}
 			return schema.clean
 				? schema.clean(value, context)
-				: ((value as unknown) as T)
+				: (value as unknown as T)
 		},
 	})
 	return setSchema(cleaner, schema)

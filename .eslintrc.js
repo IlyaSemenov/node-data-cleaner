@@ -1,13 +1,24 @@
 module.exports = {
 	root: true,
-	plugins: ['prettier', '@typescript-eslint', 'simple-import-sort'],
-	parser: '@typescript-eslint/parser',
-	parserOptions: {
-		sourceType: 'module',
+	extends: [
+		'plugin:@typescript-eslint/recommended',
+		'plugin:prettier/recommended',
+	],
+	plugins: ['simple-import-sort'],
+	env: {
+		node: true,
 	},
-	extends: ['prettier'],
 	rules: {
 		'prettier/prettier': 'warn',
-		'simple-import-sort/sort': 'warn',
+		'simple-import-sort/imports': 'warn',
+		'simple-import-sort/exports': 'warn',
 	},
+	overrides: [
+		{
+			files: ['*.js'],
+			rules: {
+				'@typescript-eslint/no-var-requires': 'off',
+			},
+		},
+	],
 }

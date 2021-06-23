@@ -62,9 +62,7 @@ export function cleanAny<T = any, M = any>(
 				getMessage(context, 'required', 'Value required.'),
 			)
 		}
-		return schema.clean
-			? schema.clean(value, context)
-			: ((value as unknown) as T)
+		return schema.clean ? schema.clean(value, context) : (value as unknown as T)
 	}
 	return setSchema(cleaner, schema)
 }
