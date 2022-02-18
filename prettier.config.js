@@ -3,4 +3,12 @@ module.exports = {
 	semi: false,
 	singleQuote: true,
 	trailingComma: 'all',
+	overrides: [
+		{
+			files: '*.md',
+			options: {
+				useTabs: false,
+			},
+		},
+	],
 }

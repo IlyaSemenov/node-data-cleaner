@@ -5,17 +5,16 @@ module.exports = {
 		'plugin:prettier/recommended',
 	],
 	plugins: ['simple-import-sort'],
-	env: {
-		node: true,
-	},
 	rules: {
 		'prettier/prettier': 'warn',
 		'simple-import-sort/imports': 'warn',
 		'simple-import-sort/exports': 'warn',
+		'@typescript-eslint/no-explicit-any': 'off',
+		'@typescript-eslint/explicit-module-boundary-types': 'off',
 	},
 	overrides: [
 		{
-			files: ['*.js'],
+			files: '*.js',
 			rules: {
 				'@typescript-eslint/no-var-requires': 'off',
 			},

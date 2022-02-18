@@ -1,13 +1,7 @@
 {
   "name": "data-cleaner",
   "description": "Django-forms-inspired object data cleaner and validator for Node.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "source": "src/index.ts",
-  "files": [
-    "src/**",
-    "dist/**"
-  ],
+  "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/IlyaSemenov/node-data-cleaner.git"
@@ -17,36 +11,44 @@
   ],
   "author": "Ilya Semenov",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/IlyaSemenov/node-data-cleaner/issues"
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint --fix '**/*.{js,ts}'",
+    "prepack": "npm run build",
+    "prepare": "husky install",
+    "test": "tap 'tests/**/*.test.js'"
   },
-  "homepage": "https://github.com/IlyaSemenov/node-data-cleaner#readme",
   "dependencies": {
-    "capital-case": "^1.0.4",
-    "email-validator": "^2.0.4"
+    "capital-case": "1.0.4",
+    "email-validator": "2.0.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.4",
-    "@commitlint/config-conventional": "^12.1.4",
-    "@typescript-eslint/eslint-plugin": "^4.28.0",
-    "@typescript-eslint/parser": "^4.28.0",
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "husky": "^6.0.0",
-    "lint-staged": "^11.0.0",
-    "prettier": "^2.3.1",
-    "rollup": "^2.29.0",
-    "rollup-plugin-cleaner": "^1.0.0",
-    "rollup-plugin-typescript2": "^0.27.3",
-    "tap": "^15.0.9",
-    "typescript": "^4.0.3"
-  },
-  "scripts": {
-    "build": "rollup -c",
-    "lint": "eslint --fix '**/*.{js,ts}'",
-    "prepare": "husky install",
-    "test": "tap 'test/**/*.test.js'"
+    "@commitlint/cli": "16.1.0",
+    "@commitlint/config-conventional": "16.0.0",
+    "@tsconfig/node14": "1.0.1",
+    "@types/tap": "15.0.5",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "5.11.0",
+    "esbuild": "0.14.21",
+    "esbuild-runner": "2.2.1",
+    "eslint": "8.8.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
+    "husky": "7.0.4",
+    "lint-staged": "12.3.3",
+    "prettier": "2.5.1",
+    "tap": "15.1.6",
+    "tsup": "5.11.13",
+    "typescript": "4.5.5"
   }
 }
