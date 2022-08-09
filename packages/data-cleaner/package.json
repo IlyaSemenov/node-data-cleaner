@@ -1,0 +1,38 @@
+{
+  "name": "data-cleaner",
+  "description": "Django-forms-inspired object data cleaner and validator for Node.js",
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IlyaSemenov/node-data-cleaner.git"
+  },
+  "keywords": [
+    "validation"
+  ],
+  "author": "Ilya Semenov",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepack": "npm run build",
+    "test": "tap 'tests/**/*.test.js'"
+  },
+  "dependencies": {
+    "capital-case": "1.0.4",
+    "email-validator": "2.0.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.14.21",
+    "esbuild-runner": "2.2.1",
+    "tap": "15.1.6",
+    "tsup": "5.11.13"
+  }
+}
