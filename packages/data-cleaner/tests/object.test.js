@@ -1,29 +1,29 @@
-const t = require('tap')
-const clean = require('..'),
+const t = require("tap")
+const clean = require(".."),
 	{ SchemaError, ValidationError } = clean
 
-t.test('reject empty schema', async (t) => {
+t.test("reject empty schema", async (t) => {
 	t.throws(
 		() => clean.object(),
-		new SchemaError(`clean.object schema must include fields.`),
+		new SchemaError(`clean.object schema must include fields.`)
 	)
 })
 
-t.test('reject schema without fields', async (t) => {
+t.test("reject schema without fields", async (t) => {
 	t.throws(
 		() => clean.object({}),
-		new SchemaError(`clean.object schema must include fields.`),
+		new SchemaError(`clean.object schema must include fields.`)
 	)
 })
 
 t.test(
-	'allow schema with empty fields set and disregard passed data',
+	"allow schema with empty fields set and disregard passed data",
 	async (t) => {
-		t.same(await clean.object({ fields: {} })({ s1: 'one' }), {})
-	},
+		t.same(await clean.object({ fields: {} })({ s1: "one" }), {})
+	}
 )
 
-t.test('Multiple fields', async (t) => {
+t.test("Multiple fields", async (t) => {
 	const cleaner = clean.object({
 		fields: {
 			s1: clean.string(),
@@ -31,22 +31,22 @@ t.test('Multiple fields', async (t) => {
 			s3: clean.string(),
 		},
 	})
-	await t.test('pick all fields', async (t) => {
-		const obj = { s1: 'one', s2: 'two', s3: 'three' }
+	await t.test("pick all fields", async (t) => {
+		const obj = { s1: "one", s2: "two", s3: "three" }
 		t.same(await cleaner(obj), obj)
 	})
-	await t.test('reject if some fields not present', async (t) => {
+	await t.test("reject if some fields not present", async (t) => {
 		t.rejects(
-			cleaner({ s2: 'two' }),
+			cleaner({ s2: "two" }),
 			new ValidationError({
-				s1: ['Value required.'],
-				s3: ['Value required.'],
-			}),
+				s1: ["Value required."],
+				s3: ["Value required."],
+			})
 		)
 	})
 })
 
-t.test('allow missing non-required field', async (t) => {
+t.test("allow missing non-required field", async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -55,22 +55,22 @@ t.test('allow missing non-required field', async (t) => {
 				}),
 			},
 		})({}),
-		{},
+		{}
 	)
 })
 
-t.test('skip extra field', async (t) => {
+t.test("skip extra field", async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
 				s1: clean.string(),
 			},
-		})({ s1: 'one', s2: 'two' }),
-		{ s1: 'one' },
+		})({ s1: "one", s2: "two" }),
+		{ s1: "one" }
 	)
 })
 
-t.test('accept undefined if allowed', async (t) => {
+t.test("accept undefined if allowed", async (t) => {
 	t.equal(
 		await clean.object({
 			required: false,
@@ -78,11 +78,11 @@ t.test('accept undefined if allowed', async (t) => {
 				s1: clean.string(),
 			},
 		})(),
-		undefined,
+		undefined
 	)
 })
 
-t.test('omit omittable boolean', async (t) => {
+t.test("omit omittable boolean", async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
@@ -90,24 +90,24 @@ t.test('omit omittable boolean', async (t) => {
 				b2: clean.boolean({ omit: true }),
 			},
 		})({ b1: false, b2: true }),
-		{ b2: true },
+		{ b2: true }
 	)
 })
 
-t.test('use field defaults', async (t) => {
+t.test("use field defaults", async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
-				s1: clean.string({ default: 'one' }),
-				s2: clean.string({ default: 'two' }),
+				s1: clean.string({ default: "one" }),
+				s2: clean.string({ default: "two" }),
 			},
-		})({ s2: 'zwei' }),
-		{ s1: 'one', s2: 'zwei' },
+		})({ s2: "zwei" }),
+		{ s1: "one", s2: "zwei" }
 	)
 })
 
-t.test('call custom cleaner', async (t) => {
-	const obj = { s1: 'one' }
+t.test("call custom cleaner", async (t) => {
+	const obj = { s1: "one" }
 	t.same(
 		await clean.object({
 			fields: {
@@ -117,12 +117,12 @@ t.test('call custom cleaner', async (t) => {
 				return { object: obj }
 			},
 		})(obj),
-		{ object: obj },
+		{ object: obj }
 	)
 })
 
-t.test('call custom async cleaner', async (t) => {
-	const obj = { s1: 'one' }
+t.test("call custom async cleaner", async (t) => {
+	const obj = { s1: "one" }
 	t.same(
 		await clean.object({
 			fields: {
@@ -136,23 +136,23 @@ t.test('call custom async cleaner', async (t) => {
 				})
 			},
 		})(obj),
-		{ object: obj },
+		{ object: obj }
 	)
 })
 
-t.test('pass plain ValidationError from custom cleaner', async (t) => {
+t.test("pass plain ValidationError from custom cleaner", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {},
 			clean(obj) {
-				throw new ValidationError('bang')
+				throw new ValidationError("bang")
 			},
 		})({}),
-		new ValidationError('bang'),
+		new ValidationError("bang")
 	)
 })
 
-t.test('store field validation errors in proper field keys', async (t) => {
+t.test("store field validation errors in proper field keys", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -161,50 +161,50 @@ t.test('store field validation errors in proper field keys', async (t) => {
 			},
 		})({}),
 		new ValidationError({
-			foo: ['Value required.'],
-			bar: ['Value required.'],
-		}),
+			foo: ["Value required."],
+			bar: ["Value required."],
+		})
 	)
 })
 
 t.test(
-	'store custom field cleaner validation error in proper field key',
+	"store custom field cleaner validation error in proper field key",
 	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
 					obj: clean.any({
 						clean() {
-							throw new ValidationError('bang')
+							throw new ValidationError("bang")
 						},
 					}),
 				},
 			})({ obj: 1 }),
-			new ValidationError({ obj: ['bang'] }),
+			new ValidationError({ obj: ["bang"] })
 		)
-	},
+	}
 )
 
 t.test(
-	'store custom field cleaner field-aware validation error in proper field key',
+	"store custom field cleaner field-aware validation error in proper field key",
 	async (t) => {
 		await t.rejects(
 			clean.object({
 				fields: {
 					obj: clean.any({
 						clean() {
-							throw new ValidationError({ foo: 'bang' })
+							throw new ValidationError({ foo: "bang" })
 						},
 					}),
 				},
 			})({ obj: 1 }),
-			new ValidationError({ 'obj.foo': ['bang'] }),
+			new ValidationError({ "obj.foo": ["bang"] })
 		)
-	},
+	}
 )
 
 t.test(
-	'store nested object custom field cleaner validation error in proper field key',
+	"store nested object custom field cleaner validation error in proper field key",
 	async (t) => {
 		await t.rejects(
 			clean.object({
@@ -213,20 +213,20 @@ t.test(
 						fields: {
 							obj2: clean.any({
 								clean(obj) {
-									throw new ValidationError('bang')
+									throw new ValidationError("bang")
 								},
 							}),
 						},
 					}),
 				},
 			})({ obj1: { obj2: {} } }),
-			new ValidationError({ 'obj1.obj2': ['bang'] }),
+			new ValidationError({ "obj1.obj2": ["bang"] })
 		)
-	},
+	}
 )
 
 t.test(
-	'store nested object custom field cleaner validation error in proper field key',
+	"store nested object custom field cleaner validation error in proper field key",
 	async (t) => {
 		await t.rejects(
 			clean.object({
@@ -235,58 +235,58 @@ t.test(
 						fields: {
 							obj2: clean.any({
 								clean(obj) {
-									throw new ValidationError({ foo: 'bang' })
+									throw new ValidationError({ foo: "bang" })
 								},
 							}),
 						},
 					}),
 				},
 			})({ obj1: { obj2: {} } }),
-			new ValidationError({ 'obj1.obj2.foo': ['bang'] }),
+			new ValidationError({ "obj1.obj2.foo": ["bang"] })
 		)
-	},
+	}
 )
 
-t.test('use schema.nonFieldErrorsKey', async (t) => {
+t.test("use schema.nonFieldErrorsKey", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {},
 			clean() {
-				throw new ValidationError('bang')
+				throw new ValidationError("bang")
 			},
-			nonFieldErrorsKey: 'other',
+			nonFieldErrorsKey: "other",
 		})({}),
-		new ValidationError({ other: ['bang'] }),
+		new ValidationError({ other: ["bang"] })
 	)
 })
 
-t.test('handle schema.nonFieldErrorsKey in nested field', async (t) => {
+t.test("handle schema.nonFieldErrorsKey in nested field", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
 				obj: clean.object({
 					fields: {},
 					clean() {
-						throw new ValidationError('bang')
+						throw new ValidationError("bang")
 					},
-					nonFieldErrorsKey: 'other1',
+					nonFieldErrorsKey: "other1",
 				}),
 			},
-			nonFieldErrorsKey: 'other',
+			nonFieldErrorsKey: "other",
 		})({ obj: {} }),
-		new ValidationError({ 'obj.other1': ['bang'] }),
+		new ValidationError({ "obj.other1": ["bang"] })
 	)
 })
 
-t.test('store non-grouped field errors', async (t) => {
+t.test("store non-grouped field errors", async (t) => {
 	const cleaner = clean.object({
 		fields: {
 			one: clean.any(),
 			two: clean.any({
-				label: 'Zwei',
+				label: "Zwei",
 				clean(value) {
-					if (value === 'boom') {
-						throw new ValidationError('Boom is a wrong value for two!', {
+					if (value === "boom") {
+						throw new ValidationError("Boom is a wrong value for two!", {
 							label: null,
 						})
 					}
@@ -300,18 +300,18 @@ t.test('store non-grouped field errors', async (t) => {
 	await t.rejects(
 		cleaner({}),
 		new ValidationError([
-			'One: Value required.',
-			'Zwei: Value required.',
-			'Value required.',
-		]),
+			"One: Value required.",
+			"Zwei: Value required.",
+			"Value required.",
+		])
 	)
 	await t.rejects(
-		cleaner({ one: 1, two: 'boom', three: 3 }),
-		new ValidationError('Boom is a wrong value for two!'),
+		cleaner({ one: 1, two: "boom", three: 3 }),
+		new ValidationError("Boom is a wrong value for two!")
 	)
 })
 
-t.test('flat field name conversion', async (t) => {
+t.test("flat field name conversion", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -322,14 +322,14 @@ t.test('flat field name conversion', async (t) => {
 			groupErrors: false,
 		})({}),
 		new ValidationError([
-			'Long Field Name1: Value required.',
-			'Long Field Name2: Value required.',
-			'Long Field Name3: Value required.',
-		]),
+			"Long Field Name1: Value required.",
+			"Long Field Name2: Value required.",
+			"Long Field Name3: Value required.",
+		])
 	)
 })
 
-t.test('disable error grouping for nested cleaners', async (t) => {
+t.test("disable error grouping for nested cleaners", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
@@ -341,11 +341,11 @@ t.test('disable error grouping for nested cleaners', async (t) => {
 			},
 			groupErrors: false,
 		})({ data: {} }),
-		new ValidationError('Data: Foo: Value required.'),
+		new ValidationError("Data: Foo: Value required.")
 	)
 })
 
-t.test('flatten field error messages from custom cleaner', async (t) => {
+t.test("flatten field error messages from custom cleaner", async (t) => {
 	await t.rejects(
 		clean.object({
 			groupErrors: false,
@@ -353,33 +353,33 @@ t.test('flatten field error messages from custom cleaner', async (t) => {
 				foo: clean.any(),
 			},
 			clean() {
-				throw new ValidationError({ custom_field: 'Boom' })
+				throw new ValidationError({ custom_field: "Boom" })
 			},
 		})({ foo: 1 }),
-		new ValidationError('Custom Field: Boom'),
+		new ValidationError("Custom Field: Boom")
 	)
 })
 
 t.test(
-	'flatten field error messages from custom cleaner - reusing field labels',
+	"flatten field error messages from custom cleaner - reusing field labels",
 	async (t) => {
 		await t.rejects(
 			clean.object({
 				groupErrors: false,
 				fields: {
-					foo: clean.any({ label: 'Moo' }),
+					foo: clean.any({ label: "Moo" }),
 				},
 				clean() {
-					throw new ValidationError({ foo: 'Boom' })
+					throw new ValidationError({ foo: "Boom" })
 				},
 			})({ foo: 1 }),
-			new ValidationError('Moo: Boom'),
+			new ValidationError("Moo: Boom")
 		)
-	},
+	}
 )
 
 t.test(
-	'disable label when flatten field error messages from custom cleaner',
+	"disable label when flatten field error messages from custom cleaner",
 	async (t) => {
 		await t.rejects(
 			clean.object({
@@ -388,15 +388,15 @@ t.test(
 					foo: clean.any(),
 				},
 				clean() {
-					throw new ValidationError({ custom_field: 'Boom' }, { label: null })
+					throw new ValidationError({ custom_field: "Boom" }, { label: null })
 				},
 			})({ foo: 1 }),
-			new ValidationError('Boom'),
+			new ValidationError("Boom")
 		)
-	},
+	}
 )
 
-t.test('flatten field error messages from nested custom cleaner', async (t) => {
+t.test("flatten field error messages from nested custom cleaner", async (t) => {
 	await t.rejects(
 		clean.object({
 			groupErrors: false,
@@ -407,38 +407,38 @@ t.test('flatten field error messages from nested custom cleaner', async (t) => {
 						foo: clean.any(),
 					},
 					clean() {
-						throw new ValidationError({ custom_field: 'Boom' })
+						throw new ValidationError({ custom_field: "Boom" })
 					},
 				}),
 			},
 		})({ data: { foo: 1 } }),
-		new ValidationError('Custom Field: Boom'),
+		new ValidationError("Custom Field: Boom")
 	)
 })
 
-t.test('allow storing sibling keys from custom cleaner', async (t) => {
+t.test("allow storing sibling keys from custom cleaner", async (t) => {
 	t.same(
 		await clean.object({
 			fields: {
 				text: clean.string(),
 				postId: clean.integer({
 					clean(postId, opts) {
-						opts.data.post = { title: 'post ' + postId }
+						opts.data.post = { title: "post " + postId }
 						return postId
 					},
 				}),
 			},
-		})({ text: 'hello', postId: 123 }),
+		})({ text: "hello", postId: 123 }),
 		{
-			text: 'hello',
+			text: "hello",
 			postId: 123,
-			post: { title: 'post 123' },
-		},
+			post: { title: "post 123" },
+		}
 	)
 })
 
-t.test('Parsing object keys', async (t) => {
-	await t.test('parse keys', async (t) => {
+t.test("Parsing object keys", async (t) => {
+	await t.test("parse keys", async (t) => {
 		t.same(
 			await clean.object({
 				parseKeys: true,
@@ -458,46 +458,46 @@ t.test('Parsing object keys', async (t) => {
 					}),
 				},
 			})({
-				name: 'John Doe',
+				name: "John Doe",
 				age: 24,
-				'job.position': 'Engineer',
-				'job.salary': 50000,
-				'job.project.name': 'Doomsday machine',
+				"job.position": "Engineer",
+				"job.salary": 50000,
+				"job.project.name": "Doomsday machine",
 			}),
 			{
-				name: 'John Doe',
+				name: "John Doe",
 				age: 24,
 				job: {
-					position: 'Engineer',
+					position: "Engineer",
 					salary: 50000,
 					project: {
-						name: 'Doomsday machine',
+						name: "Doomsday machine",
 					},
 				},
-			},
+			}
 		)
 	})
-	await t.test('not parse keys if not explicitly set', async (t) => {
+	await t.test("not parse keys if not explicitly set", async (t) => {
 		t.same(
 			await clean.object({
 				fields: {
 					foo: clean.integer(),
-					'bar.baz': clean.integer(),
+					"bar.baz": clean.integer(),
 				},
 			})({
 				foo: 1,
-				'bar.baz': 2,
+				"bar.baz": 2,
 			}),
 			{
 				foo: 1,
-				'bar.baz': 2,
-			},
+				"bar.baz": 2,
+			}
 		)
 	})
-	await t.test('support custom split function and keep dots', async (t) => {
+	await t.test("support custom split function and keep dots", async (t) => {
 		t.same(
 			await clean.object({
-				parseKeys: (key) => key.split('__'),
+				parseKeys: (key) => key.split("__"),
 				fields: {
 					name: clean.string(),
 					age: clean.integer(),
@@ -505,7 +505,7 @@ t.test('Parsing object keys', async (t) => {
 						fields: {
 							position: clean.string(),
 							salary: clean.integer(),
-							'project.or.department': clean.object({
+							"project.or.department": clean.object({
 								fields: {
 									name: clean.string(),
 								},
@@ -514,49 +514,49 @@ t.test('Parsing object keys', async (t) => {
 					}),
 				},
 			})({
-				name: 'John Doe',
+				name: "John Doe",
 				age: 24,
-				job__position: 'Engineer',
+				job__position: "Engineer",
 				job__salary: 50000,
-				'job__project.or.department__name': 'Doomsday machine',
+				"job__project.or.department__name": "Doomsday machine",
 			}),
 			{
-				name: 'John Doe',
+				name: "John Doe",
 				age: 24,
 				job: {
-					position: 'Engineer',
+					position: "Engineer",
 					salary: 50000,
-					'project.or.department': {
-						name: 'Doomsday machine',
+					"project.or.department": {
+						name: "Doomsday machine",
 					},
 				},
-			},
+			}
 		)
 	})
 })
 
-t.test('saving schema', async (t) => {
+t.test("saving schema", async (t) => {
 	const schema = { fields: {} }
 	t.equal(clean.object(schema).schema, schema)
 })
 
-t.test('clean.object.simple', async (t) => {
+t.test("clean.object.simple", async (t) => {
 	const cleaner = clean.object.fields({
 		s1: clean.string(),
 		s2: clean.string(),
 		s3: clean.string(),
 	})
-	await t.test('pick all fields', async (t) => {
-		const obj = { s1: 'one', s2: 'two', s3: 'three' }
+	await t.test("pick all fields", async (t) => {
+		const obj = { s1: "one", s2: "two", s3: "three" }
 		t.same(await cleaner(obj), obj)
 	})
-	await t.test('reject if some fields not present', async (t) => {
+	await t.test("reject if some fields not present", async (t) => {
 		t.rejects(
-			cleaner({ s2: 'two' }),
+			cleaner({ s2: "two" }),
 			new ValidationError({
-				s1: ['Value required.'],
-				s3: ['Value required.'],
-			}),
+				s1: ["Value required."],
+				s3: ["Value required."],
+			})
 		)
 	})
 })

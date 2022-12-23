@@ -1,6 +1,6 @@
-import { ValidationError } from '../errors/ValidationError'
-import { getMessage, LimitTo } from '../utils'
-import { AnySchema, cleanAny, setSchema } from './any'
+import { ValidationError } from "../errors/ValidationError"
+import { getMessage, LimitTo } from "../utils"
+import { AnySchema, cleanAny, setSchema } from "./any"
 
 export type BooleanSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<
 	T,
@@ -13,7 +13,7 @@ export type BooleanSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<
 type TypeM<T> = LimitTo<T, boolean | null | undefined>
 
 export function cleanBoolean<T = boolean, M extends TypeM<T> = TypeM<T>>(
-	schema: BooleanSchema<T, M> = {} as BooleanSchema<T, M>,
+	schema: BooleanSchema<T, M> = {} as BooleanSchema<T, M>
 ) {
 	const cleaner = cleanAny<T>({
 		required: schema.required,
@@ -22,9 +22,9 @@ export function cleanBoolean<T = boolean, M extends TypeM<T> = TypeM<T>>(
 		clean(value, context) {
 			let res: M = value
 			if (!(res === undefined || res === null)) {
-				if (typeof res !== 'boolean' && schema.cast !== true) {
+				if (typeof res !== "boolean" && schema.cast !== true) {
 					throw new ValidationError(
-						getMessage(context, 'invalid', 'Invalid value.'),
+						getMessage(context, "invalid", "Invalid value.")
 					)
 				}
 				res = !!res as M // TODO: only do this if not boolean

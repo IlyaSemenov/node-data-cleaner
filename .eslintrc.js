@@ -1,22 +1,22 @@
 module.exports = {
 	root: true,
 	extends: [
-		'plugin:@typescript-eslint/recommended',
-		'plugin:prettier/recommended',
+		"plugin:@typescript-eslint/recommended",
+		"plugin:prettier/recommended",
 	],
-	plugins: ['simple-import-sort'],
+	plugins: ["simple-import-sort"],
 	rules: {
-		'prettier/prettier': 'warn',
-		'simple-import-sort/imports': 'warn',
-		'simple-import-sort/exports': 'warn',
-		'@typescript-eslint/no-explicit-any': 'off',
-		'@typescript-eslint/explicit-module-boundary-types': 'off',
+		"prettier/prettier": "warn",
+		"simple-import-sort/imports": "warn",
+		"simple-import-sort/exports": "warn",
+		"@typescript-eslint/no-explicit-any": "off",
+		"@typescript-eslint/explicit-module-boundary-types": "off",
 	},
 	overrides: [
 		{
-			files: '*.js',
+			files: "*.js",
 			rules: {
-				'@typescript-eslint/no-var-requires': 'off',
+				"@typescript-eslint/no-var-requires": "off",
 			},
 		},
 	],

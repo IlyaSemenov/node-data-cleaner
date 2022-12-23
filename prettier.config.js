@@ -1,11 +1,9 @@
 module.exports = {
 	useTabs: true,
 	semi: false,
-	singleQuote: true,
-	trailingComma: 'all',
 	overrides: [
 		{
-			files: '*.md',
+			files: "*.md",
 			options: {
 				useTabs: false,
 			},

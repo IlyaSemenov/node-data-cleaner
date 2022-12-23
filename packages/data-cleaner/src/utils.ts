@@ -5,7 +5,7 @@ export interface MessageContext {
 export function getMessage(
 	context: MessageContext | undefined,
 	name: string,
-	defaultText: string,
+	defaultText: string
 ) {
 	return (context && context.messages && context.messages[name]) || defaultText
 }

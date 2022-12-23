@@ -1,7 +1,7 @@
-import { ErrorMessages, ValidationError } from '../errors/ValidationError'
-import { Cleaner } from '../types'
-import { getMessage, LimitTo } from '../utils'
-import { AnySchema, cleanAny, setSchema } from './any'
+import { ErrorMessages, ValidationError } from "../errors/ValidationError"
+import { Cleaner } from "../types"
+import { getMessage, LimitTo } from "../utils"
+import { AnySchema, cleanAny, setSchema } from "./any"
 
 export type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
 
@@ -15,7 +15,7 @@ export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
 export function cleanArray<
 	E = any,
 	T = E[],
-	M extends TypeM<T, E> = TypeM<T, E>,
+	M extends TypeM<T, E> = TypeM<T, E>
 >(schema: ArraySchema<T, E, M> = {}) {
 	const cleaner = cleanAny<T>({
 		required: schema.required,
@@ -26,17 +26,17 @@ export function cleanArray<
 			if (!(res === undefined || res === null)) {
 				if (!Array.isArray(res)) {
 					throw new ValidationError(
-						getMessage(context, 'invalid', 'Invalid value.'),
+						getMessage(context, "invalid", "Invalid value.")
 					)
 				}
 				if (schema.min && res.length < schema.min) {
 					throw new ValidationError(
-						getMessage(context, 'array_min', 'Not enough values.'),
+						getMessage(context, "array_min", "Not enough values.")
 					)
 				}
 				if (schema.max && res.length > schema.max) {
 					throw new ValidationError(
-						getMessage(context, 'array_max', 'Too many values.'),
+						getMessage(context, "array_max", "Too many values.")
 					)
 				}
 				if (schema.element) {

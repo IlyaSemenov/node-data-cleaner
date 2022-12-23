@@ -1,15 +1,15 @@
-import { capitalCase } from 'capital-case'
+import { capitalCase } from "capital-case"
 
-import { SchemaError } from '../errors/SchemaError'
+import { SchemaError } from "../errors/SchemaError"
 import {
 	ErrorMessages,
 	ErrorOptions,
 	FieldErrorMessages,
 	ValidationError,
-} from '../errors/ValidationError'
-import { Cleaner } from '../types'
-import { getMessage } from '../utils'
-import { AnySchema, cleanAny, setSchema } from './any'
+} from "../errors/ValidationError"
+import { Cleaner } from "../types"
+import { getMessage } from "../utils"
+import { AnySchema, cleanAny, setSchema } from "./any"
 
 export type Dict = Record<string, any>
 
@@ -25,10 +25,10 @@ export type ObjectSchema<T, M> = AnySchema<T, M> & {
 }
 
 export function cleanObject<M extends Record<string, any>, T = M>(
-	schema: ObjectSchema<T, M>,
+	schema: ObjectSchema<T, M>
 ) {
-	if (!schema || typeof schema.fields !== 'object') {
-		throw new SchemaError('clean.object schema must include fields.')
+	if (!schema || typeof schema.fields !== "object") {
+		throw new SchemaError("clean.object schema must include fields.")
 	}
 	const schemaGroupErrors =
 		schema.groupErrors !== undefined ? !!schema.groupErrors : true
@@ -50,9 +50,9 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 				opts: ErrorOptions
 			}> = []
 			if (!(res === undefined || res === null)) {
-				if (typeof res !== 'object') {
+				if (typeof res !== "object") {
 					throw new ValidationError(
-						getMessage(context, 'invalid', 'Invalid value.'),
+						getMessage(context, "invalid", "Invalid value.")
 					)
 				}
 				if (schema.parseKeys) {
@@ -70,7 +70,7 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 					let cleanedFieldValue
 					try {
 						cleanedFieldValue = await Promise.resolve(
-							fieldCleaner(fieldValue, fieldCleanerContext),
+							fieldCleaner(fieldValue, fieldCleanerContext)
 						)
 					} catch (err) {
 						if (!(err instanceof ValidationError)) {
@@ -87,13 +87,13 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 						if (err.errors) {
 							if (!groupErrors) {
 								throw new Error(
-									"Error grouping disabled, but nested cleaner threw grouped ValidationError. Make sure nested cleaners only throw simple ValidationError's",
+									"Error grouping disabled, but nested cleaner threw grouped ValidationError. Make sure nested cleaners only throw simple ValidationError's"
 								)
 							}
 							for (const subfield of Object.keys(err.errors)) {
 								// {subfield: errors}  -> {field.subfield: errors}
 								collectedErrors.push({
-									field: field + '.' + subfield,
+									field: field + "." + subfield,
 									messages: err.errors[subfield],
 									opts: err.opts,
 								})
@@ -162,7 +162,7 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 					allMessages.push(
 						...(label
 							? messages.map((message) => `${label}: ${message}`)
-							: messages),
+							: messages)
 					)
 				}
 				throw new ValidationError(allMessages)
@@ -191,7 +191,7 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 
 function parseKeys(obj: Dict, opts: ParseKeysOptions) {
 	const getPathFromKey =
-		typeof opts === 'function' ? opts : (key: string) => key.split('.')
+		typeof opts === "function" ? opts : (key: string) => key.split(".")
 	const res: Dict = {}
 	for (const key of Object.keys(obj)) {
 		const path = getPathFromKey(key)
@@ -217,7 +217,7 @@ function setObjPath(obj: Dict, path: string[], value: any): void {
 }
 
 cleanObject.fields = function <T extends Record<string, any>>(
-	fields: ObjectSchema<T, T>['fields'],
+	fields: ObjectSchema<T, T>["fields"]
 ) {
 	return cleanObject<T, T>({ fields })
 }

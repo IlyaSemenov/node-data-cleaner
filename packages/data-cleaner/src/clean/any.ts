@@ -1,7 +1,7 @@
-import { SchemaError } from '../errors/SchemaError'
-import { ValidationError } from '../errors/ValidationError'
-import { Cleaner } from '../types'
-import { getMessage } from '../utils'
+import { SchemaError } from "../errors/SchemaError"
+import { ValidationError } from "../errors/ValidationError"
+import { Cleaner } from "../types"
+import { getMessage } from "../utils"
 
 export type AnySchema<T, M> = {
 	required?: boolean
@@ -32,7 +32,7 @@ export function setSchema<C extends Cleaner<any>, S>(fn: C, schema: S) {
 }
 
 export function cleanAny<T = any, M = any>(
-	schema: AnySchema<T, M> = {} as AnySchema<T, M>,
+	schema: AnySchema<T, M> = {} as AnySchema<T, M>
 ) {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
@@ -51,7 +51,7 @@ export function cleanAny<T = any, M = any>(
 	const cleaner: Cleaner<T> = function (value, context) {
 		if (value === undefined && schema.required !== false) {
 			throw new ValidationError(
-				getMessage(context, 'required', 'Value required.'),
+				getMessage(context, "required", "Value required.")
 			)
 		}
 		if (value === undefined && schema.default !== undefined) {
@@ -59,7 +59,7 @@ export function cleanAny<T = any, M = any>(
 		}
 		if (value === null && schema.null !== true) {
 			throw new ValidationError(
-				getMessage(context, 'required', 'Value required.'),
+				getMessage(context, "required", "Value required.")
 			)
 		}
 		return schema.clean ? schema.clean(value, context) : (value as unknown as T)

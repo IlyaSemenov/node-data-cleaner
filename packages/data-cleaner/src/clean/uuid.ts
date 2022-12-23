@@ -1,7 +1,7 @@
-import { setSchema } from './any'
-import { cleanString, StringSchema } from './string'
+import { setSchema } from "./any"
+import { cleanString, StringSchema } from "./string"
 
-export type UuidSchema<T> = Omit<StringSchema<T>, 'regexp'>
+export type UuidSchema<T> = Omit<StringSchema<T>, "regexp">
 
 export function cleanUuid<T = string>(schema: UuidSchema<T> = {}) {
 	const cleaner = cleanString<T>({

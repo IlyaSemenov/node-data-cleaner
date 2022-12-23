@@ -2,7 +2,7 @@
 // THIS IS NOT AN ACTUAL TEST FILE, BUT SIMPLY A DRAFT FOR CHECKING ERRORS MANUALLY IN IDE
 //
 
-import * as clean from '../src'
+import * as clean from "../src"
 
 // OK
 const s = clean.string()

@@ -1,7 +1,7 @@
-import { SchemaError } from '../errors/SchemaError'
-import { ValidationError } from '../errors/ValidationError'
-import { getMessage, LimitTo } from '../utils'
-import { AnySchema, cleanAny, setSchema } from './any'
+import { SchemaError } from "../errors/SchemaError"
+import { ValidationError } from "../errors/ValidationError"
+import { getMessage, LimitTo } from "../utils"
+import { AnySchema, cleanAny, setSchema } from "./any"
 
 export type TypeM<T> = LimitTo<T, number | null | undefined>
 
@@ -13,7 +13,7 @@ export type NumberSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<T, M> & {
 }
 
 export function cleanNumber<T = number, M extends TypeM<T> = TypeM<T>>(
-	schema: NumberSchema<T, M>,
+	schema: NumberSchema<T, M>
 ) {
 	if (!schema.parseNumber) {
 		throw new SchemaError("clean.number needs 'parseNumber'")
@@ -25,28 +25,28 @@ export function cleanNumber<T = number, M extends TypeM<T> = TypeM<T>>(
 		clean(value, context) {
 			let res: any = value
 			if (!(res === undefined || res === null)) {
-				if (typeof res !== 'number' && schema.cast !== true) {
+				if (typeof res !== "number" && schema.cast !== true) {
 					throw new ValidationError(
-						getMessage(context, 'invalid', 'Invalid value.'),
+						getMessage(context, "invalid", "Invalid value.")
 					)
 				}
-				if (res === '' && (schema.null === true || schema.default === null)) {
+				if (res === "" && (schema.null === true || schema.default === null)) {
 					res = null
 				} else {
 					res = schema.parseNumber(res)
 					if (isNaN(res)) {
 						throw new ValidationError(
-							getMessage(context, 'invalid', 'Invalid value.'),
+							getMessage(context, "invalid", "Invalid value.")
 						)
 					}
 					if (schema.min !== undefined && res < schema.min) {
 						throw new ValidationError(
-							getMessage(context, 'invalid', 'Value too low.'),
+							getMessage(context, "invalid", "Value too low.")
 						)
 					}
 					if (schema.max !== undefined && res > schema.max) {
 						throw new ValidationError(
-							getMessage(context, 'invalid', 'Value too high.'),
+							getMessage(context, "invalid", "Value too high.")
 						)
 					}
 				}

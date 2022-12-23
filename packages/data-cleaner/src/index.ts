@@ -1,5 +1,5 @@
-export * from './clean'
-export * as clean from './clean'
-export * from './errors/SchemaError'
-export * from './errors/ValidationError'
-export * from './types'
+export * from "./clean"
+export * as clean from "./clean"
+export * from "./errors/SchemaError"
+export * from "./errors/ValidationError"
+export * from "./types"

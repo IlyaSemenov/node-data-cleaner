@@ -4,11 +4,11 @@ This is yet another data object validator and transformer for Node.js, inspired 
 
 It is intended to be used in server-side API or form submit handlers, and focuses on the following goals:
 
-* minimum boilerplate with reasonable defaults
-* **easily** provide **custom** validation logic
-* async/await support on every step
-* not only validate values but possibly transform them or return side artifacts
-* collect and group validation errors for the UI (when errors need to belong to corresponding input fields)
+- minimum boilerplate with reasonable defaults
+- **easily** provide **custom** validation logic
+- async/await support on every step
+- not only validate values but possibly transform them or return side artifacts
+- collect and group validation errors for the UI (when errors need to belong to corresponding input fields)
 
 ## Why not avj/joi/yup/etc.?
 
@@ -17,7 +17,7 @@ See [Comparison to other libraries](#comparison-to-other-libraries) below.
 ## Minimal example
 
 ```js
-import * as clean from 'data-cleaner'
+import * as clean from "data-cleaner"
 
 const cleanUser = clean.object({
   name: clean.string(),
@@ -43,50 +43,50 @@ yarn add data-cleaner
 Then import or require:
 
 ```ts
-import { clean, ValidationError } from 'data-cleaner'
+import { clean, ValidationError } from "data-cleaner"
 
 // or (better tree-shakeable in some bundlers)
 
-import * as clean from 'data-cleaner'
-import { ValidationError } from 'data-cleaner'
+import * as clean from "data-cleaner"
+import { ValidationError } from "data-cleaner"
 
 // or
 
-const { clean, ValidationError } = require('data-cleaner')
+const { clean, ValidationError } = require("data-cleaner")
 ```
 
 ## API
 
 Terms:
 
-* [Cleaners](#cleaners)
-* [Cleaner creators](#cleaner-creators)
+- [Cleaners](#cleaners)
+- [Cleaner creators](#cleaner-creators)
 
 Base cleaners:
 
-* [`clean.any`](#cleanany) (common base for all other creators)
+- [`clean.any`](#cleanany) (common base for all other creators)
 
 Scalar cleaners:
 
-* [`clean.string`](#cleanstring)
-* [`clean.integer`](#cleaninteger)
-* [`clean.float`](#cleanfloat)
-* [`clean.boolean`](#cleanboolean)
-* [`clean.date`](#cleandate)
-* [`clean.email`](#cleanemail)
-* [`clean.uuid`](#cleanuuid)
+- [`clean.string`](#cleanstring)
+- [`clean.integer`](#cleaninteger)
+- [`clean.float`](#cleanfloat)
+- [`clean.boolean`](#cleanboolean)
+- [`clean.date`](#cleandate)
+- [`clean.email`](#cleanemail)
+- [`clean.uuid`](#cleanuuid)
 
 Aggregation cleaners:
 
-* [`clean.array`](#cleanarray)
-* [`clean.object`](#cleanobject)
+- [`clean.array`](#cleanarray)
+- [`clean.object`](#cleanobject)
 
 ### Cleaners
 
-A *cleaner* is any function that follows the contract:
+A _cleaner_ is any function that follows the contract:
 
 ```js
-function cleaner (value, context) {
+function cleaner(value, context) {
   // either return the value as is
   // or return a transformed value
   // or throw a ValidationError("Message")
@@ -98,7 +98,7 @@ function cleaner (value, context) {
 
 ### Cleaner creators
 
-A *cleaner creator* is a function that creates a *cleaner* according to the provided schema.
+A _cleaner creator_ is a function that creates a _cleaner_ according to the provided schema.
 
 For example, `clean.string()` creates a cleaner that will accept non-blank strings only, and `clean.string({ blank: true })` creates a cleaner that will accept both blank and non-blank strings.
 
@@ -110,9 +110,9 @@ Create a cleaner that passes any value as is, or throws a ValidationError for `u
 const cleaner = clean.any()
 
 await cleaner(5) // 5
-await cleaner('5') // '5'
-await cleaner('') // ''
-await cleaner({ foo: 'bar' }) // {foo: 'bar'}
+await cleaner("5") // '5'
+await cleaner("") // ''
+await cleaner({ foo: "bar" }) // {foo: 'bar'}
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -123,7 +123,7 @@ All built-in cleaner creators accept schema parameters. For example, you may all
 
 ```js
 const cleaner = clean.any({
-  null: true
+  null: true,
 })
 
 await cleaner(null) // null
@@ -136,7 +136,7 @@ Built-in cleaner creators save schema into `schema` property on the cleaner func
 
 ```js
 const cleaner = clean.any({
-  null: true
+  null: true,
 })
 
 cleaner.schema.null // true
@@ -155,9 +155,9 @@ The following schema parameters are supported by `clean.any()` and by all other 
 #### Providing defaults
 
 ```js
-const cleaner = clean.any({ default: 'foo' })
+const cleaner = clean.any({ default: "foo" })
 
-await cleaner('bar') // bar
+await cleaner("bar") // bar
 await cleaner() // 'foo'
 ```
 
@@ -168,12 +168,12 @@ Example how to pass a custom cleaner:
 ```js
 const cleaner = clean.any({
   clean: function (password) {
-    return (password === 'secret') ? 'good' : 'bad'
-  }
+    return password === "secret" ? "good" : "bad"
+  },
 })
 
-await cleaner('hacker') // 'bad'
-await cleaner('secret') // 'good'
+await cleaner("hacker") // 'bad'
+await cleaner("secret") // 'good'
 await cleaner(null) // throws "Value required."
 ```
 
@@ -185,17 +185,17 @@ Use cleaner's `context` to pass execution context data to the nested cleaner:
 
 ```js
 const cleaner = clean.any({
-  async clean (password, { db }) {
-    const dbPassword = await db.fetch('password')
-    return (password === dbPassword) ? 'good' : 'bad'
-  }
+  async clean(password, { db }) {
+    const dbPassword = await db.fetch("password")
+    return password === dbPassword ? "good" : "bad"
+  },
 })
 
 const db = await DB.getConnection()
-await cleaner('secret', { db }) // either 'good' or 'bad'
+await cleaner("secret", { db }) // either 'good' or 'bad'
 ```
 
-* Certain context keys (e.g. `data`) could be used by cleaners themselves.
+- Certain context keys (e.g. `data`) could be used by cleaners themselves.
 
 ### `clean.string()`
 
@@ -205,9 +205,9 @@ Create a cleaner that returns a non-blank string value.
 const cleaner = clean.string()
 
 await cleaner(5) // '5'
-await cleaner('5') // '5'
-await cleaner('') // throws "Value required."
-await cleaner({ foo: 'bar' }) // throws "Invalid value."
+await cleaner("5") // '5'
+await cleaner("") // throws "Value required."
+await cleaner({ foo: "bar" }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -231,7 +231,7 @@ Example:
 ```js
 const cleanUrl = clean.string({
   null: true,
-  clean: async function(url) {
+  clean: async function (url) {
     if (url === null) {
       return null
     }
@@ -242,14 +242,14 @@ const cleanUrl = clean.string({
       throw new ValidationError(`Invalid URL: ${err.message}`)
     }
     return { url, data }
-  }
+  },
 })
 
-cleanUrl('http://google.com') // { url: 'http://google.com', data: '<html>...' }
-cleanUrl('abcd://boom') // throws "Invalid URL: unknown protocol 'abcd'."
+cleanUrl("http://google.com") // { url: 'http://google.com', data: '<html>...' }
+cleanUrl("abcd://boom") // throws "Invalid URL: unknown protocol 'abcd'."
 cleanUrl(null) // null
 cleanUrl(123) // throws "Invalid URL: ..."
-cleanUrl({ url: 'http://google.com' }) // throws "Invalid value."
+cleanUrl({ url: "http://google.com" }) // throws "Invalid value."
 ```
 
 #### Converting empty strings to null values
@@ -258,7 +258,7 @@ If `blank` is set to `null`, empty strings are converted to `null` (useful for d
 
 ```js
 const cleaner = clean.integer({ blank: null })
-await cleaner('') // null
+await cleaner("") // null
 ```
 
 ### `clean.integer()`
@@ -272,8 +272,8 @@ await cleaner(123) // 123
 await cleaner(0) // 0
 await cleaner(-5) // -5
 await cleaner(-273.15) // -273
-await cleaner('boomer') // throws "Invalid value."
-await cleaner('') // throws "Invalid value."
+await cleaner("boomer") // throws "Invalid value."
+await cleaner("") // throws "Invalid value."
 await cleaner({ foo: 123 }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
@@ -305,8 +305,8 @@ await cleaner(123) // 123
 await cleaner(123.45) // 123.45
 await cleaner(0) // 0
 await cleaner(-273.15) // -273.15
-await cleaner('boomer') // throws "Invalid value."
-await cleaner('') // throws "Invalid value."
+await cleaner("boomer") // throws "Invalid value."
+await cleaner("") // throws "Invalid value."
 await cleaner({ foo: 123 }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
@@ -336,9 +336,9 @@ const cleaner = clean.boolean()
 
 await cleaner(true) // true
 await cleaner(false) // false
-await cleaner('boomer') // throws "Invalid value."
-await cleaner('') // throws "Invalid value."
-await cleaner({ foo: 'bar' }) // throws "Invalid value."
+await cleaner("boomer") // throws "Invalid value."
+await cleaner("") // throws "Invalid value."
+await cleaner({ foo: "bar" }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -360,9 +360,9 @@ Create a cleaner that returns a Date object.
 ```js
 const cleaner = clean.date()
 
-await cleaner('2018-11-14T09:28:19.387+07:00') // Date object
-await cleaner('non date text') // throws "Invalid value."
-await cleaner('') // throws "Value required."
+await cleaner("2018-11-14T09:28:19.387+07:00") // Date object
+await cleaner("non date text") // throws "Invalid value."
+await cleaner("") // throws "Value required."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -386,9 +386,9 @@ Create an instance of a string cleaner that returns a valid email string.
 ```js
 const cleaner = clean.email()
 
-await cleaner('user@example.com') // 'user@example.com'
-await cleaner('non email garbage') // throws "Invalid value."
-await cleaner('') // throws "Value required."
+await cleaner("user@example.com") // 'user@example.com'
+await cleaner("non email garbage") // throws "Invalid value."
+await cleaner("") // throws "Value required."
 ```
 
 #### Schema options
@@ -409,9 +409,9 @@ Create an instance of a string cleaner that returns a valid UUID.
 ```js
 const cleaner = clean.uuid()
 
-await cleaner('282f570c-d19c-4b85-870b-49129409ea92') // '282f570c-d19c-4b85-870b-49129409ea92'
-await cleaner('non uuid garbage') // throws "Invalid value."
-await cleaner('') // throws "Value required."
+await cleaner("282f570c-d19c-4b85-870b-49129409ea92") // '282f570c-d19c-4b85-870b-49129409ea92'
+await cleaner("non uuid garbage") // throws "Invalid value."
+await cleaner("") // throws "Value required."
 ```
 
 #### Schema options
@@ -431,14 +431,14 @@ Create a cleaner that returns an array of values, where each value is validated 
 
 ```js
 const cleaner = clean.array({
-  element: clean.integer()
+  element: clean.integer(),
 })
 
-await cleaner([1,2,3]) // [1,2,3]
+await cleaner([1, 2, 3]) // [1,2,3]
 await cleaner([]) // []
-await cleaner([1,'two',3]) // throws "Invalid value."
-await cleaner('') // throws "Invalid value."
-await cleaner({ foo: 'bar' }) // throws "Invalid value."
+await cleaner([1, "two", 3]) // throws "Invalid value."
+await cleaner("") // throws "Invalid value."
+await cleaner({ foo: "bar" }) // throws "Invalid value."
 await cleaner() // throws "Value required."
 await cleaner(null) // throws "Value required."
 ```
@@ -464,20 +464,20 @@ const cleaner = clean.object({
   fields: {
     name: clean.string(),
     email: clean.string({
-      clean: function(email) {
+      clean: function (email) {
         if (email.match(/.*@.*/)) {
           return email
         }
         throw new ValidationError("Invalid email.")
-      }
+      },
     }),
-  }
+  },
 })
 
-cleaner({name: "John", email: "a@b"}) // {name: "John", email: "a@b"}
-cleaner({name: "John", email: "a@b", junk: 123}) // {name: "John", email: "a@b"}
-cleaner({name: "John"}) // throws {"email": ["Value required."]}
-cleaner({name: "John", email: "John"}) // throws {"email": ["Invalid email."]}
+cleaner({ name: "John", email: "a@b" }) // {name: "John", email: "a@b"}
+cleaner({ name: "John", email: "a@b", junk: 123 }) // {name: "John", email: "a@b"}
+cleaner({ name: "John" }) // throws {"email": ["Value required."]}
+cleaner({ name: "John", email: "John" }) // throws {"email": ["Invalid email."]}
 cleaner(undefined) // throws "Value required."
 cleaner(null) // null - because explicitly allowed
 cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]}
@@ -502,11 +502,11 @@ const cleaner = clean.object({
   fields: {
     name: clean.string(),
     lastName: clean.string({ default: null }),
-  }
+  },
 })
 
-cleaner({name: "John", lastName: "Doe"}) // { name: "John", lastName: "Doe" }
-cleaner({name: "John"}) // { name: "John", lastName: null }
+cleaner({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
+cleaner({ name: "John" }) // { name: "John", lastName: null }
 ```
 
 #### Shorthand syntax
@@ -519,8 +519,8 @@ const cleaner = clean.object.fields({
   lastName: clean.string({ default: null }),
 })
 
-cleaner({name: "John", lastName: "Doe"}) // { name: "John", lastName: "Doe" }
-cleaner({name: "John"}) // { name: "John", lastName: null }
+cleaner({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
+cleaner({ name: "John" }) // { name: "John", lastName: null }
 ```
 
 #### Nesting object cleaners
@@ -536,24 +536,24 @@ const cleaner = clean.object({
         city: clean.string(),
         state: clean.string(),
         zip: clean.string({
-          clean: function(zip) {
+          clean: function (zip) {
             if (!zip.match(/^\d{5}$/)) {
               throw new ValidationError("Enter 5-digit ZIP code.")
             }
             return zip
-          }
+          },
         }),
-      }
+      },
     }),
   },
-  clean: function(person) {
+  clean: function (person) {
     if (person.name === "Patrick" && person.address.state === "Ohio") {
       throw new ValidationError({
-        name: "You can't be named Patrick if you live in Ohio!"
+        name: "You can't be named Patrick if you live in Ohio!",
       })
     }
     return person
-  }
+  },
 })
 
 cleaner({
@@ -572,7 +572,7 @@ cleaner({
     city: "San Diego",
     state: "California",
     zip: "What's zip?",
-  }
+  },
 }) // throws { "name": ["Value required."], "address.zip": ["Enter 5-digit ZIP code."] }
 
 cleaner({
@@ -599,7 +599,7 @@ const cleaner = clean.object({
     }
     return obj
   },
-  nonFieldErrorsKey: "other"
+  nonFieldErrorsKey: "other",
 })
 
 cleaner() // throws { "other": ["Value required."] }
@@ -623,10 +623,12 @@ const cleaner = clean.object({
       label: "Zwei",
       clean(value) {
         if (value === "boom") {
-          throw new ValidationError("Boom is a wrong value for Zwei!", { label: null })
+          throw new ValidationError("Boom is a wrong value for Zwei!", {
+            label: null,
+          })
         }
         return value
-      }
+      },
     }),
     three: clean.any({ label: null }),
   },
@@ -634,7 +636,7 @@ const cleaner = clean.object({
 })
 
 cleaner() // throws ["One: Value required.", "Zwei: Value required.", "Value required."]
-cleaner({ one: 1, two: 'boom', three: 3 }) // throws ["Boom is a wrong value for Zwei!"] - note the omitted label.
+cleaner({ one: 1, two: "boom", three: 3 }) // throws ["Boom is a wrong value for Zwei!"] - note the omitted label.
 ```
 
 #### Parse object keys and created nested objects
@@ -645,8 +647,8 @@ The typical use is handling POST submit:
 
 ```html
 <form method="POST">
-  <input name="name" value="John">
-  <input name="job.position" value="Engineer">
+  <input name="name" value="John" />
+  <input name="job.position" value="Engineer" />
 </form>
 ```
 
@@ -677,15 +679,15 @@ const cleaner = clean.object({
   fields: {
     comment: clean.string(),
     postId: clean.integer({
-      async clean (postId, context) {
+      async clean(postId, context) {
         const post = await db.getPostById(postId)
         if (!post) {
           throw new ValidationError("Post not found")
         }
         context.data.post = post // store fetched instance
-      }
+      },
     }),
-  }
+  },
 })
 
 cleaner({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo" }, comment: "hello" }
@@ -693,7 +695,7 @@ cleaner({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo
 
 ## Full example
 
-Define a *cleaner* for imaginary department visitor registration form with the following fields:
+Define a _cleaner_ for imaginary department visitor registration form with the following fields:
 
 - Name
 - Gender
@@ -757,7 +759,7 @@ const cleanVisitorData = clean.object({
 Use the defined cleaner in imaginary API handler:
 
 ```js
-router.post('/register', async ctx => {
+router.post("/register", async (ctx) => {
   let data
   try {
     data = await cleanVisitorData(ctx.request.body)
@@ -792,13 +794,13 @@ Why don't just use ajv or joi/yup or other popular solutions?
 
 These are great tools, but they are often misused. Like, when you have a hammer everything looks like a nail. json-schema validators do only that - they validate an object against a schema. However, if you build a API server for SPA, the real everyday needs are typically wider than that:
 
-* You need to validate data according to custom business rules, including database access
-* You need to avoid repeating the same code in validation and in further object processing
-* You need to generate user-friendly error messages to send back to the UI (and put them alongside the corresponding form fields)
+- You need to validate data according to custom business rules, including database access
+- You need to avoid repeating the same code in validation and in further object processing
+- You need to generate user-friendly error messages to send back to the UI (and put them alongside the corresponding form fields)
 
-data-cleaner is aimed to these specific needs, rather than a low-level or academic task of *validating against a schema*.
+data-cleaner is aimed to these specific needs, rather than a low-level or academic task of _validating against a schema_.
 
-### Validators only *validate* objects but don't *transform* them
+### Validators only _validate_ objects but don't _transform_ them
 
 If you use a typical json-validor and validate some object ID, you will need to hit the database **twice** (first in the validator to validate value, then in the business code to pull data using that value.)
 
@@ -865,11 +867,11 @@ Besides, it's too much boilerplate. For every test, you **must** invent a name (
 
 ### yup: limited transformation options
 
-yup *"transforms"* keep original (possibly invalid) value in case of error/type mismatch, meaning that you will *have* to manually check for data type for every field in every test (see: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
+yup _"transforms"_ keep original (possibly invalid) value in case of error/type mismatch, meaning that you will _have_ to manually check for data type for every field in every test (see: [You should use isType for all Schema type checks.](https://github.com/jquense/yup#mixedistypevalue-any-boolean))
 
-yup transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 *if possible* (still having to manually check if it was *not* possible later).
+yup transforms can't get any outside context from the originating code, and are generally naive. Overall, this limits them to very simple cases like converting string '5' to number 5 _if possible_ (still having to manually check if it was _not_ possible later).
 
-**On the contrary, data-cleaner unifies validation and transformation into *cleaning*, giving flexibility and reliability.**
+**On the contrary, data-cleaner unifies validation and transformation into _cleaning_, giving flexibility and reliability.**
 
 ### Validation errors don't get associated with respective fields
 
@@ -882,7 +884,7 @@ Typically, you either get a single (first) validation error, or a flat list of a
   "field1": ["Error"],
   "field2": ["Multiple", "Errors", "Possible"],
   "nested.field3": ["Errors thrown by a nested field"],
-  "other": ["Top-level errors here, similar to Django form.non_field_errors()"],
+  "other": ["Top-level errors here, similar to Django form.non_field_errors()"]
 }
 ```
 
