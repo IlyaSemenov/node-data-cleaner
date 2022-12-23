@@ -22,7 +22,7 @@ export type AnySchema<T, M> = {
 		})
 */
 
-type WithSchema<C extends Cleaner<any>, S extends Record<string, any>> = C & {
+type WithSchema<C extends Cleaner<any>, S> = C & {
 	schema: S
 }
 
