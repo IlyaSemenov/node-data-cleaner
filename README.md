@@ -42,13 +42,17 @@ yarn add data-cleaner
 
 Then import or require:
 
-```js
+```ts
+import { clean, ValidationError } from 'data-cleaner'
+
+// or (better tree-shakeable in some bundlers)
+
 import * as clean from 'data-cleaner'
 import { ValidationError } from 'data-cleaner'
 
 // or
 
-const clean = require('data-cleaner'), ValidationError = clean.ValidationError
+const { clean, ValidationError } = require('data-cleaner')
 ```
 
 ## API
