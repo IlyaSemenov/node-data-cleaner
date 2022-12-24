@@ -60,11 +60,11 @@ const { clean, ValidationError } = require("data-cleaner")
 Terms:
 
 - [Cleaners](#cleaners)
-- [Cleaner creators](#cleaner-creators)
+- [Configurable cleaners](#configurable-cleaners)
 
 Base cleaners:
 
-- [`clean.any`](#cleanany) (common base for all other creators)
+- [`clean.any`](#cleanany) (common base for all other cleaners)
 
 Scalar cleaners:
 
@@ -83,7 +83,7 @@ Aggregation cleaners:
 
 ### Cleaners
 
-A _cleaner_ is any function that follows the contract:
+_Cleaner_ is any function that follows the contract:
 
 ```js
 function cleaner(value, context) {
@@ -96,9 +96,9 @@ function cleaner(value, context) {
 }
 ```
 
-### Cleaner creators
+### Configurable cleaners
 
-A _cleaner creator_ is a function that creates a _cleaner_ according to the provided schema.
+Configurable cleaner is a function that creates a _cleaner_ according to the provided schema.
 
 For example, `clean.string()` creates a cleaner that will accept non-blank strings only, and `clean.string({ blank: true })` creates a cleaner that will accept both blank and non-blank strings.
 
@@ -119,7 +119,7 @@ await cleaner(null) // throws "Value required."
 
 #### Schema
 
-All built-in cleaner creators accept schema parameters. For example, you may allow null values with:
+All built-in cleaners are configurable and accept schema parameters. For example, you may allow null values with:
 
 ```js
 const cleaner = clean.any({
@@ -132,7 +132,7 @@ await cleaner(undefined) // throws "Value required."
 
 ##### Accessing original schema
 
-Built-in cleaner creators save schema into `schema` property on the cleaner function:
+Built-in cleaners save schema into `schema` property on the cleaner function:
 
 ```js
 const cleaner = clean.any({
@@ -144,7 +144,7 @@ cleaner.schema.null // true
 
 #### Common schema options
 
-The following schema parameters are supported by `clean.any()` and by all other built-in cleaner creators.
+The following schema parameters are supported by `clean.any()` and by all other built-in cleaners.
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values

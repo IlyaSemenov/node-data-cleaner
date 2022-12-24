@@ -6,7 +6,7 @@ It will return cleaned `body` and `files`, and throw a Koa HTTP error response w
 
 ## Schema options
 
-The cleaner creator accepts the following schema options:
+The cleaner is configured with the following schema options:
 
 - `body`: body cleaner (optional)
 - `files`: files cleaner (optional)
@@ -39,13 +39,13 @@ export default {
     async submit() {
       this.errors = null
       const { data } = await this.$axios.post(
-        '/register',
-        new FormData(this.$refs.form),
+        "/register",
+        new FormData(this.$refs.form)
       )
       if (data.errors) {
         this.errors = data.errors
       } else {
-        await this.$store.dispatch('login', data.user)
+        await this.$store.dispatch("login", data.user)
       }
     },
   },
