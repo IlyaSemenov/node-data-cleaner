@@ -31,9 +31,7 @@
     "email-validator": "^2.0.4"
   },
   "devDependencies": {
-    "esbuild": "0.14.21",
-    "esbuild-runner": "2.2.1",
     "tap": "15.1.6",
-    "tsup": "5.11.13"
+    "tsup": "~6.5.0"
   }
 }

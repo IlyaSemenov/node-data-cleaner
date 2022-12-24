@@ -33,6 +33,6 @@
     "@types/koa": "^2.0.48",
     "data-cleaner": "workspace:*",
     "koa-body": "^4.1.0",
-    "tsup": "5.11.13"
+    "tsup": "~6.5.0"
   }
 }

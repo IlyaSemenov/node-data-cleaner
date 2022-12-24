@@ -1,6 +1,1 @@
 coverage: false
-node-arg:
-  [
-    "-r",
-    "esbuild-runner/register",
-  ]
