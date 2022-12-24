@@ -16,8 +16,8 @@ See [Comparison to other libraries](#comparison-to-other-libraries) below.
 
 ## Minimal example
 
-```js
-import * as clean from "data-cleaner"
+```ts
+import { clean } from "data-cleaner"
 
 const cleanUser = clean.object({
   name: clean.string(),
@@ -704,9 +704,8 @@ Define a _cleaner_ for imaginary department visitor registration form with the f
 
 Use imaginary async data access library for data validation.
 
-```js
-import * as clean from 'data-cleaner'
-import { ValidationError } from 'data-cleaner'
+```ts
+import { clean, ValidationError } from 'data-cleaner'
 
 const cleanVisitorData = clean.object({
   fields: {
