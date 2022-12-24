@@ -3,7 +3,7 @@ import { Cleaner } from "../types"
 import { getMessage, LimitTo } from "../utils"
 import { AnySchema, cleanAny, setSchema } from "./any"
 
-export type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
+type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
 
 export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
 	extends AnySchema<T, M> {

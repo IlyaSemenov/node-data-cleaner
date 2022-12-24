@@ -3,7 +3,7 @@ import { ValidationError } from "../errors/ValidationError"
 import { getMessage, LimitTo } from "../utils"
 import { AnySchema, cleanAny, setSchema } from "./any"
 
-export type TypeM<T> = LimitTo<T, string | null | undefined>
+type TypeM<T> = LimitTo<T, string | null | undefined>
 
 export type StringSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<T, M> & {
 	blank?: boolean | null

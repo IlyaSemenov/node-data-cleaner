@@ -11,9 +11,9 @@ import { Cleaner } from "../types"
 import { getMessage } from "../utils"
 import { AnySchema, cleanAny, setSchema } from "./any"
 
-export type Dict = Record<string, any>
+type Dict = Record<string, any>
 
-export type ParseKeysOptions = boolean | ((key: string) => string[])
+type ParseKeysOptions = boolean | ((key: string) => string[])
 
 export type ObjectSchema<T, M> = AnySchema<T, M> & {
 	parseKeys?: ParseKeysOptions

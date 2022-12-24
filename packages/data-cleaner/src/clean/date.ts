@@ -4,7 +4,7 @@ import { getMessage, LimitTo } from "../utils"
 import { AnySchema, setSchema } from "./any"
 import { cleanString, StringSchema } from "./string"
 
-export type TypeM<T> = LimitTo<T, string | Date | null | undefined>
+type TypeM<T> = LimitTo<T, string | Date | null | undefined>
 
 export interface DateSchema<T, M extends TypeM<T> = TypeM<T>>
 	extends Omit<StringSchema<T>, "cast" | "regexp" | "clean"> {
