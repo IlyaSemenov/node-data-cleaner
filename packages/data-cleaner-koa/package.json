@@ -22,14 +22,14 @@
     "test": "echo No tests so far."
   },
   "dependencies": {
-    "http-errors": "^1.7.2"
+    "http-errors": "^2.0.0"
   },
   "peerDependencies": {
     "data-cleaner": "^3 | ^4"
   },
   "devDependencies": {
     "@types/formidable": "~2.0.5",
-    "@types/http-errors": "^1.8.2",
+    "@types/http-errors": "~2.0.1",
     "@types/koa": "^2.0.48",
     "data-cleaner": "workspace:*",
     "koa-body": "^4.1.0",
