@@ -24,14 +24,14 @@
   "scripts": {
     "build": "tsup",
     "prepack": "npm run build",
-    "test": "tap 'tests/**/*.test.js'"
+    "test": "tap"
   },
   "dependencies": {
     "capital-case": "^1.0.4",
     "email-validator": "^2.0.4"
   },
   "devDependencies": {
-    "tap": "15.1.6",
+    "tap": "~16.3.2",
     "tsup": "~6.5.0"
   }
 }

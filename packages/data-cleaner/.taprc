@@ -1,1 +1,2 @@
 coverage: false
+test-regex: "\\.test\\.js$"
