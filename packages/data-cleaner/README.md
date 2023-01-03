@@ -150,7 +150,7 @@ The following schema parameters are supported by `clean.any()` and by all other 
 - `null: true` - allow null values
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 #### Providing defaults
 
@@ -220,9 +220,9 @@ await cleaner(null) // throws "Value required."
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
-- `regexp` - test non-blank values to match against regexp
+- `regexp` - test non-blank strings to match against regexp
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 #### Using custom cleaner
 
@@ -288,7 +288,7 @@ await cleaner(null) // throws "Value required."
 - `min` - minimum allowed value
 - `max` - maximum allowed value
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 #### Handle empty string
 
@@ -321,9 +321,9 @@ await cleaner(null) // throws "Value required."
 - `min` - minimum allowed value
 - `max` - maximum allowed value
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
-#### Handle empty string
+#### Empty strings
 
 If `null` and `cast` are enabled, empty string will be cast to null.
 
@@ -351,7 +351,7 @@ await cleaner(null) // throws "Value required."
 - `cast` - no strict type check, convert value with `!!value`
 - `omit: true` - return `undefined` for `false`
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.date()`
 
@@ -377,7 +377,7 @@ await cleaner(null) // throws "Value required."
 - `format: null` - return valid value as is (instead of Date object)
 - `format: 'iso'` - return ISO-formatted date (instead of Date object)
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.email()`
 
@@ -400,7 +400,7 @@ await cleaner("") // throws "Value required."
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.uuid()`
 
@@ -423,7 +423,7 @@ await cleaner("") // throws "Value required."
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.array()`
 
@@ -448,11 +448,11 @@ await cleaner(null) // throws "Value required."
 - `required: false` - allow undefined values
 - `null: true` - allow null values
 - `default` - replace `undefined` with this value (sets `required: false` automatically)
-- `element` - validator for each element
+- `element` - individual element cleaner
 - `min` - require at least that many elements
 - `max` - require at most that many elements
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.object()`
 
@@ -493,7 +493,7 @@ cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]
 - `nonFieldErrorsKey` - if provided, non-field errors will be grouped under this pseudo field key
 - `parseKeys` - create nested objects from keys like `job.position` (see below)
 - `label` - field label (used by flat error collector)
-- `clean` - custom cleaner to run if the validation passes
+- `clean` - nested cleaner to run if the validation passes
 
 #### Providing field defaults
 

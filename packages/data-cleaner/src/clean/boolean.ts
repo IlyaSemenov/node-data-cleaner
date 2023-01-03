@@ -6,7 +6,9 @@ export type BooleanSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<
 	T,
 	M
 > & {
+	/** No strict type check, convert value with `!!value` */
 	cast?: boolean
+	/** Return `undefined` for `false` */
 	omit?: boolean
 }
 

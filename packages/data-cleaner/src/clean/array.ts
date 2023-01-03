@@ -7,8 +7,11 @@ type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
 
 export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
 	extends AnySchema<T, M> {
+	/** Individual element cleaner. */
 	element?: Cleaner<E>
+	/** Minimum allowed number of elements. */
 	min?: number
+	/** Maximum allowed number of elements. */
 	max?: number
 }
 

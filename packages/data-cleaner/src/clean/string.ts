@@ -6,8 +6,15 @@ import { AnySchema, cleanAny, setSchema } from "./any"
 type TypeM<T> = LimitTo<T, string | null | undefined>
 
 export type StringSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<T, M> & {
+	/**
+	 * `blank: true` - allow blank values (empty strings).
+	 *
+	 * `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically).
+	 */
 	blank?: boolean | null
+	/** `cast: true` - no strict type check, convert value with `String(value)` */
 	cast?: boolean
+	/** Test non-blank strings to match against regexp */
 	regexp?: RegExp
 }
 

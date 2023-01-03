@@ -6,8 +6,11 @@ import { AnySchema, cleanAny, setSchema } from "./any"
 type TypeM<T> = LimitTo<T, number | null | undefined>
 
 export type NumberSchema<T, M extends TypeM<T> = TypeM<T>> = AnySchema<T, M> & {
+	/** No strict type check, convert value with `parseInt(value)` */
 	cast?: boolean
+	/** Minimum allowed value */
 	min?: number
+	/** Maximum allowed value */
 	max?: number
 	parseNumber: (value: any) => number
 }

@@ -16,11 +16,20 @@ type Dict = Record<string, any>
 type ParseKeysOptions = boolean | ((key: string) => string[])
 
 export type ObjectSchema<T, M> = AnySchema<T, M> & {
+	/** Create nested objects from keys like `job.position`
+	 *
+	 * `true`: split by dots
+	 *
+	 * `(string) => string[]`: custom key path parser function
+	 */
 	parseKeys?: ParseKeysOptions
+	/** Map of field names to their respective cleaners */
 	fields: {
 		[field in keyof M]?: Cleaner<M[field]>
 	}
+	/** Non-field errors will be grouped under this pseudo field key */
 	nonFieldErrorsKey?: string
+	/** `groupErrors: true` (default) - group field errors by field name */
 	groupErrors?: boolean
 }
 

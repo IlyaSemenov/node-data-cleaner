@@ -4,10 +4,15 @@ import { Cleaner } from "../types"
 import { getMessage } from "../utils"
 
 export type AnySchema<T, M> = {
+	/** `required: false` - allow undefined values */
 	required?: boolean
-	default?: any
+	/** `null: true` - allow null values */
 	null?: boolean
+	/** Replace `undefined` with this value (sets `required: false` automatically) */
+	default?: any
+	/** Override flat collector field label, or `null` to omit field label altogether. */
 	label?: string | null
+	/** Nested cleaner (called if the validation passes) */
 	clean?: Cleaner<T, M>
 }
 
