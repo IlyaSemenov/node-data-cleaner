@@ -15,7 +15,7 @@ type Dict = Record<string, any>
 
 type ParseKeysOptions = boolean | ((key: string) => string[])
 
-export type ObjectSchema<T, M> = AnySchema<T, M> & {
+export interface ObjectSchema<M, T> extends AnySchema<T, M> {
 	/** Create nested objects from keys like `job.position`
 	 *
 	 * `true`: split by dots
@@ -25,7 +25,8 @@ export type ObjectSchema<T, M> = AnySchema<T, M> & {
 	parseKeys?: ParseKeysOptions
 	/** Map of field names to their respective cleaners */
 	fields: {
-		[field in keyof M]?: Cleaner<M[field]>
+		// TODO: properly document or remove (and fix types/tests) the `?` mark
+		[F in keyof M]?: Cleaner<M[F]>
 	}
 	/** Non-field errors will be grouped under this pseudo field key */
 	nonFieldErrorsKey?: string
@@ -33,8 +34,8 @@ export type ObjectSchema<T, M> = AnySchema<T, M> & {
 	groupErrors?: boolean
 }
 
-export function cleanObject<M extends Record<string, any>, T = M>(
-	schema: ObjectSchema<T, M>
+export function cleanObject<M extends Record<string, any>, T = M, V = any>(
+	schema: ObjectSchema<M, T>
 ) {
 	if (!schema || typeof schema.fields !== "object") {
 		throw new SchemaError("clean.object schema must include fields.")
@@ -43,7 +44,7 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 		schema.groupErrors !== undefined ? !!schema.groupErrors : true
 	// TODO: prevent !groupErrors && nonFieldErrorsKey
 
-	let cleaner: Cleaner<T> = cleanAny({
+	let cleaner: Cleaner<T, V> = cleanAny({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
@@ -78,8 +79,9 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 					const fieldValue = res.hasOwnProperty(field) ? res[field] : undefined
 					let cleanedFieldValue
 					try {
-						cleanedFieldValue = await Promise.resolve(
-							fieldCleaner(fieldValue, fieldCleanerContext)
+						cleanedFieldValue = await fieldCleaner(
+							fieldValue,
+							fieldCleanerContext
 						)
 					} catch (err) {
 						if (!(err instanceof ValidationError)) {
@@ -161,9 +163,7 @@ export function cleanObject<M extends Record<string, any>, T = M>(
 				for (const { field, messages, opts } of collectedErrors) {
 					let label = opts.label
 					if (label === undefined) {
-						const fieldCleaner: any = schema.fields[field]
-						label =
-							fieldCleaner && fieldCleaner.schema && fieldCleaner.schema.label
+						label = (schema.fields[field] as any)?.schema?.label
 					}
 					if (label === undefined) {
 						label = capitalCase(field)

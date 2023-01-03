@@ -7,8 +7,8 @@ import { cleanString, StringSchema } from "./string"
 
 export type EmailSchema<T> = StringSchema<T>
 
-export function cleanEmail<T = string>(schema: EmailSchema<T> = {}) {
-	const cleaner = cleanString<T>({
+export function cleanEmail<T = string, V = any>(schema: EmailSchema<T> = {}) {
+	const cleaner = cleanString<T, V>({
 		...schema,
 		cast: true, // why?
 		clean(value, context) {
@@ -17,9 +17,8 @@ export function cleanEmail<T = string>(schema: EmailSchema<T> = {}) {
 					getMessage(context, "invalid_email", "Invalid e-mail address.")
 				)
 			}
-			return schema.clean
-				? schema.clean(value, context)
-				: (value as unknown as T)
+			const res: any = value
+			return schema.clean ? schema.clean(res, context) : res
 		},
 	})
 	return setSchema(cleaner, schema)

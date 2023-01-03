@@ -1,12 +1,9 @@
 import { ErrorMessages, ValidationError } from "../errors/ValidationError"
 import { Cleaner } from "../types"
-import { getMessage, LimitTo } from "../utils"
+import { getMessage } from "../utils"
 import { AnySchema, cleanAny, setSchema } from "./any"
 
-type TypeM<T, E> = LimitTo<T, E[] | null | undefined>
-
-export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
-	extends AnySchema<T, M> {
+export interface ArraySchema<E, T> extends AnySchema<T, E[]> {
 	/** Individual element cleaner. */
 	element?: Cleaner<E>
 	/** Minimum allowed number of elements. */
@@ -15,17 +12,15 @@ export interface ArraySchema<T, E, M extends TypeM<T, E> = TypeM<T, E>>
 	max?: number
 }
 
-export function cleanArray<
-	E = any,
-	T = E[],
-	M extends TypeM<T, E> = TypeM<T, E>
->(schema: ArraySchema<T, E, M> = {}) {
-	const cleaner = cleanAny<T>({
+export function cleanArray<E = any, T = E[], V = any>(
+	schema: ArraySchema<E, T> = {}
+) {
+	const cleaner = cleanAny<T, V>({
 		required: schema.required,
 		default: schema.default,
 		null: schema.null,
 		async clean(value, context) {
-			let res: M = value
+			let res: any = value
 			if (!(res === undefined || res === null)) {
 				if (!Array.isArray(res)) {
 					throw new ValidationError(
@@ -68,10 +63,10 @@ export function cleanArray<
 					if (errors.length) {
 						throw new ValidationError(errors)
 					}
-					res = cleanedArray as M
+					res = cleanedArray
 				}
 			}
-			return schema.clean ? schema.clean(res, context) : (res as unknown as T)
+			return schema.clean ? schema.clean(res, context) : res
 		},
 	})
 	return setSchema(cleaner, schema)

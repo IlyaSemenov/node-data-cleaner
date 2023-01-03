@@ -3,7 +3,7 @@ import { ValidationError } from "../errors/ValidationError"
 import { Cleaner } from "../types"
 import { getMessage } from "../utils"
 
-export type AnySchema<T, M> = {
+export interface AnySchema<T, V = any> {
 	/** `required: false` - allow undefined values */
 	required?: boolean
 	/** `null: true` - allow null values */
@@ -13,21 +13,10 @@ export type AnySchema<T, M> = {
 	/** Override flat collector field label, or `null` to omit field label altogether. */
 	label?: string | null
 	/** Nested cleaner (called if the validation passes) */
-	clean?: Cleaner<T, M>
+	clean?: Cleaner<T, V>
 }
 
-/* This breaks reverse type inference in many cases:
-
-& ([M] extends [T]
-	? {
-			clean?: Cleaner<T, M>
-	  }
-	: {
-			clean: Cleaner<T, M>
-		})
-*/
-
-type WithSchema<C extends Cleaner<any>, S> = C & {
+export type WithSchema<C extends Cleaner<any>, S> = C & {
 	schema: S
 }
 
@@ -36,9 +25,7 @@ export function setSchema<C extends Cleaner<any>, S>(fn: C, schema: S) {
 	return fn as WithSchema<C extends WithSchema<infer OC, any> ? OC : C, S>
 }
 
-export function cleanAny<T = any, M = any>(
-	schema: AnySchema<T, M> = {} as AnySchema<T, M>
-) {
+export function cleanAny<T = any, V = any>(schema: AnySchema<T, V> = {}) {
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false
@@ -53,7 +40,7 @@ export function cleanAny<T = any, M = any>(
 			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
 		}
 	}
-	const cleaner: Cleaner<T> = function (value, context) {
+	const cleaner: Cleaner<T, V> = function (value, context) {
 		if (value === undefined && schema.required !== false) {
 			throw new ValidationError(
 				getMessage(context, "required", "Value required.")

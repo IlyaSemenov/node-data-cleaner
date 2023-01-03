@@ -9,5 +9,3 @@ export function getMessage(
 ) {
 	return (context && context.messages && context.messages[name]) || defaultText
 }
-
-export type LimitTo<T, B> = T extends B ? T : B

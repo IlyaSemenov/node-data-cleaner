@@ -1,10 +1,8 @@
 import { SchemaError } from "../errors/SchemaError"
 import { ValidationError } from "../errors/ValidationError"
-import { getMessage, LimitTo } from "../utils"
+import { getMessage } from "../utils"
 import { setSchema } from "./any"
 import { cleanString, StringSchema } from "./string"
-
-type TypeM<T> = LimitTo<T, string | Date | null | undefined>
 
 export interface DateSchema<T>
 	extends Omit<StringSchema<T>, "cast" | "regexp"> {
@@ -18,7 +16,7 @@ export interface DateSchema<T>
 	format?: null | "iso"
 }
 
-export function cleanDate<T = string, M extends TypeM<T> = TypeM<T>>(
+export function cleanDate<T = Date | string, V = any>(
 	schema: DateSchema<T> = {}
 ) {
 	if (
@@ -33,12 +31,12 @@ export function cleanDate<T = string, M extends TypeM<T> = TypeM<T>>(
 		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
-	const cleaner = cleanString<T>({
+	const cleaner = cleanString<T, V>({
 		...schema,
 		cast: true, // TODO: double check this
 		regexp: undefined,
 		clean(value, context) {
-			let res: M = value as M
+			let res: any = value
 			if (res) {
 				const date = new Date(res as string)
 				if (isNaN(date.getTime())) {
@@ -49,14 +47,12 @@ export function cleanDate<T = string, M extends TypeM<T> = TypeM<T>>(
 				if (schema.format === null) {
 					// ok
 				} else if (schema.format === "iso") {
-					res = date.toISOString() as M
+					res = date.toISOString()
 				} else {
-					res = date as M
+					res = date
 				}
 			}
-			return schema.clean
-				? schema.clean(res as any, context)
-				: (res as unknown as T)
+			return schema.clean ? schema.clean(res, context) : res
 		},
 	})
 	return setSchema(cleaner, schema)
