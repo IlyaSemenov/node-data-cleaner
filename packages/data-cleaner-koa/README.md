@@ -12,19 +12,19 @@ The cleaner is configured with the following schema options:
 - `files`: files cleaner (optional)
 - `errorCode`: HTTP status code for the failed validation response (default: 200)
 
-## Example
+## Example (User Registration)
 
-Consider a registration form:
+Client-side form:
 
 ```vue
 <template>
   <form ref="form" @submit.prevent="submit">
-    Login: <input name="username" required /> Password:
-    <input name="password" type="password" required /> Company name:
-    <input name="company.name" required /> Domain:
-    <input name="company.domain" required />.mysaas.com
-    <button>Register</button>
-    errors = {{ errors }}
+    <div>Login: <input name="username" required /></div>
+    <div>Password: <input name="password" type="password" required /></div>
+    <div>Company name: <input name="company.name" required /></div>
+    <div>Domain: <input name="company.domain" required />.mysaas.com</div>
+    <div><button>Register</button></div>
+    <div>errors = {{ errors }}</div>
   </form>
 </template>
 
@@ -53,19 +53,19 @@ export default {
 </script>
 ```
 
-and the corresponding backend:
+Koa backend using `data-cleaner-koa`:
 
 ```js
-import * as clean from 'data-cleaner'
-import 'data-cleaner-koa' // injects into data-cleaner
+import { clean } from 'data-cleaner'
+import { cleanKoa } from 'data-cleaner-koa'
 
-const cleanRegister = clean.koa({
+const cleanRegister = cleanKoa({
   body: clean.object({
     parseKeys: true,
     fields: {
       username: clean.string({
         async clean (username: string) {
-          const user = await User.query().select('id').where('username', username).first()
+          const user = await User.query().select('id').findOne({ username })
           if (user) {
             throw new clean.ValidationError('This username is not available.')
           }
@@ -81,7 +81,7 @@ const cleanRegister = clean.koa({
               domain = domain.toLowerCase()
               if (
                 domain.match(/^(www|mail|admin)/) ||
-                await Company.query().select('id').where('domain', domain).first()
+                await Company.query().select('id').findOne({ domain })
               ) {
                 throw new clean.ValidationError('This domain is not available.')
               }
@@ -115,15 +115,42 @@ router.post('/register', async ctx => {
 In the example above, `cleanKoa` will accept optional return value interface for body fields:
 
 ```ts
-interface RegisterFields extends Pick<IUser, 'username' | 'password'> {
-  company: Pick<ICompany, 'name' | 'domain'>
+interface RegisterFields {
+  username: string
+  password: string
+  company: {
+    name: string
+    domain: string
+  }
 }
 
-const cleanRegister = clean.koa<RegisterFields>({
-  ...
+const cleanRegister = cleanKoa<RegisterFields>({
+  body: clean.object({ ... }),
 })
 
-const { body } = await cleanRegister(ctx) // body is a RegisterFields object
+router.get(async ctx => {
+  const { body } = await cleanRegister(ctx) // body is a RegisterFields object
+})
 ```
 
 The `files` are currently untyped.
+
+## Experimental namespace injection
+
+It's possible to use `clean.koa` instead of `cleanKoa`:
+
+```ts
+// Somewhere during app init:
+import "data-cleaner-koa/register"
+
+// Later use clean.koa:
+import { clean } from "data-cleaner"
+
+const mycleaner = clean.koa({
+  body: clean.object.fields({
+    username: clean.string(),
+  }),
+})
+```
+
+Note that this probably breaks tree shaking.

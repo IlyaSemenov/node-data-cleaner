@@ -1,0 +1,3 @@
+coverage: false
+node-arg: ["-r", "@swc-node/register"]
+test-regex: "\\.test\\.ts$"

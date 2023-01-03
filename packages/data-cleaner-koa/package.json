@@ -8,10 +8,26 @@
   },
   "author": "Ilya Semenov",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./register": {
+      "require": "./dist/register.js",
+      "import": "./dist/register.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ],
+      "register": [
+        "dist/register.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist/**",
     "src/**"
@@ -19,20 +35,26 @@
   "scripts": {
     "build": "tsup",
     "prepack": "npm run build",
-    "test": "echo No tests so far."
+    "test": "tap"
   },
   "dependencies": {
     "http-errors": "^2.0.0"
   },
   "peerDependencies": {
-    "data-cleaner": "^3 | ^4"
+    "data-cleaner": "^4.2.0"
   },
   "devDependencies": {
+    "@swc-node/register": "~1.5.4",
+    "@swc/core": "~1.3.24",
     "@types/formidable": "~2.0.5",
     "@types/http-errors": "~2.0.1",
     "@types/koa": "^2.0.48",
+    "@types/tap": "~15.0.7",
     "data-cleaner": "workspace:*",
+    "data-cleaner-koa": ".",
     "koa-body": "^4.1.0",
-    "tsup": "~6.5.0"
+    "tap": "~16.3.2",
+    "tsup": "~6.5.0",
+    "typescript": "~4.9.4"
   }
 }
