@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ ValidationError } = clean
+const { clean, ValidationError } = require("..")
 
 t.test("pass array", async (t) => {
 	t.same(await clean.array()([1, "2", 3]), [1, "2", 3])

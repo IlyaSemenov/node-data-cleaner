@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, SchemaError, ValidationError } = require("..")
 
 t.test("reject empty schema", async (t) => {
 	t.throws(

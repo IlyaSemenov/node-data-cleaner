@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ ValidationError } = clean
+const { ValidationError } = require("..")
 
 t.test("require a parameter", async (t) => {
 	t.throws(() => new ValidationError())

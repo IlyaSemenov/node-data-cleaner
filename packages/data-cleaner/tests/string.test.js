@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, SchemaError, ValidationError } = require("..")
 
 t.test("pass string", async (t) => {
 	t.equal(await clean.string()("test"), "test")

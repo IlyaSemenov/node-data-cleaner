@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ ValidationError } = clean
+const { clean, ValidationError } = require("..")
 
 t.test("pass zero", async (t) => {
 	t.equal(clean.integer()(0), 0)

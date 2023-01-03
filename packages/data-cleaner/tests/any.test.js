@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, SchemaError, ValidationError } = require("..")
 
 t.test("pass value as is", async (t) => {
 	const value = { foo: [1, 2, { bar: "x" }] }

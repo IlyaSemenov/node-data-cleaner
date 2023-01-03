@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, ValidationError } = require("..")
 
 const uuid = "282f570c-d19c-4b85-870b-49129409ea92"
 

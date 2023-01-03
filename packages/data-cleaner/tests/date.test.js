@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, SchemaError, ValidationError } = require("..")
 
 const testIsoValue = "2018-11-14T09:28:19Z"
 const testIsoTzValue = "2018-11-14T16:28:19+07:00"

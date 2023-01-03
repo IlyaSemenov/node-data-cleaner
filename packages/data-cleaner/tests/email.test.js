@@ -1,6 +1,5 @@
 const t = require("tap")
-const clean = require(".."),
-	{ SchemaError, ValidationError } = clean
+const { clean, SchemaError, ValidationError } = require("..")
 
 const email = "foo@bar.com"
 
