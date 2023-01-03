@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsup",
     "prepack": "npm run build",
-    "test": "tap"
+    "test": "tap && tsd"
   },
   "dependencies": {
     "capital-case": "^1.0.4",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "tap": "~16.3.2",
+    "tsd": "~0.25.0",
     "tsup": "~6.5.0"
   }
 }
