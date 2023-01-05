@@ -1,5 +1,6 @@
 import { SchemaError } from "../errors/SchemaError"
 import { ValidationError } from "../errors/ValidationError"
+import { Cleaner } from "../types"
 import { getMessage } from "../utils"
 import { setSchema } from "./any"
 import { cleanString, StringSchema } from "./string"
@@ -11,10 +12,20 @@ export interface DateSchema<T>
 	 *
 	 * `format: null` - return valid value as is
 	 *
-	 * `format: "iso"` - return ISO-formatted date
+	 * `format: "iso"` - return ISO-formatted date-time
 	 */
 	format?: null | "iso"
 }
+
+// FIXME: type result as having schema
+export function cleanDate<T = Date, V = any>(
+	schema?: DateSchema<T> & { format?: undefined }
+): Cleaner<T, V>
+
+// FIXME: type result as having schema
+export function cleanDate<T = string, V = any>(
+	schema?: DateSchema<T> & { format: "iso" | null }
+): Cleaner<T, V>
 
 export function cleanDate<T = Date | string, V = any>(
 	schema: DateSchema<T> = {}
@@ -38,7 +49,7 @@ export function cleanDate<T = Date | string, V = any>(
 		clean(value, context) {
 			let res: any = value
 			if (res) {
-				const date = new Date(res as string)
+				const date = new Date(res)
 				if (isNaN(date.getTime())) {
 					throw new ValidationError(
 						getMessage(context, "invalid", "Invalid value.")
