@@ -1,4 +1,6 @@
+export type Context = Record<string, any>
+
 export type Cleaner<T, V = any> = (
 	value: V,
-	context?: Record<string, any>
+	context?: Context
 ) => T | PromiseLike<T>

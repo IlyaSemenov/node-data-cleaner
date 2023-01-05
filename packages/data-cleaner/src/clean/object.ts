@@ -1,5 +1,6 @@
 import { capitalCase } from "capital-case"
 
+import { Cleaner } from "../cleaner"
 import { SchemaError } from "../errors/SchemaError"
 import {
 	ErrorMessages,
@@ -7,7 +8,6 @@ import {
 	FieldErrorMessages,
 	ValidationError,
 } from "../errors/ValidationError"
-import { Cleaner } from "../types"
 import { getMessage } from "../utils"
 import { AnySchema, cleanAny, setSchema } from "./any"
 

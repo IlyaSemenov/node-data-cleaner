@@ -10,5 +10,5 @@ export * from "./clean/index-ns"
 // import { clean } from "data-cleaner"
 // clean.string()
 export * as clean from "./clean/index-ns"
+export * from "./cleaner"
 export * from "./errors"
-export * from "./types"
