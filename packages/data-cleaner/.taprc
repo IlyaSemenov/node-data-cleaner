@@ -1,2 +1,3 @@
 coverage: false
-test-regex: "\\.test\\.js$"
+node-arg: ["-r", "@swc-node/register"]
+test-regex: "\\.test\\.ts$"

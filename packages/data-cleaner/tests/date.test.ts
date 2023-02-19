@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, SchemaError, ValidationError } = require("..")
+import { clean, SchemaError, ValidationError } from "data-cleaner"
+import t from "tap"
 
 const testIsoValue = "2018-11-14T09:28:19Z"
 const testIsoTzValue = "2018-11-14T16:28:19+07:00"

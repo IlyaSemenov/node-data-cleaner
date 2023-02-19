@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, ValidationError } = require("..")
+import { clean, ValidationError } from "data-cleaner"
+import t from "tap"
 
 t.test("pass array", async (t) => {
 	t.same(await clean.array()([1, "2", 3]), [1, "2", 3])

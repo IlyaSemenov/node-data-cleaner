@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, SchemaError, ValidationError } = require("..")
+import { clean, SchemaError, ValidationError } from "data-cleaner"
+import t from "tap"
 
 const email = "foo@bar.com"
 

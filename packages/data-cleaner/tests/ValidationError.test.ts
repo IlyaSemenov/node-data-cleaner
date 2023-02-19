@@ -1,5 +1,5 @@
-const t = require("tap")
-const { ValidationError } = require("..")
+import { ValidationError } from "data-cleaner"
+import t from "tap"
 
 t.test("require a parameter", async (t) => {
 	t.throws(() => new ValidationError())

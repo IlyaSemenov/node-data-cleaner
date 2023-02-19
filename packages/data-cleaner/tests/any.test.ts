@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, SchemaError, ValidationError } = require("..")
+import { clean, SchemaError, ValidationError } from "data-cleaner"
+import t from "tap"
 
 t.test("pass value as is", async (t) => {
 	const value = { foo: [1, 2, { bar: "x" }] }

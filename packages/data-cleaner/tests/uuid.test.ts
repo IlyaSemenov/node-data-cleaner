@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, ValidationError } = require("..")
+import { clean, ValidationError } from "data-cleaner"
+import t from "tap"
 
 const uuid = "282f570c-d19c-4b85-870b-49129409ea92"
 

@@ -1,5 +1,5 @@
-const t = require("tap")
-const { clean, ValidationError } = require("..")
+import { clean, ValidationError } from "data-cleaner"
+import t from "tap"
 
 t.test("pass true", async (t) => {
 	t.equal(clean.boolean()(true), true)
