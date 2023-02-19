@@ -1,12 +1,10 @@
-import { Cleaner } from "../cleaner"
 import { SchemaError } from "../errors/SchemaError"
 import { ValidationError } from "../errors/ValidationError"
 import { getMessage } from "../utils"
-import { setSchema } from "./any"
+import { AnyCleaner } from "./any"
 import { cleanString, StringSchema } from "./string"
 
-export interface DateSchema<T>
-	extends Omit<StringSchema<T>, "cast" | "regexp"> {
+export interface DateSchema extends Omit<StringSchema, "cast" | "regexp"> {
 	/**
 	 * `format: undefined` (default) - return Date object
 	 *
@@ -17,19 +15,11 @@ export interface DateSchema<T>
 	format?: null | "iso"
 }
 
-// FIXME: type result as having schema
-export function cleanDate<T = Date, V = any>(
-	schema?: DateSchema<T> & { format?: undefined }
-): Cleaner<T, V>
+export function cleanDate<V = any, S extends DateSchema = DateSchema>(
+	schema?: S
+): AnyCleaner<S extends { format: null | "iso" } ? string : Date, V, S>
 
-// FIXME: type result as having schema
-export function cleanDate<T = string, V = any>(
-	schema?: DateSchema<T> & { format: "iso" | null }
-): Cleaner<T, V>
-
-export function cleanDate<T = Date | string, V = any>(
-	schema: DateSchema<T> = {}
-) {
+export function cleanDate(schema: DateSchema = {}) {
 	if (
 		!(
 			schema.format === undefined ||
@@ -38,33 +28,38 @@ export function cleanDate<T = Date | string, V = any>(
 		)
 	) {
 		throw new SchemaError(
-			"clean.date format may be only: undefined, null, 'iso'"
+			"clean.date format may be one of: undefined, null, 'iso'"
+		)
+	}
+	if (schema.format !== null && schema.blank === true) {
+		throw new SchemaError(
+			"clean.date can't accept blank: true if format is not null"
 		)
 	}
 	// TODO: don't allow weird combinations e.g. { format: undefined, blank: true }
-	const cleaner = cleanString<T, V>({
+	return cleanString({
 		...schema,
 		cast: true, // TODO: double check this
 		regexp: undefined,
-		clean(value, context) {
-			let res: any = value
-			if (res) {
-				const date = new Date(res)
-				if (isNaN(date.getTime())) {
-					throw new ValidationError(
-						getMessage(context, "invalid", "Invalid value.")
-					)
-				}
-				if (schema.format === null) {
-					// ok
-				} else if (schema.format === "iso") {
-					res = date.toISOString()
-				} else {
-					res = date
-				}
-			}
-			return schema.clean ? schema.clean(res, context) : res
-		},
+	}).clean((value, context) => {
+		if (value === undefined) return undefined
+		if (value === null) return null
+		if (value === "" && schema.format === null) {
+			return ""
+		}
+		const date = new Date(value)
+		if (isNaN(date.getTime())) {
+			throw new ValidationError(
+				getMessage(context, "invalid", "Invalid value.")
+			)
+		}
+		if (schema.format === null) {
+			return value
+		} else if (schema.format === "iso") {
+			return date.toISOString()
+		} else {
+			// default: return Date object
+			return date
+		}
 	})
-	return setSchema(cleaner, schema)
 }

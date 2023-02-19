@@ -1,3 +1,4 @@
+export * from "./chainable"
 // allows:
 // import { cleanString } from "data-cleaner"
 // cleanString()
