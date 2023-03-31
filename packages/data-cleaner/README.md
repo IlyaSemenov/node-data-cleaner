@@ -1,3 +1,11 @@
+# DEPRECATION NOTICE
+
+I created this library in 2017. Back then, the competitors were barely useful.
+
+In 2023, I started working on the next major version and ended up with [PR: chainable cleaners](https://github.com/IlyaSemenov/node-data-cleaner/pull/29). While working on it, I discovered a new player in the field: [zod](https://github.com/colinhacks/zod). Zod made things right. My "chained cleaners" are basically an inferior version of Zod. And unlike my pet project, Zod has active community.
+
+I am switching to Zod in my projects.
+
 # data-cleaner for Node.js
 
 This is yet another data object validator and transformer for Node.js, inspired by Django forms validation framework.
