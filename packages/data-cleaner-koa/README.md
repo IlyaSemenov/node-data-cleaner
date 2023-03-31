@@ -55,38 +55,34 @@ export default {
 
 Koa backend using `data-cleaner-koa`:
 
-```js
-import { clean } from 'data-cleaner'
-import { cleanKoa } from 'data-cleaner-koa'
+```ts
+import { clean } from "data-cleaner"
+import { cleanKoa } from "data-cleaner-koa"
 
 const cleanRegister = cleanKoa({
   body: clean.object({
     parseKeys: true,
     fields: {
-      username: clean.string({
-        async clean (username: string) {
-          const user = await User.query().select('id').findOne({ username })
-          if (user) {
-            throw new clean.ValidationError('This username is not available.')
-          }
-          return username
-        },
+      username: clean.string().clean(async (username) => {
+        const user = await User.query().select("id").findOne({ username })
+        if (user) {
+          throw new clean.ValidationError("This username is not available.")
+        }
+        return username
       }),
       password: clean.string(),
       company: clean.object({
         fields: {
           name: clean.string(),
-          domain: clean.string({
-            async clean (domain: string) {
-              domain = domain.toLowerCase()
-              if (
-                domain.match(/^(www|mail|admin)/) ||
-                await Company.query().select('id').findOne({ domain })
-              ) {
-                throw new clean.ValidationError('This domain is not available.')
-              }
-              return domain
-            },
+          domain: clean.string().clean(async (domain) => {
+            domain = domain.toLowerCase()
+            if (
+              domain.match(/^(www|mail|admin)/) ||
+              (await Company.query().select("id").findOne({ domain }))
+            ) {
+              throw new clean.ValidationError("This domain is not available.")
+            }
+            return domain
           }),
         },
       }),
@@ -94,46 +90,16 @@ const cleanRegister = cleanKoa({
   }),
 })
 
-router.post('/register', async ctx => {
+router.post("/register", async (ctx) => {
   const { body } = await cleanRegister(ctx)
-  const user = await User.query().upsertGraphAndFetch({
-    username: body.username, // will be unique (*)
-    password: body.password,
-    company: {
-      name: body.company.name,
-      domain: body.company.domain, // will be lowercase
-    },
-  }),
+  // body.username will be unique (*)
+  // body.company.domain will be lowercase
+  const user = await User.query().upsertGraphAndFetch(body)
   ctx.body = user
 })
 ```
 
-- _NOTE: There is a race condition during unique username check, it's not handled for simplicity. For production use, wrap everything into a database transaction._
-
-## Typescript
-
-In the example above, `cleanKoa` will accept optional return value interface for body fields:
-
-```ts
-interface RegisterFields {
-  username: string
-  password: string
-  company: {
-    name: string
-    domain: string
-  }
-}
-
-const cleanRegister = cleanKoa<RegisterFields>({
-  body: clean.object({ ... }),
-})
-
-router.get(async ctx => {
-  const { body } = await cleanRegister(ctx) // body is a RegisterFields object
-})
-```
-
-The `files` are currently untyped.
+- _NOTE: There is a race condition during unique username check, it's not handled for simplicity. For production use, wrap everything into a database transaction and pass it into the cleaner context._
 
 ## Experimental namespace injection
 
@@ -147,7 +113,7 @@ import "data-cleaner-koa/register"
 import { clean } from "data-cleaner"
 
 const mycleaner = clean.koa({
-  body: clean.object.fields({
+  body: clean.objectFields({
     username: clean.string(),
   }),
 })

@@ -54,12 +54,10 @@ t.test("Min/max", async (t) => {
 t.test("collect validation errors from all elements", async (t) => {
 	await t.rejects(
 		clean.array({
-			element: clean.any({
-				clean(value) {
-					if (value) {
-						throw new ValidationError("Invalid value: " + value)
-					}
-				},
+			element: clean.any().clean((value) => {
+				if (value) {
+					throw new ValidationError("Invalid value: " + value)
+				}
 			}),
 		})(["one", "", "three"]),
 		new ValidationError(["Invalid value: one", "Invalid value: three"])
@@ -72,12 +70,10 @@ t.test("collect named validation errors from all elements", async (t) => {
 			element: clean.object({
 				fields: {
 					user: clean.string(),
-					password: clean.string({
-						clean(password) {
-							if (password.length < 3) {
-								throw new ValidationError("Password is too short.")
-							}
-						},
+					password: clean.string().clean((password) => {
+						if (password.length < 3) {
+							throw new ValidationError("Password is too short.")
+						}
 					}),
 				},
 			}),
@@ -97,13 +93,13 @@ t.test("collect named validation errors from all elements", async (t) => {
 
 t.test("Empty values", async (t) => {
 	await t.test("reject undefined", async (t) => {
-		t.throws(() => clean.array()(), new ValidationError("Value required."))
+		t.rejects(clean.array()(), new ValidationError("Value required."))
 	})
 	await t.test("pass undefined if allowed", async (t) => {
 		t.equal(await clean.array({ required: false })(), undefined)
 	})
 	await t.test("reject null", async (t) => {
-		t.throws(() => clean.array()(null), new ValidationError("Value required."))
+		t.rejects(clean.array()(null), new ValidationError("Value required."))
 	})
 	await t.test("pass null if allowed", async (t) => {
 		t.equal(await clean.array({ null: true })(null), null)
@@ -112,17 +108,13 @@ t.test("Empty values", async (t) => {
 
 t.test("call custom cleaner", async (t) => {
 	t.same(
-		await clean.array({
-			element: clean.integer(),
-			clean(v) {
+		await clean
+			.array({
+				element: clean.integer(),
+			})
+			.clean((v) => {
 				return v.reverse()
-			},
-		})([1, 2, 3]),
+			})([1, 2, 3]),
 		[3, 2, 1]
 	)
-})
-
-t.test("saving schema", async (t) => {
-	const schema = { element: clean.integer() }
-	t.equal(clean.array(schema).schema, schema)
 })

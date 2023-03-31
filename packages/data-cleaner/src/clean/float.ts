@@ -1,12 +1,15 @@
-import { setSchema } from "./any"
+import { AnyCleaner } from "./any"
 import { cleanNumber, NumberSchema } from "./number"
 
-export type FloatSchema<T> = Omit<NumberSchema<T>, "parseNumber">
+export type FloatSchema = Omit<NumberSchema, "parseNumber">
 
-export function cleanFloat<T = number, V = any>(schema: FloatSchema<T> = {}) {
-	const cleaner = cleanNumber<T, V>({
+export function cleanFloat<V = any, S extends FloatSchema = FloatSchema>(
+	schema?: S
+): AnyCleaner<number, V, S>
+
+export function cleanFloat(schema: FloatSchema = {}) {
+	return cleanNumber({
 		...schema,
 		parseNumber: parseFloat,
 	})
-	return setSchema(cleaner, schema)
 }

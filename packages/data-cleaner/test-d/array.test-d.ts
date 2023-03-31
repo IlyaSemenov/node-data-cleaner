@@ -1,18 +1,29 @@
 import { clean } from "data-cleaner"
 import { expectType } from "tsd"
 
+expectType<any[]>(await clean.array()([]))
+
 expectType<string[]>(
 	await clean.array({
 		element(el) {
 			return "" + el
 		},
-	})("" as any)
+	})([])
 )
 
-expectType<string[]>(
-	await clean.array<string>({
+expectType<string[] | undefined>(
+	await clean.array({
+		required: false,
 		element(el) {
-			return el
+			return "" + el
 		},
-	})("" as any)
+	})([])
+)
+
+expectType<(1 | undefined)[]>(
+	await clean.array({
+		element(el) {
+			return el ? 1 : undefined
+		},
+	})([])
 )

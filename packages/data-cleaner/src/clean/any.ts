@@ -1,60 +1,85 @@
-import { Cleaner } from "../cleaner"
+import { ChainableCleaner, cleaner } from "../chainable"
 import { SchemaError } from "../errors/SchemaError"
 import { ValidationError } from "../errors/ValidationError"
 import { getMessage } from "../utils"
 
-export interface AnySchema<T, V = any> {
+export interface AnySchema {
 	/** `required: false` - allow undefined values */
 	required?: boolean
 	/** `null: true` - allow null values */
 	null?: boolean
 	/** Replace `undefined` with this value (sets `required: false` automatically) */
 	default?: any
-	/** Override flat collector field label, or `null` to omit field label altogether. */
-	label?: string | null
-	/** Nested cleaner (called if the validation passes) */
-	clean?: Cleaner<T, V>
+	/** @deprecated clean as a schema field is deprecated - use chainable clean */
+	clean?: never
 }
 
-export type WithSchema<C extends Cleaner<any>, S> = C & {
-	schema: S
-}
+/** Optionally widen T with undefined based on schema. */
+type ApplyRequired<T, S extends AnySchema> = S extends { required: false }
+	? T | undefined
+	: T
 
-export function setSchema<C extends Cleaner<any>, S>(fn: C, schema: S) {
-	;(fn as any).schema = schema
-	return fn as WithSchema<C extends WithSchema<infer OC, any> ? OC : C, S>
-}
+/** Optionally widen T with null based on schema. */
+type ApplyNull<T, S extends AnySchema> = S extends { null: true } ? T | null : T
 
-export function cleanAny<T = any, V = any>(schema: AnySchema<T, V> = {}) {
+/** Optionally widen T with undefined and null based on schema. */
+type ApplyAnySchema<T, S extends AnySchema> = ApplyRequired<ApplyNull<T, S>, S>
+
+/** A chainable cleaner from V to S that follows AnySchema contract in S when widening T with undefined and null. */
+export type AnyCleaner<
+	T,
+	V,
+	S extends AnySchema = Record<string, never>
+> = ChainableCleaner<ApplyAnySchema<T, S>, V>
+
+export function cleanAny<V = any, S extends AnySchema = AnySchema>(
+	schema?: S
+): AnyCleaner<V, V, S>
+
+/**
+ * Base chainable cleaner that handles undefined, null and default values.
+ *
+ * Stores schema into function property.
+ */
+export function cleanAny(schema: AnySchema = {}) {
+	if (schema.clean) {
+		throw new SchemaError(
+			"clean as a schema field is not supported anymore - use chainable clean"
+		)
+	}
+	// TODO: destructure schema instead of modifying it in-place
 	if (schema.default !== undefined) {
 		if (schema.required === undefined) {
 			schema.required = false
 		} else if (schema.required !== false) {
-			throw new SchemaError("clean.any with 'default' needs 'required: false'")
+			throw new SchemaError("cleanAny with 'default' needs 'required: false'")
 		}
 	}
 	if (schema.default === null) {
 		if (schema.null === undefined) {
 			schema.null = true
 		} else if (schema.null !== true) {
-			throw new SchemaError("clean.any with 'default: null' needs 'null: true'")
+			throw new SchemaError("cleanAny with 'default: null' needs 'null: true'")
 		}
 	}
-	const cleaner: Cleaner<T, V> = function (value, context) {
-		if (value === undefined && schema.required !== false) {
-			throw new ValidationError(
-				getMessage(context, "required", "Value required.")
-			)
+
+	return cleaner((value, context) => {
+		if (value === undefined) {
+			if (schema.required !== false) {
+				throw new ValidationError(
+					getMessage(context, "required", "Value required.")
+				)
+			}
+			return schema.default
 		}
-		if (value === undefined && schema.default !== undefined) {
-			value = schema.default
+		if (value === null) {
+			if (schema.null !== true) {
+				throw new ValidationError(
+					getMessage(context, "required", "Value required.")
+				)
+			}
+			return null
 		}
-		if (value === null && schema.null !== true) {
-			throw new ValidationError(
-				getMessage(context, "required", "Value required.")
-			)
-		}
-		return schema.clean ? schema.clean(value, context) : (value as unknown as T)
-	}
-	return setSchema(cleaner, schema)
+		return value
+	})
 }
