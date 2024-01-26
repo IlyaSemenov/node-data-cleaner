@@ -2,9 +2,20 @@
 
 I created this library in 2017. Back then, the competitors were barely useful.
 
-In 2023, I started working on the next major version and ended up with [PR: chainable cleaners](https://github.com/IlyaSemenov/node-data-cleaner/pull/29). While working on it, I discovered a new player in the field: [zod](https://github.com/colinhacks/zod). Zod made things right. My "chained cleaners" are basically an inferior version of Zod. And unlike my pet project, Zod has active community.
+In 2023, I started working on the next major version and ended up with [PR: chainable cleaners](https://github.com/IlyaSemenov/node-data-cleaner/pull/29). While working on it, I discovered a new player in the field: [zod](https://zod.dev/). ~~Zod made things right.~~ My "chained cleaners" are basically an inferior version of Zod. And unlike my pet project, Zod has active community.
 
-I am switching to Zod in my projects.
+~~I am switching to Zod in my projects.~~
+
+While Zod offered much better user experience, and I switched to using it for a time, I wasn't happy with it either.
+
+1) Zod is not tree shakeable. It puts all its methods in the base class.
+2) Zod is not consistently extensible. One can't add z.customNumber() alongside z.number().
+3) Despite its popularity, it's poorly maintained. I opened a few pull requests (e.g. [Add zod.select](https://github.com/colinhacks/zod/pull/2333), [Make EnumValues generic](https://github.com/colinhacks/zod/pull/2338)) for which I never got any reaction from the maintainers in almost a year.
+4) It's poorly architected. Basically, the entire Zod source code is kept in a single behemoth 6000-liner [src/types.ts](https://github.com/colinhacks/zod/blob/6c7acbc33d9b2005172da5efea95ada3c35e22ee/src/types.ts).
+
+Then, I discovered [Valibot](https://valibot.dev/) which works similarly to Zod but is fully tree shakeable and can be extended seamlessly (which I actually do with [valibotx](https://github.com/IlyaSemenov/valibotx), my collection of Valibot extensions).
+
+**I am switching to Valibot in all my projects.**
 
 # data-cleaner for Node.js
 
