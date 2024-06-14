@@ -53,10 +53,12 @@ See [full example](#full-example) to see more options (including asynchronous cu
 
 ## Installation
 
-Use npm or yarn:
-
 ```bash
+npm i data-cleaner
+# or:
 yarn add data-cleaner
+# or:
+pnpm add data-cleaner
 ```
 
 Then import or require:
@@ -78,8 +80,9 @@ const { clean, ValidationError } = require("data-cleaner")
 
 Terms:
 
-- [Cleaners](#cleaners)
-- [Configurable cleaners](#configurable-cleaners)
+- [Cleaner](#cleaner)
+- [Configurable cleaner](#configurable-cleaner)
+- [Chainable cleaner](#chainable-cleaner)
 
 Base cleaners:
 
@@ -100,12 +103,12 @@ Aggregation cleaners:
 - [`clean.array`](#cleanarray)
 - [`clean.object`](#cleanobject)
 
-### Cleaners
+### Cleaner
 
 _Cleaner_ is any function that follows the contract:
 
-```js
-function cleaner(value, context) {
+```ts
+function cleanValue(value, context) {
   // either return the value as is
   // or return a transformed value
   // or throw a ValidationError("Message")
@@ -115,50 +118,58 @@ function cleaner(value, context) {
 }
 ```
 
-### Configurable cleaners
+### Configurable cleaner
 
-Configurable cleaner is a function that creates a _cleaner_ according to the provided schema.
+Configurable cleaner is a function that creates a cleaner according to the provided schema.
 
 For example, `clean.string()` creates a cleaner that will accept non-blank strings only, and `clean.string({ blank: true })` creates a cleaner that will accept both blank and non-blank strings.
+
+**All built-in cleaners are configurable.**
+
+### Chainable cleaner
+
+A chainable cleaner is a cleaner that can be _chained_ by calling `clean()` method on it. Cleaned values will be passed to the chained cleaner. Example:
+
+```ts
+const cleanDatabaseId = clean
+  .integer({ min: 1 })
+  .clean((value) => {
+    // Here value is guaranteed to be an integer which is equal or greater than 1
+    return "" + value
+  })
+  .clean((value) => {
+    // There could be multiple cleaners attached
+    // Here value is guaranteed to be a string
+    return value
+  })
+```
+
+**All built-in cleaners are chainable.**
 
 ### `clean.any()`
 
 Create a cleaner that passes any value as is, or throws a ValidationError for `undefined` or `null`.
 
-```js
-const cleaner = clean.any()
+```ts
+const c = clean.any()
 
-await cleaner(5) // 5
-await cleaner("5") // '5'
-await cleaner("") // ''
-await cleaner({ foo: "bar" }) // {foo: 'bar'}
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c(5) // 5
+await c("5") // '5'
+await c("") // ''
+await c({ foo: "bar" }) // {foo: 'bar'}
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema
 
 All built-in cleaners are configurable and accept schema parameters. For example, you may allow null values with:
 
-```js
-const cleaner = clean.any({
-  null: true,
-})
+```ts
+const c = clean.any({ null: true })
 
-await cleaner(null) // null
-await cleaner(undefined) // throws "Value required."
-```
-
-##### Accessing original schema
-
-Built-in cleaners save schema into `schema` property on the cleaner function:
-
-```js
-const cleaner = clean.any({
-  null: true,
-})
-
-cleaner.schema.null // true
+await c(null) // null
+await c(undefined) // throws "Value required."
 ```
 
 #### Common schema options
@@ -167,147 +178,118 @@ The following schema parameters are supported by `clean.any()` and by all other 
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
+- `default` - replace `undefined` with this value
 
 #### Providing defaults
 
-```js
-const cleaner = clean.any({ default: "foo" })
+```ts
+const c = clean.any({ default: "foo" })
 
-await cleaner("bar") // bar
-await cleaner() // 'foo'
+await c("bar") // bar
+await c(undefined) // 'foo'
 ```
-
-#### Using custom cleaner
-
-Example how to pass a custom cleaner:
-
-```js
-const cleaner = clean.any({
-  clean: function (password) {
-    return password === "secret" ? "good" : "bad"
-  },
-})
-
-await cleaner("hacker") // 'bad'
-await cleaner("secret") // 'good'
-await cleaner(null) // throws "Value required."
-```
-
-See `clean.string` for a more complex custom cleaner example.
 
 #### Passing validation context
 
-Use cleaner's `context` to pass execution context data to the nested cleaner:
+Use cleaner `context` to pass execution context data to the nested cleaner:
 
-```js
-const cleaner = clean.any({
-  async clean(password, { db }) {
-    const dbPassword = await db.fetch("password")
-    return password === dbPassword ? "good" : "bad"
-  },
+```ts
+const cleanPassword = clean.string().clean(async (password, { db }) => {
+  const dbPassword = await db.fetch("password")
+  return password === dbPassword
 })
 
 const db = await DB.getConnection()
-await cleaner("secret", { db }) // either 'good' or 'bad'
+await cleanPassword("secret", { db }) // either true or false
 ```
 
-- Certain context keys (e.g. `data`) could be used by cleaners themselves.
+- Certain context keys (e.g. `data`) could be used by built-in cleaners.
 
 ### `clean.string()`
 
 Create a cleaner that returns a non-blank string value.
 
-```js
-const cleaner = clean.string()
+```ts
+const c = clean.string()
 
-await cleaner(5) // '5'
-await cleaner("5") // '5'
-await cleaner("") // throws "Value required."
-await cleaner({ foo: "bar" }) // throws "Invalid value."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c(5) // '5'
+await c("5") // '5'
+await c("") // throws "Value required."
+await c({ foo: "bar" }) // throws "Invalid value."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
 - `regexp` - test non-blank strings to match against regexp
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
-#### Using custom cleaner
+#### Using chained cleaner
 
 Example:
 
-```js
-const cleanUrl = clean.string({
-  null: true,
-  clean: async function (url) {
-    if (url === null) {
-      return null
-    }
-    let data
-    try {
-      data = await fetch(url)
-    } catch (err) {
-      throw new ValidationError(`Invalid URL: ${err.message}`)
-    }
-    return { url, data }
-  },
+```ts
+const cleanUrl = clean.string({ null: true }).clean(async (url) => {
+  if (url === null) {
+    return null
+  }
+  let data
+  try {
+    data = await fetch(url)
+  } catch (err) {
+    throw new ValidationError(`Invalid URL: ${err.message}`)
+  }
+  return { url, data }
 })
 
-cleanUrl("http://google.com") // { url: 'http://google.com', data: '<html>...' }
-cleanUrl("abcd://boom") // throws "Invalid URL: unknown protocol 'abcd'."
-cleanUrl(null) // null
-cleanUrl(123) // throws "Invalid URL: ..."
-cleanUrl({ url: "http://google.com" }) // throws "Invalid value."
+await cleanUrl("https://google.com") // { url: 'https://google.com', data: '<html>...' }
+await cleanUrl("abcd://boom") // throws "Invalid URL: unknown protocol 'abcd'."
+await cleanUrl(null) // null
+await cleanUrl(123) // throws "Invalid URL: ..."
+await cleanUrl({ url: "https://google.com" }) // throws "Invalid value."
 ```
 
 #### Converting empty strings to null values
 
 If `blank` is set to `null`, empty strings are converted to `null` (useful for data input from HTML forms):
 
-```js
-const cleaner = clean.integer({ blank: null })
-await cleaner("") // null
+```ts
+const c = clean.integer({ blank: null })
+await c("") // null
 ```
 
 ### `clean.integer()`
 
 Create a cleaner that returns an integer value.
 
-```js
-const cleaner = clean.integer()
+```ts
+const c = clean.integer()
 
-await cleaner(123) // 123
-await cleaner(0) // 0
-await cleaner(-5) // -5
-await cleaner(-273.15) // -273
-await cleaner("boomer") // throws "Invalid value."
-await cleaner("") // throws "Invalid value."
-await cleaner({ foo: 123 }) // throws "Invalid value."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c(123) // 123
+await c(0) // 0
+await c(-5) // -5
+await c(-273.15) // -273
+await c("boomer") // throws "Invalid value."
+await c("") // throws "Invalid value."
+await c({ foo: 123 }) // throws "Invalid value."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `cast: true` - no strict type check, convert value with `parseInt(value)`
 - `min` - minimum allowed value
 - `max` - maximum allowed value
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 #### Handle empty string
 
@@ -317,30 +299,28 @@ If `null` and `cast` are enabled, empty string will be cast to null.
 
 Create a cleaner that returns a float value.
 
-```js
-const cleaner = clean.integer()
+```ts
+const c = clean.integer()
 
-await cleaner(123) // 123
-await cleaner(123.45) // 123.45
-await cleaner(0) // 0
-await cleaner(-273.15) // -273.15
-await cleaner("boomer") // throws "Invalid value."
-await cleaner("") // throws "Invalid value."
-await cleaner({ foo: 123 }) // throws "Invalid value."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c(123) // 123
+await c(123.45) // 123.45
+await c(0) // 0
+await c(-273.15) // -273.15
+await c("boomer") // throws "Invalid value."
+await c("") // throws "Invalid value."
+await c({ foo: 123 }) // throws "Invalid value."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `cast: true` - no strict type check, convert value with `parseFloat(value)`
 - `min` - minimum allowed value
 - `max` - maximum allowed value
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 #### Empty strings
 
@@ -350,232 +330,213 @@ If `null` and `cast` are enabled, empty string will be cast to null.
 
 Create a cleaner that returns a boolean value (that is, either `true` or `false`).
 
-```js
-const cleaner = clean.boolean()
+```ts
+const c = clean.boolean()
 
-await cleaner(true) // true
-await cleaner(false) // false
-await cleaner("boomer") // throws "Invalid value."
-await cleaner("") // throws "Invalid value."
-await cleaner({ foo: "bar" }) // throws "Invalid value."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c(true) // true
+await c(false) // false
+await c("boomer") // throws "Invalid value."
+await c("") // throws "Invalid value."
+await c({ foo: "bar" }) // throws "Invalid value."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `cast` - no strict type check, convert value with `!!value`
 - `omit: true` - return `undefined` for `false`
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.date()`
 
 Create a cleaner that returns a Date object.
 
-```js
-const cleaner = clean.date()
+```ts
+const c = clean.date()
 
-await cleaner("2018-11-14T09:28:19.387+07:00") // Date object
-await cleaner("non date text") // throws "Invalid value."
-await cleaner("") // throws "Value required."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c("2018-11-14T09:28:19.387+07:00") // Date object
+await c("non date text") // throws "Invalid value."
+await c("") // throws "Value required."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `format: null` - return valid value as is (instead of Date object)
 - `format: 'iso'` - return ISO-formatted date (instead of Date object)
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.email()`
 
 Create an instance of a string cleaner that returns a valid email string.
 
-```js
-const cleaner = clean.email()
+```ts
+const c = clean.email()
 
-await cleaner("user@example.com") // 'user@example.com'
-await cleaner("non email garbage") // throws "Invalid value."
-await cleaner("") // throws "Value required."
+await c("user@example.com") // 'user@example.com'
+await c("non email garbage") // throws "Invalid value."
+await c("") // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.uuid()`
 
 Create an instance of a string cleaner that returns a valid UUID.
 
-```js
-const cleaner = clean.uuid()
+```ts
+const c = clean.uuid()
 
-await cleaner("282f570c-d19c-4b85-870b-49129409ea92") // '282f570c-d19c-4b85-870b-49129409ea92'
-await cleaner("non uuid garbage") // throws "Invalid value."
-await cleaner("") // throws "Value required."
+await c("282f570c-d19c-4b85-870b-49129409ea92") // '282f570c-d19c-4b85-870b-49129409ea92'
+await c("non uuid garbage") // throws "Invalid value."
+await c("") // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `blank: true` - allow blank values (empty strings)
 - `blank: null` - convert blank values (empty strings) to `null` (sets `null: true` automatically)
 - `cast: true` - no strict type check, convert value with `String(value)`
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.array()`
 
 Create a cleaner that returns an array of values, where each value is validated against a subcleaner.
 
-```js
-const cleaner = clean.array({
+```ts
+const c = clean.array({
   element: clean.integer(),
 })
 
-await cleaner([1, 2, 3]) // [1,2,3]
-await cleaner([]) // []
-await cleaner([1, "two", 3]) // throws "Invalid value."
-await cleaner("") // throws "Invalid value."
-await cleaner({ foo: "bar" }) // throws "Invalid value."
-await cleaner() // throws "Value required."
-await cleaner(null) // throws "Value required."
+await c([1, 2, 3]) // [1,2,3]
+await c([]) // []
+await c([1, "two", 3]) // throws "Invalid value."
+await c("") // throws "Invalid value."
+await c({ foo: "bar" }) // throws "Invalid value."
+await c() // throws "Value required."
+await c(null) // throws "Value required."
 ```
 
 #### Schema options
 
 - `required: false` - allow undefined values
 - `null: true` - allow null values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `element` - individual element cleaner
 - `min` - require at least that many elements
 - `max` - require at most that many elements
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 ### `clean.object()`
 
 Create a cleaner that validates an object by cleaning each key according to the provided fields schema. Object keys that are not present in the list of declared fields will be ignored.
 
-```js
-const cleaner = clean.object({
+```ts
+const cleanUser = clean.object({
   null: true,
   fields: {
     name: clean.string(),
-    email: clean.string({
-      clean: function (email) {
-        if (email.match(/.*@.*/)) {
-          return email
-        }
+    email: clean.string().clean((email) => {
+      if (!email.match(/.*@.*/)) {
         throw new ValidationError("Invalid email.")
-      },
+      }
+      return email
     }),
   },
 })
 
-cleaner({ name: "John", email: "a@b" }) // {name: "John", email: "a@b"}
-cleaner({ name: "John", email: "a@b", junk: 123 }) // {name: "John", email: "a@b"}
-cleaner({ name: "John" }) // throws {"email": ["Value required."]}
-cleaner({ name: "John", email: "John" }) // throws {"email": ["Invalid email."]}
-cleaner(undefined) // throws "Value required."
-cleaner(null) // null - because explicitly allowed
-cleaner({}) // throws {"name": ["Value required."], "email": ["Value required."]}
+await cleanUser({ name: "John", email: "a@b" }) // {name: "John", email: "a@b"}
+await cleanUser({ name: "John", email: "a@b", junk: 123 }) // {name: "John", email: "a@b"}
+await cleanUser({ name: "John" }) // throws {"email": ["Value required."]}
+await cleanUser({ name: "John", email: "John" }) // throws {"email": ["Invalid email."]}
+await cleanUser(undefined) // throws "Value required."
+await cleanUser(null) // null - because explicitly allowed
+await cleanUser({}) // throws {"name": ["Value required."], "email": ["Value required."]}
 ```
 
 #### Schema options
 
 - `fields` **(required)** - map of field names to their respective cleaners
 - `required: false` - allow undefined values
-- `default` - replace `undefined` with this value (sets `required: false` automatically)
+- `default` - replace `undefined` with this value
 - `null: true` - allow null values
 - `groupErrors: true` - group field errors by field name
 - `nonFieldErrorsKey` - if provided, non-field errors will be grouped under this pseudo field key
 - `parseKeys` - create nested objects from keys like `job.position` (see below)
-- `label` - field label (used by flat error collector)
-- `clean` - nested cleaner to run if the validation passes
 
 #### Providing field defaults
 
-```js
-const cleaner = clean.object({
+```ts
+const cleanUser = clean.object({
   fields: {
     name: clean.string(),
     lastName: clean.string({ default: null }),
   },
 })
 
-cleaner({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
-cleaner({ name: "John" }) // { name: "John", lastName: null }
+await cleanUser({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
+await cleanUser({ name: "John" }) // { name: "John", lastName: null }
 ```
 
 #### Shorthand syntax
 
 If the only schema field used is `fields`, you can create a cleaner with:
 
-```js
-const cleaner = clean.object.fields({
+```ts
+const cleanUser = clean.objectFields({
   name: clean.string(),
   lastName: clean.string({ default: null }),
 })
 
-cleaner({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
-cleaner({ name: "John" }) // { name: "John", lastName: null }
+await cleanUser({ name: "John", lastName: "Doe" }) // { name: "John", lastName: "Doe" }
+await cleanUser({ name: "John" }) // { name: "John", lastName: null }
 ```
 
 #### Nesting object cleaners
 
 Object cleaners can be nested:
 
-```js
-const cleaner = clean.object({
-  fields: {
+```ts
+const cleanUser = clean
+  .objectFields({
     name: clean.string(),
-    address: clean.object({
-      fields: {
-        city: clean.string(),
-        state: clean.string(),
-        zip: clean.string({
-          clean: function (zip) {
-            if (!zip.match(/^\d{5}$/)) {
-              throw new ValidationError("Enter 5-digit ZIP code.")
-            }
-            return zip
-          },
-        }),
-      },
+    address: clean.objectFields({
+      city: clean.string(),
+      state: clean.string(),
+      zip: clean.string().clean((zip) => {
+        if (!zip.match(/^\d{5}$/)) {
+          throw new ValidationError("Enter 5-digit ZIP code.")
+        }
+        return zip
+      }),
     }),
-  },
-  clean: function (person) {
-    if (person.name === "Patrick" && person.address.state === "Ohio") {
+  })
+  .clean((user) => {
+    if (user.name === "Patrick" && user.address.state === "Ohio") {
       throw new ValidationError({
         name: "You can't be named Patrick if you live in Ohio!",
       })
     }
-    return person
-  },
-})
+    return user
+  })
 
-cleaner({
+await cleanUser({
   name: "John",
   address: {
     city: "San Diego",
@@ -584,9 +545,9 @@ cleaner({
   },
 }) // returns as is, with number 12345 converted to string "12345"
 
-cleaner({ name: "John" }) // throw { "address": ["Value required."] }
+await cleanUser({ name: "John" }) // throw { "address": ["Value required."] }
 
-cleaner({
+await cleanUser({
   address: {
     city: "San Diego",
     state: "California",
@@ -594,7 +555,7 @@ cleaner({
   },
 }) // throws { "name": ["Value required."], "address.zip": ["Enter 5-digit ZIP code."] }
 
-cleaner({
+await cleanUser({
   name: "Patrick",
   address: {
     city: "Remote Hole",
@@ -604,58 +565,36 @@ cleaner({
 }) // throws { "name": ["You can't be named Patrick if you live in Ohio!"] }
 ```
 
-To collect errors coming from top-level object custom `clean()` (or thrown when top-level object doesn't validate by the underlying `clean.any`) uniformly as a pseudo field errors, pass `nonFieldErrorsKey`:
-
-```js
-const cleaner = clean.object({
-  fields: {
-    s1: clean.string(),
-    s2: clean.string(),
-  },
-  clean(obj) {
-    if (obj.s1 === obj.s2) {
-      throw new ValidationError("Strings must differ!")
-    }
-    return obj
-  },
-  nonFieldErrorsKey: "other",
-})
-
-cleaner() // throws { "other": ["Value required."] }
-cleaner({ s1: "foo", s2: "foo" }) // throws { "other": ["Strings must differ!"] }
-```
-
-Without `nonFieldErrorsKey`, these errors will be passed as is.
-
 #### Flat error collector
 
 Grouping errors by field name can be disabled and replaced with 'flat' array of errors.
-In this case, field name will be prepended to the error message, and can be overriden with using `label` schema option and/or `label` error option.
+In this case, field name will be prepended to the error message, and can be overriden with using `labels` schema option and/or `label` error option.
 
 The example below demonstrates possible scenarios:
 
-```js
-const cleaner = clean.object({
+```ts
+const c = clean.object({
   fields: {
     one: clean.any(),
-    two: clean.any({
-      label: "Zwei",
-      clean(value) {
-        if (value === "boom") {
-          throw new ValidationError("Boom is a wrong value for Zwei!", {
-            label: null,
-          })
-        }
-        return value
-      },
+    two: clean.any().clean((value) => {
+      if (value === "boom") {
+        throw new ValidationError("Boom is a wrong value for Zwei!", {
+          label: null,
+        })
+      }
+      return value
     }),
-    three: clean.any({ label: null }),
+    three: clean.any(),
+  },
+  labels: {
+    two: "Zwei",
+    three: null,
   },
   groupErrors: false,
 })
 
-cleaner() // throws ["One: Value required.", "Zwei: Value required.", "Value required."]
-cleaner({ one: 1, two: "boom", three: 3 }) // throws ["Boom is a wrong value for Zwei!"] - note the omitted label.
+await c() // throws ["One: Value required.", "Zwei: Value required.", "Value required."]
+await c({ one: 1, two: "boom", three: 3 }) // throws ["Boom is a wrong value for Zwei!"] - note the omitted label.
 ```
 
 #### Parse object keys and created nested objects
@@ -673,44 +612,40 @@ The typical use is handling POST submit:
 
 then:
 
-```js
-const cleaner = clean.object({
+```ts
+const cleanUser = clean.object({
   parseKeys: true,
   fields: {
     name: clean.string(),
-    job: clean.object({
-      fields: {
-        position: clean.string(),
-      }),
-    }
+    job: clean.objectFields({
+      position: clean.string(),
+    }),
   },
 })
 
-cleaner(ctx.request.body) // { name: "John", job: { position: "Engineer" } }
+await cleanUser(ctx.request.body) // { name: "John", job: { position: "Engineer" } }
 ```
 
 The default is to split by dot characters, like in the example above. You may pass a custom function instead, for example: `parseKeys: key => key.split('__')`
 
 #### Setting additional data keys from a validator
 
-```js
-const cleaner = clean.object({
-  fields: {
-    comment: clean.string(),
-    postId: clean.integer({
-      async clean(postId, context) {
-        const post = await db.getPostById(postId)
-        if (!post) {
-          throw new ValidationError("Post not found")
-        }
-        context.data.post = post // store fetched instance
-      },
-    }),
-  },
+```ts
+const cleanComment = clean.objectFields({
+  comment: clean.string(),
+  postId: clean.integer().clean(async (postId, context) => {
+    const post = await db.getPostById(postId)
+    if (!post) {
+      throw new ValidationError("Post not found.")
+    }
+    context.data.post = post // store fetched instance
+  }),
 })
 
-cleaner({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo" }, comment: "hello" }
+await cleanComment({ postId: 123, comment: "hello" }) // { postId: 123, post: { title: "Foo" }, comment: "hello" }
 ```
+
+_This option is deprecated and not supported in Typescript. The same result can be achieved with a chained cleaner pulling data from context._
 
 ## Full example
 
@@ -724,75 +659,64 @@ Define a _cleaner_ for imaginary department visitor registration form with the f
 Use imaginary async data access library for data validation.
 
 ```ts
-import { clean, ValidationError } from 'data-cleaner'
+import { clean, ValidationError } from "data-cleaner"
 
-const cleanVisitorData = clean.object({
-  fields: {
-    name: clean.string(), // Name must be a proper non-blank string.
-    gender: g => {
-      // Gender must be male or female
-      if (g == 'male' || g == 'female') {
+const cleanVisitorData = clean
+  .objectFields({
+    // Name must be a proper non-blank string.
+    name: clean.string(),
+    // Gender must be male or female
+    gender: (g) => {
+      if (g === "male" || g === "female") {
         return g
       }
-      raise ValidationError("Invalid gender.")
+      throw new ValidationError("Invalid gender.")
     },
-    email: clean.string({ // Email must be a proper non-blank string.
-      async clean(email) {
-        // Email must be valid.
-        if (!isEmail(email)) {
-          throw new ValidationError("Invalid email address.")
-        }
-        // Email must not be already registered.
-        if (await User.findByEmail(email)) {
-          throw new ValidationError(
-            `User with email ${email} already registered.`
-          )
-        }
-        return email
-      },
-    }),
-    department: clean.integer({
-      async clean(depId) {
-        // Transform department from id to model object.
-        const dep = await Department.findById(depId)
-        if (!dep) {
-          throw new ValidationError("Invalid value.")
-        }
-        return dep
+    // Email must be a proper non-blank string.
+    email: clean.email().clean(async (email) => {
+      // Email must not be already registered.
+      if (await User.findByEmail(email)) {
+        throw new ValidationError(
+          `User with email ${email} already registered.`
+        )
       }
+      return email
     }),
-  },
-  clean(visitor) {
+    // Transform department from id to model object.
+    department: clean.integer().clean(async (depId) => {
+      const dep = await Department.findById(depId)
+      if (!dep) {
+        throw new ValidationError("Invalid value.")
+      }
+      return dep
+    }),
+  })
+  .clean((visitor) => {
     // If all object fields validated, run it through additional cleaner.
-    if (visitor.department.isFemaleOnly && visitor.gender !== 'female') {
+    if (visitor.department.isFemaleOnly && visitor.gender !== "female") {
       throw new ValidationError({
-        department: `Only women allowed in ${visitor.department.name}.`
+        department: `Only women allowed in ${visitor.department.name}.`,
       })
     }
     return visitor
-  }
-})
+  })
 ```
 
 Use the defined cleaner in imaginary API handler:
 
-```js
+```ts
 router.post("/register", async (ctx) => {
-  let data
-  try {
-    data = await cleanVisitorData(ctx.request.body)
-  } catch (err) {
+  const data = await cleanVisitorData(ctx.request.body).catch((err) => {
     if (err instanceof ValidationError) {
       // err.errors = {
       //   name: ['Error message 1', 'Error message 2', ...],
       //   email: ['Error message'],
       //   ...
       // }
-      ctx.body = { errors: err.errors }
-      return
+      ctx.throw(400, { errors: err.errors })
     }
     throw err
-  }
+  })
   // data here is guaranteed to be an object
   // data.name will be a non-blank string
   // data.gender will be either 'male' or 'female'
@@ -804,7 +728,7 @@ router.post("/register", async (ctx) => {
 })
 ```
 
-NOTE: the code above mocks Koa requests handling. The actual Koa requests handling can be performed with less boilerplate using [data-cleaner-koa](https://github.com/IlyaSemenov/node-data-cleaner-koa).
+_NOTE: the code above mocks Koa requests handling. The actual Koa requests handling can be performed with less boilerplate using [data-cleaner-koa](https://github.com/IlyaSemenov/node-data-cleaner-koa)._
 
 ## Comparison to other libraries
 
@@ -852,34 +776,44 @@ It's practically impossible to use aggregating validators on different levels of
 
 **On the contrary, data-cleaner cleaners are ad-hoc for each field by design, with near-zero boilerplate.**
 
-### joi/yup: describing schema with chained methods is awkward
+### joi/yup: boilerplate
 
-Chained method invokations (with usual linting) lead to unreadable code, it's hard to distinguish between chained invokations and different fields:
+It's too much boilerplate. For every test, you **must** invent a name (which most often will never be used) and **must** provide a error message (even when the validator generates dynamic error messages).
 
 ```js
-name: yup.string().required(),
-email: yup.string().nullable().test('is-email', "Invalid email.", email => {
-  return email === null || isEmail(email)
-}).test('not-used', "Email already registered.", async email => {
-  if (email === null || !(await User.findByEmail(email)) {
-    return true
-  }
-  throw new yup.ValidationError(`Email address ${email} already registered.`)
-}),
-phone: yup.string().nullable().transform(phone => {
-  return isPhone(phone) ? normalizePhone(phone) : phone
-}).test('is-phone', "Invalid phone number.", phone => {
-  return phone === null || isPhone(phone)
-}).test('not-used', "Phone already registered.", async phone => {
-  if (phone === null || !(await User.findByPhone(phone)) {
-    return true
-  }
-  throw new yup.ValidationError(`Phone ${phone} already registered.`)
-}),
-student: yup.object().shape({
+object({
+  email: yup
+    .string()
+    .nullable()
+    .test("is-email", "Invalid email.", (email) => {
+      return email === null || isEmail(email)
+    })
+    .test("not-used", "Email already registered.", async (email) => {
+      if (email === null || !(await User.findByEmail(email))) {
+        return true
+      }
+      throw new yup.ValidationError(
+        `Email address ${email} already registered.`
+      )
+    }),
+  phone: yup
+    .string()
+    .nullable()
+    .transform((phone) => {
+      return isPhone(phone) ? normalizePhone(phone) : phone
+    })
+    .test("is-phone", "Invalid phone number.", (phone) => {
+      return phone === null || isPhone(phone)
+    })
+    .test("not-used", "Phone already registered.", async (phone) => {
+      // Are we actually allowed to reuse "not-used" here?
+      if (phone === null || !(await User.findByPhone(phone))) {
+        return true
+      }
+      throw new yup.ValidationError(`Phone ${phone} already registered.`)
+    }),
+})
 ```
-
-Besides, it's too much boilerplate. For every test, you **must** invent a name (which most often will never be used) and **must** provide a error message (even when the validator generates dynamic error messages).
 
 **On the contrary, data-cleaner definition are clearly nested and as simple as possible.**
 

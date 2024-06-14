@@ -108,14 +108,15 @@ t.test("use field defaults", async (t) => {
 t.test("call custom cleaner", async (t) => {
 	const obj = { s1: "one" }
 	t.same(
-		await clean.object({
-			fields: {
-				s1: clean.string(),
-			},
-			clean(obj) {
+		await clean
+			.object({
+				fields: {
+					s1: clean.string(),
+				},
+			})
+			.clean((obj) => {
 				return { object: obj }
-			},
-		})(obj),
+			})(obj),
 		{ object: obj }
 	)
 })
@@ -123,30 +124,32 @@ t.test("call custom cleaner", async (t) => {
 t.test("call custom async cleaner", async (t) => {
 	const obj = { s1: "one" }
 	t.same(
-		await clean.object({
-			fields: {
-				s1: clean.string(),
-			},
-			clean(obj) {
+		await clean
+			.object({
+				fields: {
+					s1: clean.string(),
+				},
+			})
+			.clean((obj) => {
 				return new Promise((resolve) => {
 					setTimeout(() => {
 						resolve({ object: obj })
 					}, 1)
 				})
-			},
-		})(obj),
+			})(obj),
 		{ object: obj }
 	)
 })
 
 t.test("pass plain ValidationError from custom cleaner", async (t) => {
 	await t.rejects(
-		clean.object({
-			fields: {},
-			clean(obj) {
+		clean
+			.object({
+				fields: {},
+			})
+			.clean(() => {
 				throw new ValidationError("bang")
-			},
-		})({}),
+			})({}),
 		new ValidationError("bang")
 	)
 })
@@ -172,11 +175,9 @@ t.test(
 		await t.rejects(
 			clean.object({
 				fields: {
-					obj: clean.any({
-						clean() {
-							throw new ValidationError("bang")
-						},
-					}),
+					obj: () => {
+						throw new ValidationError("bang")
+					},
 				},
 			})({ obj: 1 }),
 			new ValidationError({ obj: ["bang"] })
@@ -190,11 +191,9 @@ t.test(
 		await t.rejects(
 			clean.object({
 				fields: {
-					obj: clean.any({
-						clean() {
-							throw new ValidationError({ foo: "bang" })
-						},
-					}),
+					obj: () => {
+						throw new ValidationError({ foo: "bang" })
+					},
 				},
 			})({ obj: 1 }),
 			new ValidationError({ "obj.foo": ["bang"] })
@@ -210,11 +209,9 @@ t.test(
 				fields: {
 					obj1: clean.object({
 						fields: {
-							obj2: clean.any({
-								clean(obj) {
-									throw new ValidationError("bang")
-								},
-							}),
+							obj2: () => {
+								throw new ValidationError("bang")
+							},
 						},
 					}),
 				},
@@ -232,11 +229,9 @@ t.test(
 				fields: {
 					obj1: clean.object({
 						fields: {
-							obj2: clean.any({
-								clean(obj) {
-									throw new ValidationError({ foo: "bang" })
-								},
-							}),
+							obj2: () => {
+								throw new ValidationError({ foo: "bang" })
+							},
 						},
 					}),
 				},
@@ -248,13 +243,13 @@ t.test(
 
 t.test("use schema.nonFieldErrorsKey", async (t) => {
 	await t.rejects(
-		clean.object({
-			fields: {},
-			clean() {
-				throw new ValidationError("bang")
-			},
-			nonFieldErrorsKey: "other",
-		})({}),
+		clean
+			.object({
+				fields: {},
+			})
+			.clean(() => {
+				throw new ValidationError({ other: ["bang"] })
+			})({}),
 		new ValidationError({ other: ["bang"] })
 	)
 })
@@ -263,15 +258,10 @@ t.test("handle schema.nonFieldErrorsKey in nested field", async (t) => {
 	await t.rejects(
 		clean.object({
 			fields: {
-				obj: clean.object({
-					fields: {},
-					clean() {
-						throw new ValidationError("bang")
-					},
-					nonFieldErrorsKey: "other1",
-				}),
+				obj: () => {
+					throw new ValidationError({ other1: ["bang"] })
+				},
 			},
-			nonFieldErrorsKey: "other",
 		})({ obj: {} }),
 		new ValidationError({ "obj.other1": ["bang"] })
 	)
@@ -281,18 +271,19 @@ t.test("store non-grouped field errors", async (t) => {
 	const cleaner = clean.object({
 		fields: {
 			one: clean.any(),
-			two: clean.any({
-				label: "Zwei",
-				clean(value) {
-					if (value === "boom") {
-						throw new ValidationError("Boom is a wrong value for two!", {
-							label: null,
-						})
-					}
-					return value
-				},
+			two: clean.any().clean((value) => {
+				if (value === "boom") {
+					throw new ValidationError("Boom is a wrong value for two!", {
+						label: null,
+					})
+				}
+				return value
 			}),
-			three: clean.any({ label: null }),
+			three: clean.any(),
+		},
+		labels: {
+			two: "Zwei",
+			three: null,
 		},
 		groupErrors: false,
 	})
@@ -344,74 +335,29 @@ t.test("disable error grouping for nested cleaners", async (t) => {
 	)
 })
 
-t.test("flatten field error messages from custom cleaner", async (t) => {
-	await t.rejects(
-		clean.object({
-			groupErrors: false,
-			fields: {
-				foo: clean.any(),
-			},
-			clean() {
-				throw new ValidationError({ custom_field: "Boom" })
-			},
-		})({ foo: 1 }),
-		new ValidationError("Custom Field: Boom")
-	)
-})
-
-t.test(
-	"flatten field error messages from custom cleaner - reusing field labels",
-	async (t) => {
-		await t.rejects(
-			clean.object({
-				groupErrors: false,
-				fields: {
-					foo: clean.any({ label: "Moo" }),
-				},
-				clean() {
-					throw new ValidationError({ foo: "Boom" })
-				},
-			})({ foo: 1 }),
-			new ValidationError("Moo: Boom")
-		)
-	}
-)
-
-t.test(
-	"disable label when flatten field error messages from custom cleaner",
-	async (t) => {
-		await t.rejects(
-			clean.object({
-				groupErrors: false,
-				fields: {
-					foo: clean.any(),
-				},
-				clean() {
-					throw new ValidationError({ custom_field: "Boom" }, { label: null })
-				},
-			})({ foo: 1 }),
-			new ValidationError("Boom")
-		)
-	}
-)
-
 t.test("flatten field error messages from nested custom cleaner", async (t) => {
 	await t.rejects(
 		clean.object({
 			groupErrors: false,
 			fields: {
-				data: clean.object({
-					label: null,
-					fields: {
-						foo: clean.any(),
-					},
-					clean() {
-						throw new ValidationError({ custom_field: "Boom" })
-					},
-				}),
+				data: clean
+					.object({
+						fields: {
+							foo: clean.any(),
+						},
+					})
+					.clean(() => {
+						throw new ValidationError("Boom")
+					}),
+			},
+			// TODO: if labels are removed, the test will still pass
+			// although the error will be "Data: Boom" not "Boom"
+			// apparently tap.reject only looks for substring
+			labels: {
+				data: null,
 			},
 		})({ data: { foo: 1 } }),
-		new ValidationError("Custom Field: Boom")
+		new ValidationError("Boom")
 	)
 })
 
@@ -420,11 +366,9 @@ t.test("allow storing sibling keys from custom cleaner", async (t) => {
 		await clean.object({
 			fields: {
 				text: clean.string(),
-				postId: clean.integer({
-					clean(postId, opts) {
-						opts.data.post = { title: "post " + postId }
-						return postId
-					},
+				postId: clean.integer().clean((postId, ctx) => {
+					ctx.data.post = { title: "post " + postId }
+					return postId
 				}),
 			},
 		})({ text: "hello", postId: 123 }),
@@ -534,13 +478,8 @@ t.test("Parsing object keys", async (t) => {
 	})
 })
 
-t.test("saving schema", async (t) => {
-	const schema = { fields: {} }
-	t.equal(clean.object(schema).schema, schema)
-})
-
-t.test("clean.object.simple", async (t) => {
-	const cleaner = clean.object.fields({
+t.test("clean.objectFields", async (t) => {
+	const cleaner = clean.objectFields({
 		s1: clean.string(),
 		s2: clean.string(),
 		s3: clean.string(),

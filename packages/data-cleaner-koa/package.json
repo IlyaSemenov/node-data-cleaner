@@ -41,7 +41,7 @@
     "http-errors": "^2.0.0"
   },
   "peerDependencies": {
-    "data-cleaner": "^4.2.0"
+    "data-cleaner": "^5"
   },
   "devDependencies": {
     "@swc-node/register": "~1.5.4",

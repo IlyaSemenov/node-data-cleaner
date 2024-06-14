@@ -14,8 +14,8 @@ t.test("pass string matching regexp", async (t) => {
 })
 
 t.test("reject string not matching regexp", async (t) => {
-	t.throws(
-		() => clean.string({ regexp: /a\wc/ })("fanny"),
+	t.rejects(
+		clean.string({ regexp: /a\wc/ })("fanny"),
 		new ValidationError("Invalid value.")
 	)
 })
@@ -29,19 +29,19 @@ t.test("invalid regexp value", async (t) => {
 
 t.test("Empty values", async (t) => {
 	await t.test("reject undefined", async (t) => {
-		t.throws(() => clean.string()(), new ValidationError("Value required."))
+		t.rejects(clean.string()(), new ValidationError("Value required."))
 	})
 	await t.test("pass undefined if allowed", async (t) => {
 		t.equal(await clean.string({ required: false })(), undefined)
 	})
 	await t.test("reject null", async (t) => {
-		t.throws(() => clean.string()(null), new ValidationError("Value required."))
+		t.rejects(clean.string()(null), new ValidationError("Value required."))
 	})
 	await t.test("pass null if allowed", async (t) => {
 		t.equal(await clean.string({ null: true })(null), null)
 	})
 	await t.test("reject blank string", async (t) => {
-		t.throws(() => clean.string()(""), new ValidationError("Value required."))
+		t.rejects(clean.string()(""), new ValidationError("Value required."))
 	})
 	await t.test("pass blank string if allowed", async (t) => {
 		t.equal(await clean.string({ blank: true })(""), "")
@@ -76,7 +76,7 @@ t.test("Converting objects", async (t) => {
 	}
 	const test = new Test()
 	await t.test("reject object", async (t) => {
-		t.throws(() => clean.string()(test), new ValidationError("Invalid value."))
+		t.rejects(clean.string()(test), new ValidationError("Invalid value."))
 	})
 	await t.test("accept object if allowed", async (t) => {
 		t.equal(await clean.string({ cast: true })(test), "test")
@@ -85,10 +85,8 @@ t.test("Converting objects", async (t) => {
 
 t.test("call custom cleaner", async (t) => {
 	t.same(
-		await clean.string({
-			clean(s) {
-				return { string: s }
-			},
+		await clean.string().clean((s) => {
+			return { string: s }
 		})("test"),
 		{ string: "test" }
 	)
@@ -96,20 +94,13 @@ t.test("call custom cleaner", async (t) => {
 
 t.test("call custom async cleaner", async (t) => {
 	t.same(
-		await clean.string({
-			clean(s) {
-				return new Promise((resolve) => {
-					setTimeout(() => {
-						resolve({ string: s })
-					}, 1)
-				})
-			},
+		await clean.string().clean((s) => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					resolve({ string: s })
+				}, 1)
+			})
 		})("test"),
 		{ string: "test" }
 	)
-})
-
-t.test("saving schema", async (t) => {
-	const schema = {}
-	t.equal(clean.string(schema).schema, schema)
 })
