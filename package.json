@@ -1,5 +1,6 @@
 {
   "private": true,
+  "packageManager": "pnpm@7.33.5",
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint --fix '**/*.{js,ts}'"
