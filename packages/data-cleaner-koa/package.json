@@ -10,12 +10,14 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     },
     "./register": {
-      "require": "./dist/register.js",
-      "import": "./dist/register.mjs"
+      "types": "./dist/register.d.ts",
+      "import": "./dist/register.mjs",
+      "require": "./dist/register.js"
     }
   },
   "typesVersions": {
